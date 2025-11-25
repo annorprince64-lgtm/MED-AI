@@ -1,0 +1,135 @@
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from ai_service import ai_service
+import database
+import os
+import sys
+
+# Force UTF-8 encoding for stdout to handle Twi characters
+if sys.platform == 'win32':
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
+app = Flask(__name__)
+# Enable CORS for all origins (you can restrict this in production)
+CORS(app)  # Allow all origins to support file:// access
+
+@app.route('/')
+def home():
+    return jsonify({
+        "message": "Grok AI Backend is running!",
+        "status": "active",
+        "endpoints": {
+            "analyze": "/api/analyze (POST)",
+            "register": "/api/register (POST)",
+            "login": "/api/login (POST)"
+        }
+    })
+
+# Authentication Endpoints
+@app.route('/api/register', methods=['POST'])
+def register():
+    """Register a new user"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'username' not in data or 'email' not in data or 'password' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing required fields (username, email, password)"
+            }), 400
+        
+        result = database.create_user(data['username'], data['email'], data['password'])
+        
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Registration successful!",
+                "user": result['user']
+            }), 201
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    """Login a user"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'email' not in data or 'password' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing email or password"
+            }), 400
+        
+        result = database.verify_user(data['email'], data['password'])
+        
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Login successful!",
+                "user": result['user']
+            }), 200
+        else:
+            return jsonify(result), 401
+            
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+# Existing AI Endpoint (unchanged)
+@app.route('/api/analyze', methods=['POST'])
+def analyze_text():
+    print("--- Incoming Request to /api/analyze ---")
+    try:
+        data = request.get_json()
+        print(f"Request received with {len(data.get('text', ''))} characters")
+        
+        if not data or 'text' not in data:
+            print("Error: Missing 'text' in request body")
+            return jsonify({
+                "error": "Missing 'text' in request body",
+                "translation": "Invalid request",
+                "response": "Please provide text to analyze",
+                "is_medical": False
+            }), 400
+        
+        text = data['text']
+        print(f"Processing text (length: {len(text)})")
+        
+        # Use your AIService to process the text
+        result = ai_service.analyze_text(text)
+        
+        print(f"Analysis complete, returning result")
+        return jsonify(result)
+        
+    except Exception as e:
+        import traceback
+        print(f"CRITICAL ERROR in analyze_text")
+        print(traceback.format_exc())
+        return jsonify({
+            "error": str(e),
+            "translation": "Server error",
+            "response": "An error occurred while processing your request",
+            "is_medical": False,
+            "details": str(e)
+        }), 500
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy", "service": "Grok AI Backend"})
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    print(f"Starting Grok AI Backend on port {port}...")
+    print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
+    app.run(debug=True, host='0.0.0.0', port=port)
