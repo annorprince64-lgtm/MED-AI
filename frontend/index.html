@@ -939,7 +939,8 @@
 
     <script>
         // Backend API Configuration
-        const BACKEND_URL = 'http://127.0.0.1:5000/api/analyze';
+       const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
+const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
 
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
@@ -1562,41 +1563,52 @@
             }
         }
 
-        function registerUser(name, email, password) {
-            console.log('[AUTH] Registration attempt for:', email);
-            const storedUsers = JSON.parse(localStorage.getItem('medAI_users') || '{}');
-
-            // Check if user already exists
-            if (storedUsers[email]) {
-                alert("An account with this email already exists. Please login instead.");
-                return;
-            }
-
-            // Create pending user (not saved to localStorage yet)
-            pendingUser = {
-                id: 'user_' + Date.now(),
-                name: name,
+      async function registerUser(name, email, password) {
+    console.log('[AUTH] Registration attempt for:', email);
+    
+    try {
+        const response = await fetch(`${AUTH_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: name,
                 email: email,
-                password: hashPassword(password)
-            };
+                password: password
+            })
+        });
 
-            console.log('[AUTH] Created pending user:', pendingUser.id);
-
-            // Generate and send verification code
-            verificationCode = generateVerificationCode();
-            const emailSent = sendVerificationEmail(email, verificationCode);
-
-            if (emailSent) {
-                // Hide register modal, show verification modal
-                registerModal.style.display = 'none';
-                verificationModal.style.display = 'flex';
-
-                setupAutoVerify();
-
-                statusIndicator.textContent = 'Verification email sent! Check your inbox.';
-            }  // ← This closes the IF statement
-
-        }     // ← MISSING: You need to close the registerUser function here!
+        const result = await response.json();
+        
+        if (result.success) {
+            console.log('[AUTH] Registration successful');
+            
+            // Set current user
+            currentUser = result.user;
+            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+            
+            // Extract surname for display
+            const nameParts = currentUser.username.trim().split(' ');
+            const surname = nameParts[nameParts.length - 1];
+            userName.textContent = surname;
+            
+            // Initialize user chat history
+            loadUserChatHistory(currentUser.id);
+            
+            registerModal.style.display = 'none';
+            statusIndicator.textContent = `Welcome to MED AI, ${surname}!`;
+            
+            // Clear form
+            document.getElementById('registerForm').reset();
+        } else {
+            alert(result.error || 'Registration failed');
+        }
+    } catch (error) {
+        console.error('[AUTH] Registration error:', error);
+        alert('Registration failed. Please try again.');
+    }
+}   // ← MISSING: You need to close the registerUser function here!
 
         function logoutUser() {
             console.log('[AUTH] Logging out user:', currentUser?.email);
