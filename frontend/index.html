@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MED AI - Medical Assistant</title>
-     <link rel="shortcut icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
+    <link rel="shortcut icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
-    
+
     <!-- For Apple Devices -->
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
@@ -943,8 +943,8 @@
 
     <script>
         // Backend API Configuration
-       const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
-const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
+        const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
+        const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
 
         // DOM Elements
         const sidebar = document.getElementById('sidebar');
@@ -1527,92 +1527,62 @@ const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
                     const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
                     chatHistoryData[currentChatId].title = shortMessage;
                     renderChatHistory();
+                    // Update chat title with first user message
+                    if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
+                        const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+                        chatHistoryData[currentChatId].title = shortMessage;
+                        renderChatHistory();
+                    }
                 }
-
-                saveChatHistory();
-            }
-
-            return messageDiv;
-        }
-
-        // Authentication functions
-        function loginUser(email, password) {
-            console.log('[AUTH] Login attempt for:', email);
-            const storedUsers = JSON.parse(localStorage.getItem('medAI_users') || '{}');
-            const userData = storedUsers[email];
-
-            if (userData && validatePassword(password, userData.password)) {
-                console.log('[AUTH] Login successful');
-                currentUser = userData;
-
-                // Extract surname for display
-                const nameParts = currentUser.name.trim().split(' ');
-                const surname = nameParts[nameParts.length - 1];
-
-                // Save user session
-                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-                userName.textContent = surname;
-
-                // Load user's chat history
-                loadUserChatHistory(currentUser.id);
-
-                loginModal.style.display = 'none';
-                statusIndicator.textContent = `Welcome back, ${surname}!`;
-
-                // Clear form
-                document.getElementById('loginForm').reset();
-            } else {
-                console.log('[AUTH] Login failed');
-                alert("Invalid email or password. Please try again.");
             }
         }
 
-      async function registerUser(name, email, password) {
-    console.log('[AUTH] Registration attempt for:', email);
-    
-    try {
-        const response = await fetch(`${AUTH_URL}/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: name,
-                email: email,
-                password: password
-            })
-        });
+        async function registerUser(name, email, password) {
+            console.log('[AUTH] Registration attempt for:', email);
 
-        const result = await response.json();
-        
-        if (result.success) {
-            console.log('[AUTH] Registration successful');
-            
-            // Set current user
-            currentUser = result.user;
-            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-            
-            // Extract surname for display
-            const nameParts = currentUser.username.trim().split(' ');
-            const surname = nameParts[nameParts.length - 1];
-            userName.textContent = surname;
-            
-            // Initialize user chat history
-            loadUserChatHistory(currentUser.id);
-            
-            registerModal.style.display = 'none';
-            statusIndicator.textContent = `Welcome to MED AI, ${surname}!`;
-            
-            // Clear form
-            document.getElementById('registerForm').reset();
-        } else {
-            alert(result.error || 'Registration failed');
+            try {
+                const response = await fetch(`${AUTH_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: name,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    console.log('[AUTH] Registration successful');
+
+                    // Set current user
+                    currentUser = result.user;
+                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+
+                    // Extract surname for display
+                    const nameParts = currentUser.username.trim().split(' ');
+                    const surname = nameParts[nameParts.length - 1];
+                    userName.textContent = surname;
+
+                    // Initialize user chat history
+                    loadUserChatHistory(currentUser.id);
+
+                    registerModal.style.display = 'none';
+                    statusIndicator.textContent = `Welcome to MED AI, ${surname}!`;
+
+                    // Clear form
+                    document.getElementById('registerForm').reset();
+                } else {
+                    alert(result.error || 'Registration failed');
+                }
+            } catch (error) {
+                console.error('[AUTH] Registration error:', error);
+                alert('Registration failed. Please try again.');
+            }
         }
-    } catch (error) {
-        console.error('[AUTH] Registration error:', error);
-        alert('Registration failed. Please try again.');
-    }
-}   // ← MISSING: You need to close the registerUser function here!
 
         function logoutUser() {
             console.log('[AUTH] Logging out user:', currentUser?.email);
@@ -2112,5 +2082,3 @@ Error details: ${error.message}`;
 </body>
 
 </html>
-
-
