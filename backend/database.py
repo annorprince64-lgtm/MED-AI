@@ -1,4 +1,5 @@
 import sqlite3
+import sqlite3
 import os
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
@@ -7,27 +8,30 @@ DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'users.db')
 
 def init_db():
     """Initialize the database with users table"""
-    conn = sqlite3.connect(DATABASE_PATH)
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    conn.commit()
-    conn.close()
-    print("Database initialized successfully")
+    try:
+        conn = sqlite3.connect(DATABASE_PATH, timeout=30)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE NOT NULL,
+                password_hash TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        conn.commit()
+        conn.close()
+        print("Database initialized successfully")
+    except Exception as e:
+        print(f"Database initialization error: {e}")
 
 def create_user(username, email, password):
     """Create a new user"""
     try:
-        conn = sqlite3.connect(DATABASE_PATH)
+        conn = sqlite3.connect(DATABASE_PATH, timeout=30)
         cursor = conn.cursor()
         
         # Hash the password
@@ -63,7 +67,7 @@ def create_user(username, email, password):
 def verify_user(email, password):
     """Verify user credentials"""
     try:
-        conn = sqlite3.connect(DATABASE_PATH)
+        conn = sqlite3.connect(DATABASE_PATH, timeout=30)
         cursor = conn.cursor()
         
         cursor.execute(
@@ -91,7 +95,7 @@ def verify_user(email, password):
 def get_user_by_id(user_id):
     """Get user by ID"""
     try:
-        conn = sqlite3.connect(DATABASE_PATH)
+        conn = sqlite3.connect(DATABASE_PATH, timeout=30)
         cursor = conn.cursor()
         
         cursor.execute(
@@ -113,5 +117,6 @@ def get_user_by_id(user_id):
         print(f"Error getting user: {e}")
         return None
 
-# Initialize database when module is imported
-init_db()
+# Initialize database only if run directly or explicitly called
+if __name__ == '__main__':
+    init_db()
