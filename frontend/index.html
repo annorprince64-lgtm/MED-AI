@@ -1144,6 +1144,8 @@ async function sendVerificationEmail(email, code) {
                     icon.className = 'fas fa-volume-mute';
                 }
             }
+             // Initialize email verification ← ADD THIS LINE
+    setupAutoVerify();
             console.log('[APP] Initializing application...');
 
             // Check if user is already logged in
@@ -2200,6 +2202,7 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
 
 
 
