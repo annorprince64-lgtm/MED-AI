@@ -1594,6 +1594,51 @@
                 alert('Registration failed. Please try again.');
             }
         }
+                async function loginUser(email, password) {
+            console.log('[AUTH] Login attempt for:', email);
+            
+            try {
+                const response = await fetch(`${AUTH_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    console.log('[AUTH] Login successful');
+                    currentUser = result.user;
+
+                    // Save user session
+                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+                    
+                    // Extract surname for display
+                    const nameParts = currentUser.username.trim().split(' ');
+                    const surname = nameParts[nameParts.length - 1];
+                    userName.textContent = surname;
+
+                    // Load user's chat history
+                    loadUserChatHistory(currentUser.id);
+
+                    loginModal.style.display = 'none';
+                    statusIndicator.textContent = `Welcome back, ${surname}!`;
+
+                    // Clear form
+                    document.getElementById('loginForm').reset();
+                } else {
+                    alert(result.error || "Invalid email or password. Please try again.");
+                }
+            } catch (error) {
+                console.error('[AUTH] Login error:', error);
+                alert("Login failed. Please check your connection and try again.");
+            }
+        }
 
         function logoutUser() {
             console.log('[AUTH] Logging out user:', currentUser?.email);
@@ -2093,3 +2138,4 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
