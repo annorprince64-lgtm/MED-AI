@@ -1121,7 +1121,8 @@ async function sendVerificationEmail(email, code) {
                 console.log('[APP] User found in localStorage:', currentUser);
 
                 // Extract surname for display
-                const nameParts = currentUser.name.trim().split(' ');
+               const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
+const nameParts = nameProperty.trim().split(' ');
                 const surname = nameParts[nameParts.length - 1];
                 userName.textContent = surname;
 
@@ -2189,6 +2190,7 @@ function generateChatId() {
 </body>
 
 </html>
+
 
 
 
