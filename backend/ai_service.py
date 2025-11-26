@@ -19,13 +19,13 @@ class AIService:
         Translates Twi text to English and provides helpful responses on ANY topic.
         """
         if not self.api_key:
-        print("❌ ERROR: GROQ_API_KEY not configured")
-        return {
-            "response": "AI service is not configured properly. Please check the GROQ API key.",
-            "is_medical": False,
-            "drug_recommendation": None,
-            "disclaimer": None,
-            "translation": None
+          print("❌ ERROR: GROQ_API_KEY not configured")
+             return {
+              "response": "AI service is not configured properly. Please check the GROQ API key.",
+              "is_medical": False,
+              "drug_recommendation": None,
+              "disclaimer": None,
+              "translation": None
         }
         prompt = f"""You are a helpful bilingual AI assistant (Twi <-> English) that can discuss ANY topic.
 
@@ -81,5 +81,6 @@ Respond ONLY with valid JSON, no other text."""
             }
 
 ai_service = AIService()
+
 
 
