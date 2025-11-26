@@ -1582,6 +1582,63 @@ async function registerUser(name, email, password) {
         alert('Registration failed. Please try again.');
     }
 }
+        async function completeRegistration() {
+    if (!pendingUser) return;
+
+    console.log('[REGISTRATION] Completing registration for:', pendingUser.email);
+
+    try {
+        const response = await fetch(`${AUTH_URL}/register`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: pendingUser.name,
+                email: pendingUser.email,
+                password: pendingUser.password
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            console.log('[AUTH] Registration successful');
+
+            // Set current user
+            currentUser = result.user;
+            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+
+            // Extract surname for display
+            const nameParts = currentUser.username.trim().split(' ');
+            const surname = nameParts[nameParts.length - 1];
+            userName.textContent = surname;
+
+            // Initialize user chat history
+            loadUserChatHistory(currentUser.id);
+
+            verificationModal.style.display = 'none';
+            statusIndicator.textContent = `Welcome to MED AI, ${surname}!`;
+
+            // Clear form
+            document.getElementById('registerForm').reset();
+
+            // Reset verification state
+            pendingUser = null;
+            verificationCode = '';
+        } else {
+            alert(result.error || 'Registration failed after verification.');
+            // Reset and show register modal again
+            verificationModal.style.display = 'none';
+            registerModal.style.display = 'flex';
+        }
+    } catch (error) {
+        console.error('[AUTH] Final registration error:', error);
+        alert('Registration failed after verification. Please try again.');
+        verificationModal.style.display = 'none';
+        registerModal.style.display = 'flex';
+    }
+}
        
                 async function loginUser(email, password) {
             console.log('[AUTH] Login attempt for:', email);
@@ -2143,6 +2200,7 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
 
 
 
