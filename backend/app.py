@@ -18,7 +18,7 @@ CORS(app)  # Allow all origins to support file:// access
 @app.route('/')
 def home():
     return jsonify({
-        "message": "Grok AI Backend is running!",
+        "message": "MED AI Backend is running!",
         "status": "active",
         "endpoints": {
             "analyze": "/api/analyze (POST)",
@@ -154,7 +154,7 @@ def analyze_text():
         
     except Exception as e:
         import traceback
-        print(f"CRITICAL ERROR in analyze_text")
+        print(f"An error occured when processing")
         print(traceback.format_exc())
         return jsonify({
             "error": str(e),
@@ -166,12 +166,13 @@ def analyze_text():
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "healthy", "service": "Grok AI Backend"})
+    return jsonify({"status": "healthy", "service": "MED AI Backend"})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
 
