@@ -932,14 +932,24 @@
                 <div id="verificationError" style="display: none; text-align: center; color: #ef4444; margin: 10px 0;">
                     Invalid code. Please try again.
                 </div>
-
                 <div id="verificationSuccess"
                     style="display: none; text-align: center; color: var(--primary-color); margin: 10px 0;">
-                    ✓ Email verified successfully!
+                    ✓ Code verified!
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <script type="text/javascript">
+        (function () {
+            // Initialize EmailJS with your public key
+            emailjs.init("lTUvDRylLKuYhqt9o");
+        })();
+    </script>
+
 
     <script>
         // Backend API Configuration
