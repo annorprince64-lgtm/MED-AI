@@ -2193,14 +2193,19 @@ function generateChatId() {
         });
 
         // Close modals when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target === loginModal) loginModal.style.display = 'none';
-            if (e.target === registerModal) registerModal.style.display = 'none';
-            if (e.target === profileModal) profileModal.style.display = 'none';
-            if (e.target === privacyModal) privacyModal.style.display = 'none';
-            if (e.target === contactModal) contactModal.style.display = 'none';
-            if (e.target === aboutModal) aboutModal.style.display = 'none';
-        });
+       window.addEventListener('click', (e) => {
+    if (e.target === loginModal) loginModal.style.display = 'none';
+    if (e.target === registerModal) registerModal.style.display = 'none';
+    if (e.target === profileModal) profileModal.style.display = 'none';
+    if (e.target === privacyModal) privacyModal.style.display = 'none';
+    if (e.target === contactModal) contactModal.style.display = 'none';
+    if (e.target === aboutModal) aboutModal.style.display = 'none';
+    if (e.target === verificationModal) {
+        verificationModal.style.display = 'none';
+        registerModal.style.display = 'flex'; // Go back to register
+        pendingUser = null; // Reset
+    }
+});
 
         // Initialize the application
         initializeApp();
@@ -2211,6 +2216,7 @@ function generateChatId() {
 </body>
 
 </html>
+
 
 
 
