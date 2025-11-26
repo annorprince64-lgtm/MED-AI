@@ -1642,56 +1642,56 @@ async function registerUser(name, email, password) {
     }
 }
        
-                async function loginUser(email, password) {
-            console.log('[AUTH] Login attempt for:', email);
-            
-            try {
-                const response = await fetch(`${AUTH_URL}/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
-                });
-
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-    console.log('[AUTH] Login successful');
-    currentUser = result.user;
-
-    // Debug: Check user object structure
-    console.log('[AUTH] User object:', currentUser);
-    console.log('[AUTH] Available properties:', Object.keys(currentUser));
-
-    // Save user session
-    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+               async function loginUser(email, password) {
+    console.log('[AUTH] Login attempt for:', email);
     
-    // Extract surname for display - use the correct property name
-    const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
-    const nameParts = nameProperty.trim().split(' ');
-    const surname = nameParts[nameParts.length - 1];
-    userName.textContent = surname;
+    try {
+        const response = await fetch(`${AUTH_URL}/login`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                email: email,
+                password: password
+            })
+        });
 
-    // Load user's chat history
-    loadUserChatHistory(currentUser.id);
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            console.log('[AUTH] Login successful');
+            currentUser = result.user;
 
-    loginModal.style.display = 'none';
-    statusIndicator.textContent = `Welcome back, ${surname}!`;
+            // Debug: Check user object structure
+            console.log('[AUTH] User object:', currentUser);
+            console.log('[AUTH] Available properties:', Object.keys(currentUser));
 
-    // Clear form
-    document.getElementById('loginForm').reset();
-} else {
+            // Save user session
+            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+            
+            // Extract surname for display - use the correct property name
+            const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
+            const nameParts = nameProperty.trim().split(' ');
+            const surname = nameParts[nameParts.length - 1];
+            userName.textContent = surname;
+
+            // Load user's chat history
+            loadUserChatHistory(currentUser.id);
+
+            loginModal.style.display = 'none';
+            statusIndicator.textContent = `Welcome back, ${surname}!`;
+
+            // Clear form
+            document.getElementById('loginForm').reset();
+        } else {
             alert(result.error || "Invalid email or password. Please try again.");
         }
     } catch (error) {
         console.error('[AUTH] Login error:', error);
         alert("Login failed. Please check your connection and try again.");
     }
-} // ← This closing brace is missing
+}
 
         function logoutUser() {
             console.log('[AUTH] Logging out user:', currentUser?.email);
@@ -2222,6 +2222,7 @@ function generateChatId() {
 </body>
 
 </html>
+
 
 
 
