@@ -163,6 +163,31 @@ def analyze_text():
             "is_medical": False,
             "details": str(e)
         }), 500
+@app.route('/api/chats/save', methods=['POST'])
+def save_chat():
+    """Save chat to cloud database"""
+    try:
+        data = request.get_json()
+        user_id = data['user_id']
+        chat_data = data['chat_data']
+        
+        # Save to database
+        result = database.save_user_chat(user_id, chat_data)
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
+
+@app.route('/api/chats/load', methods=['GET'])
+def load_chats():
+    """Load user chats from cloud"""
+    try:
+        user_id = request.args.get('user_id')
+        chats = database.get_user_chats(user_id)
+        return jsonify({"success": True, "chats": chats})
+        
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)})
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -173,6 +198,7 @@ if __name__ == '__main__':
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
 
 
