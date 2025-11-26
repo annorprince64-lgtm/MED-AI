@@ -1578,7 +1578,8 @@ async function registerUser(name, email, password) {
             localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
 
             // Extract surname for display
-            const nameParts = currentUser.username.trim().split(' ');
+           const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
+const nameParts = nameProperty.trim().split(' ');
             const surname = nameParts[nameParts.length - 1];
             userName.textContent = surname;
 
@@ -2188,6 +2189,7 @@ function generateChatId() {
 </body>
 
 </html>
+
 
 
 
