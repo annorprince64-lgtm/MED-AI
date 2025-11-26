@@ -951,456 +951,496 @@
     </script>
 
 
-    <script>
-        // Backend API Configuration
-        const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
-        const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
+   <script>
+    // Backend API Configuration
+    const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
+    const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
 
-        // DOM Elements
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const newChatBtn = document.getElementById('newChatBtn');
-        const chatContainer = document.getElementById('chatContainer');
-        const chatHistory = document.getElementById('chatHistory');
-        const textInput = document.getElementById('textInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const voiceBtn = document.getElementById('voiceBtn');
-        const languageSelect = document.getElementById('languageSelect');
-        const clearChatBtn = document.getElementById('clearChatBtn');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsMenu = document.getElementById('settingsMenu');
-        const userProfile = document.getElementById('userProfile');
-        const userName = document.getElementById('userName');
+    // DOM Elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const chatContainer = document.getElementById('chatContainer');
+    const chatHistory = document.getElementById('chatHistory');
+    const textInput = document.getElementById('textInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const voiceBtn = document.getElementById('voiceBtn');
+    const languageSelect = document.getElementById('languageSelect');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const userProfile = document.getElementById('userProfile');
+    const userName = document.getElementById('userName');
 
-        // Modal elements
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        const profileModal = document.getElementById('profileModal');
-        const privacyModal = document.getElementById('privacyModal');
-        const contactModal = document.getElementById('contactModal');
-        const aboutModal = document.getElementById('aboutModal');
-        const verificationModal = document.getElementById('verificationModal');
+    // Modal elements
+    const loginModal = document.getElementById('loginModal');
+    const registerModal = document.getElementById('registerModal');
+    const profileModal = document.getElementById('profileModal');
+    const privacyModal = document.getElementById('privacyModal');
+    const contactModal = document.getElementById('contactModal');
+    const aboutModal = document.getElementById('aboutModal');
+    const verificationModal = document.getElementById('verificationModal');
 
-        // Email Verification State
-        let verificationCode = '';
-        let pendingUser = null;
+    // Email Verification State
+    let verificationCode = '';
+    let pendingUser = null;
 
-        // Application State
-        let currentUser = null;
-        let currentChatId = generateChatId();
-        let chatHistoryData = {};
-        let isListening = false;
-        let recognition;
-        let audioEnabled = true; // Audio responses enabled by default
+    // Application State
+    let currentUser = null;
+    let currentChatId = generateChatId();
+    let chatHistoryData = {};
+    let isListening = false;
+    let recognition;
+    let audioEnabled = true;
 
-        // Password hashing function (simple version for demo)
-        function hashPassword(password) {
-            // In a real application, use a proper hashing library like bcrypt
-            // This is a simple base64 encoding for demonstration only
-            return btoa(unescape(encodeURIComponent(password)));
-        }
+    // Password hashing function
+    function hashPassword(password) {
+        return btoa(unescape(encodeURIComponent(password)));
+    }
 
-        // Validate password
-        function validatePassword(inputPassword, storedPassword) {
-            return hashPassword(inputPassword) === storedPassword;
-        }
+    // Validate password
+    function validatePassword(inputPassword, storedPassword) {
+        return hashPassword(inputPassword) === storedPassword;
+    }
 
-        // ============================================
-        // EMAIL VERIFICATION FUNCTIONS
-        // ============================================
+    // ============================================
+    // EMAIL VERIFICATION FUNCTIONS
+    // ============================================
 
-// Send verification email using EmailJS - CORRECTED VERSION
-async function sendVerificationEmail(email, code) {
-    console.log(`[EMAIL] Sending verification email to: ${email} with code: ${code}`);
+    async function sendVerificationEmail(email, code) {
+        console.log(`[EMAIL] Sending verification email to: ${email} with code: ${code}`);
+        return new Promise((resolve) => {
+            emailjs.send('service_zjhyid5', 'template_vha29yp', {
+                to_email: email,
+                verification_code: code,
+            }).then(
+                function (response) {
+                    console.log('[EMAIL] Email sent successfully:', response.status, response.text);
+                    resolve(true);
+                },
+                function (error) {
+                    console.error('[EMAIL] Failed to send email:', error);
+                    alert('Failed to send verification email. Please check your email address and try again.');
+                    resolve(false);
+                }
+            );
+        });
+    }
 
-    return new Promise((resolve) => {
-        emailjs.send('service_zjhyid5', 'template_vha29yp', {
-            to_email: email,
-            verification_code: code,
-        }).then(
-            function (response) {
-                console.log('[EMAIL] Email sent successfully:', response.status, response.text);
-                resolve(true);
-            },
-            function (error) {
-                console.error('[EMAIL] Failed to send email:', error);
-                alert('Failed to send verification email. Please check your email address and try again.');
-                resolve(false);
+    function generateVerificationCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    function setupAutoVerify() {
+        const input = document.getElementById('verificationCodeInput');
+        const errorDiv = document.getElementById('verificationError');
+        const successDiv = document.getElementById('verificationSuccess');
+
+        if (!input) return;
+
+        input.addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            if (this.value.length === 6) {
+                const enteredCode = this.value;
+
+                if (enteredCode === verificationCode) {
+                    errorDiv.style.display = 'none';
+                    successDiv.style.display = 'block';
+                    input.disabled = true;
+                    input.style.borderColor = 'var(--primary-color)';
+
+                    setTimeout(() => {
+                        completeRegistration();
+                    }, 1000);
+                } else {
+                    successDiv.style.display = 'none';
+                    errorDiv.style.display = 'block';
+                    input.value = '';
+                    input.focus();
+                }
             }
-        );
-    });
-}
-        // Generate random 6-digit verification code
-        function generateVerificationCode() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
+        });
+    }
+
+    // Toggle audio responses
+    function toggleAudioResponses() {
+        audioEnabled = !audioEnabled;
+        const btn = document.getElementById('audioToggleBtn');
+        const icon = document.getElementById('audioToggleIcon');
+
+        if (audioEnabled) {
+            btn.classList.remove('audio-disabled');
+            icon.className = 'fas fa-volume-up';
+            statusIndicator.textContent = 'Audio responses enabled';
+        } else {
+            btn.classList.add('audio-disabled');
+            icon.className = 'fas fa-volume-mute';
+            statusIndicator.textContent = 'Audio responses disabled';
         }
-        // Auto-verify when 6 digits entered
-        function setupAutoVerify() {
+
+        localStorage.setItem('medAI_audioEnabled', audioEnabled);
+        setTimeout(() => {
+            statusIndicator.textContent = 'Ready to chat';
+        }, 2000);
+    }
+
+    // ============================================
+    // AUTHENTICATION FUNCTIONS
+    // ============================================
+
+    function updateUserDisplay() {
+        if (!currentUser) {
+            userName.textContent = 'Guest User';
+            return;
+        }
+
+        console.log('[USER] Current user object:', currentUser);
+        console.log('[USER] Available properties:', Object.keys(currentUser));
+
+        const nameProperty = currentUser.name || currentUser.username || currentUser.fullName || 'User';
+        console.log('[USER] Using name property:', nameProperty);
+
+        const nameParts = nameProperty.toString().trim().split(' ');
+        const surname = nameParts[nameParts.length - 1];
+        userName.textContent = surname || 'User';
+        
+        console.log('[USER] Display name set to:', userName.textContent);
+    }
+
+    async function loginUser(email, password) {
+        console.log('[AUTH] Login attempt for:', email);
+        
+        const loginBtn = document.querySelector('#loginForm .btn-primary');
+        const originalText = loginBtn.textContent;
+        
+        try {
+            // Show loading state
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            loginBtn.disabled = true;
+
+            const response = await fetch(`${AUTH_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                console.log('[AUTH] Login successful');
+                currentUser = result.user;
+                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+                
+                updateUserDisplay();
+                loadUserChatHistory(currentUser.id);
+
+                // Show success feedback
+                loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
+                loginBtn.style.backgroundColor = '#10a37f';
+                
+                setTimeout(() => {
+                    loginModal.style.display = 'none';
+                    statusIndicator.textContent = `Welcome back, ${userName.textContent}!`;
+                    // Reset button
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                    loginBtn.style.backgroundColor = '';
+                    document.getElementById('loginForm').reset();
+                }, 1000);
+
+            } else {
+                throw new Error(result.error || "Invalid email or password");
+            }
+        } catch (error) {
+            console.error('[AUTH] Login error:', error);
+            
+            // Show error feedback
+            loginBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            loginBtn.style.backgroundColor = '#ef4444';
+            
+            setTimeout(() => {
+                alert(error.message || "Login failed. Please check your connection and try again.");
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+                loginBtn.style.backgroundColor = '';
+            }, 1000);
+        }
+    }
+
+    async function registerUser(name, email, password) {
+        console.log('[AUTH] Registration attempt for:', email);
+
+        const registerBtn = document.querySelector('#registerForm .btn-primary');
+        const originalText = registerBtn.textContent;
+
+        try {
+            // Show loading state
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            registerBtn.disabled = true;
+
+            // Generate verification code
+            verificationCode = generateVerificationCode();
+            console.log('[AUTH] Generated verification code:', verificationCode);
+
+            // Send verification email
+            const emailSent = await sendVerificationEmail(email, verificationCode);
+            
+            if (!emailSent) {
+                throw new Error('Failed to send verification email');
+            }
+
+            // Store pending user data
+            pendingUser = { name, email, password };
+
+            // Show verification modal
+            registerModal.style.display = 'none';
+            verificationModal.style.display = 'flex';
+            
+            // Reset verification input
             const input = document.getElementById('verificationCodeInput');
             const errorDiv = document.getElementById('verificationError');
             const successDiv = document.getElementById('verificationSuccess');
+            
+            input.value = '';
+            input.disabled = false;
+            input.style.borderColor = '';
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            input.focus();
 
-            if (!input) return;
+            // Reset register button
+            registerBtn.textContent = originalText;
+            registerBtn.disabled = false;
 
-            input.addEventListener('input', function (e) {
-                // Only allow numbers
-                this.value = this.value.replace(/[^0-9]/g, '');
-
-                // Auto-verify when 6 digits entered
-                if (this.value.length === 6) {
-                    const enteredCode = this.value;
-
-                    if (enteredCode === verificationCode) {
-                        // ✓ Success
-                        errorDiv.style.display = 'none';
-                        successDiv.style.display = 'block';
-                        input.disabled = true;
-                        input.style.borderColor = 'var(--primary-color)';
-
-                        // Complete registration after delay
-                        setTimeout(() => {
-                            completeRegistration();
-                        }, 1000);
-                    } else {
-                        // ✗ Wrong code
-                        successDiv.style.display = 'none';
-                        errorDiv.style.display = 'block';
-                        input.value = '';
-                        input.focus();
-                    }
-                }
-            });
+        } catch (error) {
+            console.error('[AUTH] Registration error:', error);
+            
+            // Show error feedback
+            registerBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            registerBtn.style.backgroundColor = '#ef4444';
+            
+            setTimeout(() => {
+                alert(error.message || 'Registration failed. Please try again.');
+                registerBtn.textContent = originalText;
+                registerBtn.disabled = false;
+                registerBtn.style.backgroundColor = '';
+            }, 1000);
         }
-        // Toggle audio responses
-        function toggleAudioResponses() {
-            audioEnabled = !audioEnabled;
+    }
+
+    async function completeRegistration() {
+        if (!pendingUser) return;
+
+        console.log('[REGISTRATION] Completing registration for:', pendingUser.email);
+
+        try {
+            const response = await fetch(`${AUTH_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    username: pendingUser.name,
+                    email: pendingUser.email,
+                    password: pendingUser.password
+                })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                console.log('[AUTH] Registration successful');
+                currentUser = result.user;
+                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+
+                updateUserDisplay();
+                loadUserChatHistory(currentUser.id);
+
+                verificationModal.style.display = 'none';
+                statusIndicator.textContent = `Welcome to MED AI, ${userName.textContent}!`;
+
+                document.getElementById('registerForm').reset();
+                pendingUser = null;
+                verificationCode = '';
+            } else {
+                throw new Error(result.error || 'Registration failed after verification.');
+            }
+        } catch (error) {
+            console.error('[AUTH] Final registration error:', error);
+            alert('Registration failed after verification. Please try again.');
+            verificationModal.style.display = 'none';
+            registerModal.style.display = 'flex';
+        }
+    }
+
+    async function updateUserProfile(name, email, currentPassword, newPassword) {
+        if (!currentUser) {
+            alert("Please login first");
+            return;
+        }
+
+        const updateBtn = document.getElementById('updateProfileBtn');
+        const originalText = updateBtn.textContent;
+
+        try {
+            // Show loading state
+            updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            updateBtn.disabled = true;
+
+            // Prepare update data
+            const updateData = {
+                name: name,
+                email: email,
+                currentPassword: currentPassword
+            };
+
+            if (newPassword) {
+                updateData.newPassword = newPassword;
+            }
+
+            const response = await fetch(`${AUTH_URL}/update-profile`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                console.log('[PROFILE] Update successful');
+                currentUser = result.user;
+                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+
+                updateUserDisplay();
+
+                // Show success feedback
+                updateBtn.innerHTML = '<i class="fas fa-check"></i> Updated!';
+                updateBtn.style.backgroundColor = '#10a37f';
+                
+                setTimeout(() => {
+                    profileModal.style.display = 'none';
+                    statusIndicator.textContent = "Profile updated successfully";
+                    
+                    // Reset button and form
+                    updateBtn.textContent = originalText;
+                    updateBtn.disabled = false;
+                    updateBtn.style.backgroundColor = '';
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmNewPassword').value = '';
+                }, 1000);
+
+            } else {
+                throw new Error(result.error || "Profile update failed");
+            }
+        } catch (error) {
+            console.error('[PROFILE] Update error:', error);
+            
+            // Show error feedback
+            updateBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            updateBtn.style.backgroundColor = '#ef4444';
+            
+            setTimeout(() => {
+                alert(error.message || "Profile update failed. Please try again.");
+                updateBtn.textContent = originalText;
+                updateBtn.disabled = false;
+                updateBtn.style.backgroundColor = '';
+            }, 1000);
+        }
+    }
+
+    function logoutUser() {
+        console.log('[AUTH] Logging out user:', currentUser?.email);
+
+        if (confirm("Are you sure you want to logout? Your chat history will be saved.")) {
+            if (currentUser) {
+                saveChatHistory();
+            }
+
+            currentUser = null;
+            localStorage.removeItem('medAI_currentUser');
+
+            loadGuestData();
+            updateUserDisplay();
+            statusIndicator.textContent = "You have been logged out";
+
+            setTimeout(() => {
+                loginModal.style.display = 'flex';
+            }, 500);
+        }
+    }
+
+    // ============================================
+    // INITIALIZATION & CORE FUNCTIONS
+    // ============================================
+
+    function generateChatId() {
+        return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function initializeApp() {
+        // Load audio preference
+        const savedAudio = localStorage.getItem('medAI_audioEnabled');
+        if (savedAudio !== null) {
+            audioEnabled = savedAudio === 'true';
             const btn = document.getElementById('audioToggleBtn');
             const icon = document.getElementById('audioToggleIcon');
-
-            if (audioEnabled) {
-                btn.classList.remove('audio-disabled');
-                icon.className = 'fas fa-volume-up';
-                statusIndicator.textContent = 'Audio responses enabled';
-            } else {
+            if (!audioEnabled) {
                 btn.classList.add('audio-disabled');
                 icon.className = 'fas fa-volume-mute';
-                statusIndicator.textContent = 'Audio responses disabled';
             }
-
-            // Save preference
-            localStorage.setItem('medAI_audioEnabled', audioEnabled);
-
-            setTimeout(() => {
-                statusIndicator.textContent = 'Ready to chat';
-            }, 2000);
         }
 
+        setupAutoVerify();
+        console.log('[APP] Initializing application...');
 
-        // Initialize the application
-        function initializeApp() {
-            // Load audio preference
-            const savedAudio = localStorage.getItem('medAI_audioEnabled');
-            if (savedAudio !== null) {
-                audioEnabled = savedAudio === 'true';
-                const btn = document.getElementById('audioToggleBtn');
-                const icon = document.getElementById('audioToggleIcon');
-                if (!audioEnabled) {
-                    btn.classList.add('audio-disabled');
-                    icon.className = 'fas fa-volume-mute';
-                }
-            }
-             // Initialize email verification ← ADD THIS LINE
-    setupAutoVerify();
-            console.log('[APP] Initializing application...');
-
-            // Check if user is already logged in
-            const savedUser = localStorage.getItem('medAI_currentUser');
-            if (savedUser) {
+        // Check if user is already logged in
+        const savedUser = localStorage.getItem('medAI_currentUser');
+        if (savedUser) {
+            try {
                 currentUser = JSON.parse(savedUser);
                 console.log('[APP] User found in localStorage:', currentUser);
-
-                // Extract surname for display
-               const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
-const nameParts = nameProperty.trim().split(' ');
-                const surname = nameParts[nameParts.length - 1];
-                userName.textContent = surname;
-
-                // Load user's chat history
+                updateUserDisplay();
                 loadUserChatHistory(currentUser.id);
-            } else {
-                console.log('[APP] No user found, starting as guest');
-                // Load guest data
+            } catch (e) {
+                console.error('[APP] Error parsing saved user:', e);
                 loadGuestData();
-
-                // Show login modal after a delay
-                setTimeout(() => {
-                    loginModal.style.display = 'flex';
-                }, 1000);
             }
+        } else {
+            console.log('[APP] No user found, starting as guest');
+            loadGuestData();
         }
+    }
 
-        // Load user's specific chat history
-        function loadUserChatHistory(userId) {
-            console.log('[USER] Loading chat history for user:', userId);
-            const userHistoryKey = `medAI_chatHistory_${userId}`;
-            const savedHistory = localStorage.getItem(userHistoryKey);
+    // ============================================
+    // CHAT HISTORY FUNCTIONS
+    // ============================================
 
-            if (savedHistory) {
-                chatHistoryData = JSON.parse(savedHistory);
-                console.log('[USER] Loaded user chat history:', Object.keys(chatHistoryData).length, 'chats');
-            } else {
-                // First time user - create initial chat
-                console.log('[USER] No existing history, creating initial chat');
-                chatHistoryData = {};
-                currentChatId = generateChatId();
-                chatHistoryData[currentChatId] = {
-                    id: currentChatId,
-                    title: "Welcome to MED AI",
-                    date: new Date().toISOString(),
-                    messages: [
-                        {
-                            role: "ai",
-                            content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                            timestamp: new Date().toISOString()
-                        }
-                    ]
-                };
-                saveChatHistory();
-            }
+    function loadUserChatHistory(userId) {
+        console.log('[USER] Loading chat history for user:', userId);
+        const userHistoryKey = `medAI_chatHistory_${userId}`;
+        const savedHistory = localStorage.getItem(userHistoryKey);
 
-            renderChatHistory();
-            loadChat(currentChatId);
-        }
-
-        // Load guest data
-        function loadGuestData() {
-            console.log('[GUEST] Loading guest data');
-            const savedHistory = localStorage.getItem('medAI_guestHistory');
-
-            if (savedHistory) {
-                chatHistoryData = JSON.parse(savedHistory);
-                console.log('[GUEST] Loaded guest chat history');
-            } else {
-                // First time guest - create initial chat
-                console.log('[GUEST] Creating initial guest chat');
-                chatHistoryData = {
-                    [currentChatId]: {
-                        id: currentChatId,
-                        title: "MED AI Assistant",
-                        date: new Date().toISOString(),
-                        messages: [
-                            {
-                                role: "ai",
-                                content: "Hello! I'm your AI medical assistant. I can understand Twi and English speech. I can help with medical questions, general knowledge, translations, and more. Select your language and either type your message or use the voice button to speak to me.",
-                                timestamp: new Date().toISOString()
-                            }
-                        ]
-                    }
-                };
-                saveChatHistory();
-            }
-
-            renderChatHistory();
-            loadChat(currentChatId);
-        }
-
-        // Generate unique chat ID
-        function generateChatId() {
-            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Save chat history to appropriate storage
-        function saveChatHistory() {
-            console.log('[SAVE] Saving chat history, currentUser:', currentUser);
-
-            if (currentUser) {
-                // Save to user-specific storage
-                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to user storage:', userHistoryKey);
-            } else {
-                // Save to guest storage
-                localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to guest storage');
-            }
-        }
-
-        // Render chat history in sidebar
-        function renderChatHistory() {
-            chatHistory.innerHTML = '';
-
-            // Group chats by date
-            const today = new Date().toDateString();
-            const yesterday = new Date(Date.now() - 86400000).toDateString();
-
-            const todayChats = [];
-            const yesterdayChats = [];
-            const olderChats = [];
-
-            Object.values(chatHistoryData).forEach(chat => {
-                const chatDate = new Date(chat.date).toDateString();
-
-                if (chatDate === today) {
-                    todayChats.push(chat);
-                } else if (chatDate === yesterday) {
-                    yesterdayChats.push(chat);
-                } else {
-                    olderChats.push(chat);
-                }
-            });
-
-            // Render today's chats
-            if (todayChats.length > 0) {
-                const todayTitle = document.createElement('div');
-                todayTitle.className = 'history-title';
-                todayTitle.textContent = 'Today';
-                chatHistory.appendChild(todayTitle);
-
-                todayChats.forEach(chat => {
-                    chatHistory.appendChild(createHistoryItem(chat));
-                });
-            }
-
-            // Render yesterday's chats
-            if (yesterdayChats.length > 0) {
-                const yesterdayTitle = document.createElement('div');
-                yesterdayTitle.className = 'history-title';
-                yesterdayTitle.textContent = 'Yesterday';
-                chatHistory.appendChild(yesterdayTitle);
-
-                yesterdayChats.forEach(chat => {
-                    chatHistory.appendChild(createHistoryItem(chat));
-                });
-            }
-
-            // Render older chats
-            if (olderChats.length > 0) {
-                const olderTitle = document.createElement('div');
-                olderTitle.className = 'history-title';
-                olderTitle.textContent = 'Previous 7 Days';
-                chatHistory.appendChild(olderTitle);
-
-                olderChats.forEach(chat => {
-                    chatHistory.appendChild(createHistoryItem(chat));
-                });
-            }
-        }
-
-        // Create history item element
-        function createHistoryItem(chat) {
-            const historyItem = document.createElement('div');
-            historyItem.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
-            historyItem.dataset.chatId = chat.id;
-
-            const itemContent = document.createElement('div');
-            itemContent.className = 'history-item-content';
-
-            const icon = document.createElement('i');
-            icon.className = 'fas fa-message';
-
-            const title = document.createElement('span');
-            title.className = 'history-item-title';
-            title.textContent = chat.title;
-
-            itemContent.appendChild(icon);
-            itemContent.appendChild(title);
-            historyItem.appendChild(itemContent);
-
-            // Add delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'action-btn';
-            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-            deleteBtn.style.opacity = '0.5';
-            deleteBtn.onclick = (e) => {
-                e.stopPropagation();
-                deleteChat(chat.id);
-            };
-            historyItem.appendChild(deleteBtn);
-
-            historyItem.addEventListener('click', () => {
-                loadChat(chat.id);
-            });
-
-            return historyItem;
-        }
-
-        // Load a specific chat
-        function loadChat(chatId) {
-            console.log('[CHAT] Loading chat:', chatId);
-
-            // Update active state
-            document.querySelectorAll('.history-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
-            if (activeItem) {
-                activeItem.classList.add('active');
-            }
-
-            // Update current chat ID
-            currentChatId = chatId;
-
-            // Clear chat container
-            chatContainer.innerHTML = '';
-
-            // Load messages
-            const chat = chatHistoryData[chatId];
-            if (chat && chat.messages) {
-                console.log('[CHAT] Loading', chat.messages.length, 'messages');
-                chat.messages.forEach(message => {
-                    addMessageToChat(
-                        message.content,
-                        message.role === 'user',
-                        false,
-                        false,
-                        message.isMedical,
-                        message.drugRecommendation,
-                        message.disclaimer,
-                        false // Don't save to history again
-                    );
-                });
-            }
-
-            // Close sidebar on mobile
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('open');
-            }
-
-            // Scroll to bottom
-            setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 100);
-        }
-
-        // Delete a chat
-        function deleteChat(chatId) {
-            if (Object.keys(chatHistoryData).length <= 1) {
-                alert('You cannot delete your only chat.');
-                return;
-            }
-
-            if (confirm('Are you sure you want to delete this chat?')) {
-                delete chatHistoryData[chatId];
-                saveChatHistory();
-                renderChatHistory();
-
-                // If we deleted the current chat, load another one
-                if (chatId === currentChatId) {
-                    const remainingChatIds = Object.keys(chatHistoryData);
-                    if (remainingChatIds.length > 0) {
-                        loadChat(remainingChatIds[0]);
-                    }
-                }
-            }
-        }
-
-        // Create a new chat
-        function createNewChat() {
+        if (savedHistory) {
+            chatHistoryData = JSON.parse(savedHistory);
+            console.log('[USER] Loaded user chat history:', Object.keys(chatHistoryData).length, 'chats');
+        } else {
+            console.log('[USER] No existing history, creating initial chat');
+            chatHistoryData = {};
             currentChatId = generateChatId();
             chatHistoryData[currentChatId] = {
                 id: currentChatId,
-                title: "New Conversation",
+                title: "Welcome to MED AI",
                 date: new Date().toISOString(),
                 messages: [
                     {
@@ -1410,841 +1450,732 @@ const nameParts = nameProperty.trim().split(' ');
                     }
                 ]
             };
-
             saveChatHistory();
-            renderChatHistory();
-            loadChat(currentChatId);
-            statusIndicator.textContent = "New chat created";
         }
 
-      // Add message to current chat
-function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
-    const messageDiv = document.createElement('div');
-    let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
-    if (isMedical) messageClass += ' medical-message';
-    if (isError) messageClass += ' error-message';
-    messageDiv.className = messageClass;
+        renderChatHistory();
+        loadChat(currentChatId);
+    }
 
-    const avatarDiv = document.createElement('div');
-    avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
-    avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+    function loadGuestData() {
+        console.log('[GUEST] Loading guest data');
+        const savedHistory = localStorage.getItem('medAI_guestHistory');
 
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-
-    if (isTyping) {
-        contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
-    } else {
-        contentDiv.innerHTML = `<p>${content}</p>`;
-
-        // Add drug recommendation if available
-        if (drugRecommendation && drugRecommendation !== 'null') {
-            const drugDiv = document.createElement('div');
-            drugDiv.className = 'drug-recommendation';
-            drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${drugRecommendation}`;
-            contentDiv.appendChild(drugDiv);
+        if (savedHistory) {
+            chatHistoryData = JSON.parse(savedHistory);
+            console.log('[GUEST] Loaded guest chat history');
+        } else {
+            console.log('[GUEST] Creating initial guest chat');
+            chatHistoryData = {
+                [currentChatId]: {
+                    id: currentChatId,
+                    title: "MED AI Assistant",
+                    date: new Date().toISOString(),
+                    messages: [
+                        {
+                            role: "ai",
+                            content: "Hello! I'm your AI medical assistant. I can understand Twi and English speech. I can help with medical questions, general knowledge, translations, and more. Select your language and either type your message or use the voice button to speak to me.",
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                }
+            };
+            saveChatHistory();
         }
 
-        // Add disclaimer if available
-        if (disclaimer && disclaimer !== 'null') {
-            const disclaimerDiv = document.createElement('div');
-            disclaimerDiv.className = 'disclaimer';
-            disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
-            contentDiv.appendChild(disclaimerDiv);
-        }
+        renderChatHistory();
+        loadChat(currentChatId);
+    }
 
-        // Add message actions for AI messages
-        if (!isUser && !isError) {
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'message-actions';
-            actionsDiv.innerHTML = `
-                <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
-                <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
-                <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
-            `;
-            contentDiv.appendChild(actionsDiv);
+    function saveChatHistory() {
+        console.log('[SAVE] Saving chat history, currentUser:', currentUser);
+
+        if (currentUser) {
+            const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+            localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+            console.log('[SAVE] Saved to user storage:', userHistoryKey);
+        } else {
+            localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+            console.log('[SAVE] Saved to guest storage');
         }
     }
 
-    messageDiv.appendChild(avatarDiv);
-    messageDiv.appendChild(contentDiv);
-    chatContainer.appendChild(messageDiv);
+    function renderChatHistory() {
+        chatHistory.innerHTML = '';
 
-    // Scroll to bottom
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
 
-    // Save to chat history
-    if (saveToHistory && !isTyping && !isError) {
-        // Ensure current chat exists
-        if (!chatHistoryData[currentChatId]) {
-            chatHistoryData[currentChatId] = {
-                id: currentChatId,
-                title: "New Conversation",
-                date: new Date().toISOString(),
-                messages: []
-            };
+        const todayChats = [];
+        const yesterdayChats = [];
+        const olderChats = [];
+
+        Object.values(chatHistoryData).forEach(chat => {
+            const chatDate = new Date(chat.date).toDateString();
+
+            if (chatDate === today) {
+                todayChats.push(chat);
+            } else if (chatDate === yesterday) {
+                yesterdayChats.push(chat);
+            } else {
+                olderChats.push(chat);
+            }
+        });
+
+        if (todayChats.length > 0) {
+            const todayTitle = document.createElement('div');
+            todayTitle.className = 'history-title';
+            todayTitle.textContent = 'Today';
+            chatHistory.appendChild(todayTitle);
+
+            todayChats.forEach(chat => {
+                chatHistory.appendChild(createHistoryItem(chat));
+            });
         }
 
-        const messageData = {
-            role: isUser ? 'user' : 'ai',
-            content: content,
-            timestamp: new Date().toISOString()
+        if (yesterdayChats.length > 0) {
+            const yesterdayTitle = document.createElement('div');
+            yesterdayTitle.className = 'history-title';
+            yesterdayTitle.textContent = 'Yesterday';
+            chatHistory.appendChild(yesterdayTitle);
+
+            yesterdayChats.forEach(chat => {
+                chatHistory.appendChild(createHistoryItem(chat));
+            });
+        }
+
+        if (olderChats.length > 0) {
+            const olderTitle = document.createElement('div');
+            olderTitle.className = 'history-title';
+            olderTitle.textContent = 'Previous 7 Days';
+            chatHistory.appendChild(olderTitle);
+
+            olderChats.forEach(chat => {
+                chatHistory.appendChild(createHistoryItem(chat));
+            });
+        }
+    }
+
+    function createHistoryItem(chat) {
+        const historyItem = document.createElement('div');
+        historyItem.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+        historyItem.dataset.chatId = chat.id;
+
+        const itemContent = document.createElement('div');
+        itemContent.className = 'history-item-content';
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-message';
+
+        const title = document.createElement('span');
+        title.className = 'history-item-title';
+        title.textContent = chat.title;
+
+        itemContent.appendChild(icon);
+        itemContent.appendChild(title);
+        historyItem.appendChild(itemContent);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'action-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+        deleteBtn.style.opacity = '0.5';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteChat(chat.id);
         };
+        historyItem.appendChild(deleteBtn);
 
-        if (isMedical) messageData.isMedical = true;
-        if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
-        if (disclaimer) messageData.disclaimer = disclaimer;
+        historyItem.addEventListener('click', () => {
+            loadChat(chat.id);
+        });
 
-        chatHistoryData[currentChatId].messages.push(messageData);
-        // Update chat title with first user message
-        if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
-            const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
-            chatHistoryData[currentChatId].title = shortMessage;
-            renderChatHistory();
+        return historyItem;
+    }
+
+    function loadChat(chatId) {
+        console.log('[CHAT] Loading chat:', chatId);
+
+        document.querySelectorAll('.history-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
+        if (activeItem) {
+            activeItem.classList.add('active');
         }
-    }  // ← ADD THIS MISSING BRACE to close the if (saveToHistory) block
-    
-    return messageDiv;
-}
-async function registerUser(name, email, password) {
-    console.log('[AUTH] Registration attempt for:', email);
 
-    try {
-        // Generate verification code FIRST
-        verificationCode = generateVerificationCode();
-        console.log('[AUTH] Generated verification code:', verificationCode);
+        currentChatId = chatId;
+        chatContainer.innerHTML = '';
 
-        // Send verification email
-        const emailSent = await sendVerificationEmail(email, verificationCode);
-        
-        if (!emailSent) {
-            alert('Failed to send verification email. Please try again.');
+        const chat = chatHistoryData[chatId];
+        if (chat && chat.messages) {
+            console.log('[CHAT] Loading', chat.messages.length, 'messages');
+            chat.messages.forEach(message => {
+                addMessageToChat(
+                    message.content,
+                    message.role === 'user',
+                    false,
+                    false,
+                    message.isMedical,
+                    message.drugRecommendation,
+                    message.disclaimer,
+                    false
+                );
+            });
+        }
+
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('open');
+        }
+
+        setTimeout(() => {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }, 100);
+    }
+
+    function deleteChat(chatId) {
+        if (Object.keys(chatHistoryData).length <= 1) {
+            alert('You cannot delete your only chat.');
             return;
         }
 
-        // Store pending user data for after verification
-        pendingUser = {
-            name: name,
-            email: email,
-            password: password
+        if (confirm('Are you sure you want to delete this chat?')) {
+            delete chatHistoryData[chatId];
+            saveChatHistory();
+            renderChatHistory();
+
+            if (chatId === currentChatId) {
+                const remainingChatIds = Object.keys(chatHistoryData);
+                if (remainingChatIds.length > 0) {
+                    loadChat(remainingChatIds[0]);
+                }
+            }
+        }
+    }
+
+    function createNewChat() {
+        currentChatId = generateChatId();
+        chatHistoryData[currentChatId] = {
+            id: currentChatId,
+            title: "New Conversation",
+            date: new Date().toISOString(),
+            messages: [
+                {
+                    role: "ai",
+                    content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                    timestamp: new Date().toISOString()
+                }
+            ]
         };
 
-        // Show verification modal
-        registerModal.style.display = 'none';
-        verificationModal.style.display = 'flex';
-        
-        // Reset verification input
-        const input = document.getElementById('verificationCodeInput');
-        const errorDiv = document.getElementById('verificationError');
-        const successDiv = document.getElementById('verificationSuccess');
-        
-        input.value = '';
-        input.disabled = false;
-        input.style.borderColor = '';
-        errorDiv.style.display = 'none';
-        successDiv.style.display = 'none';
-        
-        input.focus();
-
-    } catch (error) {
-        console.error('[AUTH] Registration error:', error);
-        alert('Registration failed. Please try again.');
+        saveChatHistory();
+        renderChatHistory();
+        loadChat(currentChatId);
+        statusIndicator.textContent = "New chat created";
     }
-}
-        async function completeRegistration() {
-    if (!pendingUser) return;
 
-    console.log('[REGISTRATION] Completing registration for:', pendingUser.email);
+    function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
+        const messageDiv = document.createElement('div');
+        let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
+        if (isMedical) messageClass += ' medical-message';
+        if (isError) messageClass += ' error-message';
+        messageDiv.className = messageClass;
 
-    try {
-        const response = await fetch(`${AUTH_URL}/register`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                username: pendingUser.name,
-                email: pendingUser.email,
-                password: pendingUser.password
-            })
-        });
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
+        avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
 
-        const result = await response.json();
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
 
-        if (result.success) {
-            console.log('[AUTH] Registration successful');
-
-            // Set current user
-            currentUser = result.user;
-            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-
-            // Extract surname for display
-           const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
-const nameParts = nameProperty.trim().split(' ');
-            const surname = nameParts[nameParts.length - 1];
-            userName.textContent = surname;
-
-            // Initialize user chat history
-            loadUserChatHistory(currentUser.id);
-
-            verificationModal.style.display = 'none';
-            statusIndicator.textContent = `Welcome to MED AI, ${surname}!`;
-
-            // Clear form
-            document.getElementById('registerForm').reset();
-
-            // Reset verification state
-            pendingUser = null;
-            verificationCode = '';
+        if (isTyping) {
+            contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
         } else {
-            alert(result.error || 'Registration failed after verification.');
-            // Reset and show register modal again
-            verificationModal.style.display = 'none';
-            registerModal.style.display = 'flex';
+            contentDiv.innerHTML = `<p>${content}</p>`;
+
+            if (drugRecommendation && drugRecommendation !== 'null') {
+                const drugDiv = document.createElement('div');
+                drugDiv.className = 'drug-recommendation';
+                drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${drugRecommendation}`;
+                contentDiv.appendChild(drugDiv);
+            }
+
+            if (disclaimer && disclaimer !== 'null') {
+                const disclaimerDiv = document.createElement('div');
+                disclaimerDiv.className = 'disclaimer';
+                disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
+                contentDiv.appendChild(disclaimerDiv);
+            }
+
+            if (!isUser && !isError) {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'message-actions';
+                actionsDiv.innerHTML = `
+                    <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
+                    <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
+                `;
+                contentDiv.appendChild(actionsDiv);
+            }
         }
-    } catch (error) {
-        console.error('[AUTH] Final registration error:', error);
-        alert('Registration failed after verification. Please try again.');
-        verificationModal.style.display = 'none';
-        registerModal.style.display = 'flex';
+
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        if (saveToHistory && !isTyping && !isError) {
+            if (!chatHistoryData[currentChatId]) {
+                chatHistoryData[currentChatId] = {
+                    id: currentChatId,
+                    title: "New Conversation",
+                    date: new Date().toISOString(),
+                    messages: []
+                };
+            }
+
+            const messageData = {
+                role: isUser ? 'user' : 'ai',
+                content: content,
+                timestamp: new Date().toISOString()
+            };
+
+            if (isMedical) messageData.isMedical = true;
+            if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
+            if (disclaimer) messageData.disclaimer = disclaimer;
+
+            chatHistoryData[currentChatId].messages.push(messageData);
+            if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
+                const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+                chatHistoryData[currentChatId].title = shortMessage;
+                renderChatHistory();
+            }
+        }
+        
+        return messageDiv;
     }
-}
-       
-               async function loginUser(email, password) {
-    console.log('[AUTH] Login attempt for:', email);
-    
-    try {
-        const response = await fetch(`${AUTH_URL}/login`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
 
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-            console.log('[AUTH] Login successful');
-            currentUser = result.user;
+    // ============================================
+    // AI & VOICE FUNCTIONS
+    // ============================================
 
-            // Debug: Check user object structure
-            console.log('[AUTH] User object:', currentUser);
-            console.log('[AUTH] Available properties:', Object.keys(currentUser));
-
-            // Save user session
-            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-            
-            // Extract surname for display - use the correct property name
-            const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
-            const nameParts = nameProperty.trim().split(' ');
-            const surname = nameParts[nameParts.length - 1];
-            userName.textContent = surname;
-
-            // Load user's chat history
-            loadUserChatHistory(currentUser.id);
-
-            loginModal.style.display = 'none';
-            statusIndicator.textContent = `Welcome back, ${surname}!`;
-
-            // Clear form
-            document.getElementById('loginForm').reset();
-        } else {
-            alert(result.error || "Invalid email or password. Please try again.");
-        }
-    } catch (error) {
-        console.error('[AUTH] Login error:', error);
-        alert("Login failed. Please check your connection and try again.");
-    }
-}
-
-        function logoutUser() {
-            console.log('[AUTH] Logging out user:', currentUser?.email);
-
-            if (confirm("Are you sure you want to logout? Your chat history will be saved.")) {
-                // Save current user's data BEFORE clearing
-                if (currentUser) {
-                    saveChatHistory();
-                }
-
-                // Clear current state
-                currentUser = null;
-                localStorage.removeItem('medAI_currentUser');
-
-                // Load guest data
-                loadGuestData();
-
-                userName.textContent = 'Guest User';
-                statusIndicator.textContent = "You have been logged out";
-
-                // Show login modal
-                setTimeout(() => {
-                    loginModal.style.display = 'flex';
-                }, 500);
-            }
-        }
-
-        function updateUserProfile(name, email, currentPassword, newPassword) {
-            if (!currentUser) return;
-
-            const storedUsers = JSON.parse(localStorage.getItem('medAI_users') || '{}');
-            const userData = storedUsers[currentUser.email];
-
-            // Validate current password if changing email or password
-            if ((email !== currentUser.email || newPassword) && !validatePassword(currentPassword, userData.password)) {
-                alert("Current password is incorrect");
-                return;
-            }
-
-            // If email changed, update the user key
-            if (email !== currentUser.email) {
-                if (storedUsers[email]) {
-                    alert("This email is already registered");
-                    return;
-                }
-                delete storedUsers[currentUser.email];
-            }
-
-            // Update user data
-            currentUser.name = name;
-            currentUser.email = email;
-
-            // Update password if provided
-            if (newPassword) {
-                userData.password = hashPassword(newPassword);
-            }
-
-            userData.name = name;
-            userData.email = email;
-            storedUsers[email] = userData;
-
-            // Save updated users
-            localStorage.setItem('medAI_users', JSON.stringify(storedUsers));
-            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-
-            // Extract surname for display
-            const nameParts = name.trim().split(' ');
-            const surname = nameParts[nameParts.length - 1];
-            userName.textContent = surname;
-
-            profileModal.style.display = 'none';
-            statusIndicator.textContent = "Profile updated successfully";
-
-            // Clear form
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmNewPassword').value = '';
-        }
-
-        // Speech Recognition Setup
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = languageSelect ? languageSelect.value : 'ak-GH';
-
-            recognition.onstart = function () {
-                isListening = true;
-                voiceBtn.classList.add('listening');
-                const langName = languageSelect && languageSelect.value === 'ak-GH' ? "Twi" : "English";
-                statusIndicator.textContent = `Listening... Speak now in ${langName}`;
-            };
-
-            recognition.onresult = function (event) {
-                const rawTranscript = event.results[0][0].transcript;
-                const transcript = rawTranscript.trim();
-
-                if (!transcript) {
-                    statusIndicator.textContent = "No speech detected.";
-                    resetListeningState();
-                    return;
-                }
-
-                console.log('Voice transcript:', transcript);
-                statusIndicator.textContent = `Heard: "${transcript}"`;
-                processUserInput(transcript);
-            };
-
-            recognition.onerror = function (event) {
-                console.error('Speech recognition error', event.error);
-                let errorMsg = `Error: ${event.error}`;
-
-                if (event.error === 'no-speech') {
-                    errorMsg = "No speech detected. Please try again.";
-                } else if (event.error === 'audio-capture') {
-                    errorMsg = "No microphone found. Ensure it is plugged in.";
-                } else if (event.error === 'not-allowed') {
-                    errorMsg = "Microphone permission denied.";
-                }
-
-                statusIndicator.textContent = errorMsg;
-                resetListeningState();
-            };
-
-            recognition.onend = function () {
-                resetListeningState();
-            };
-        } else {
-            statusIndicator.textContent = "Speech recognition not supported in this browser";
-        }
-
-        // Functions
-        function resetListeningState() {
-            isListening = false;
-            voiceBtn.classList.remove('listening');
-            if (statusIndicator.textContent.startsWith("Listening")) {
-                statusIndicator.textContent = "Ready to chat";
-            }
-        }
-
-        function toggleListening() {
-            if (!SpeechRecognition) {
-                statusIndicator.textContent = "Speech recognition not supported";
-                return;
-            }
-
-            if (isListening) {
-                recognition.stop();
-                resetListeningState();
-            } else {
-                try {
-                    // Update language before starting
-                    if (languageSelect) {
-                        recognition.lang = languageSelect.value;
-                    }
-                    recognition.start();
-                } catch (error) {
-                    console.error('Error starting recognition:', error);
-                    statusIndicator.textContent = "Error starting voice recognition";
-                }
-            }
-        }
-function completeRegistration() {
-    if (!pendingUser) return;
-
-    console.log('[REGISTRATION] Completing registration for:', pendingUser.email);
-
-    // Save user to localStorage
-    const storedUsers = JSON.parse(localStorage.getItem('medAI_users') || '{}');
-    storedUsers[pendingUser.email] = pendingUser;
-    localStorage.setItem('medAI_users', JSON.stringify(storedUsers));
-
-    // Set as current user
-    currentUser = pendingUser;
-    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-
-    // Extract surname
-    const nameParts = pendingUser.name.trim().split(' ');
-    const surname = nameParts[nameParts.length - 1];
-    userName.textContent = surname;
-
-    // Initialize chat history
-    loadUserChatHistory(currentUser.id);
-
-    // Close modals
-    verificationModal.style.display = 'none';
-    registerModal.style.display = 'none';
-
-    statusIndicator.textContent = `Welcome, ${surname}! Email verified ✓`;
-
-    // Clear form
-    document.getElementById('registerForm').reset();
-
-    // Reset verification state
-    pendingUser = null;
-    verificationCode = '';
-}
-
-// Keep your existing backend API version below this
-async function completeRegistration() {
-    // ... your existing backend API code ...
-}
-      async function callBackendAPI(userMessage) {
-    try {
-        console.log('🌐 [DEBUG] Sending to:', BACKEND_URL);
-        
-        const response = await fetch(BACKEND_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                text: userMessage
-            })
-        });
-
-        console.log('📥 [DEBUG] Response status:', response.status);
-        
-        const responseText = await response.text();
-        console.log('📄 [DEBUG] Raw response:', responseText);
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        // Try to parse as JSON
-        let data;
+    async function callBackendAPI(userMessage) {
         try {
-            data = JSON.parse(responseText);
-            console.log('✅ [DEBUG] Parsed JSON:', data);
-        } catch (parseError) {
-            console.error('❌ [DEBUG] JSON parse error:', parseError);
-            throw new Error('Invalid JSON from server: ' + responseText);
-        }
+            console.log('🌐 [DEBUG] Sending to:', BACKEND_URL);
+            
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: userMessage
+                })
+            });
 
-        return data;
+            console.log('📥 [DEBUG] Response status:', response.status);
+            
+            const responseText = await response.text();
+            console.log('📄 [DEBUG] Raw response:', responseText);
 
-    } catch (error) {
-        console.error('❌ [DEBUG] API call failed:', error);
-        throw error;
-    }
-}
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
-        async function processUserInput(input) {
-            if (!input.trim()) return;
-
-            // Add user message to conversation
-            addMessageToChat(input, true);
-            statusIndicator.textContent = "Processing with AI...";
-
-            // Add typing indicator
-            const typingMessage = addMessageToChat("Analyzing your message...", false, true);
-
+            let data;
             try {
-                // Call backend API
-                const response = await callBackendAPI(input);
+                data = JSON.parse(responseText);
+                console.log('✅ [DEBUG] Parsed JSON:', data);
+            } catch (parseError) {
+                console.error('❌ [DEBUG] JSON parse error:', parseError);
+                throw new Error('Invalid JSON from server: ' + responseText);
+            }
 
-                // Remove typing indicator
-                typingMessage.remove();
+            return data;
 
-                // Add AI response to conversation
-                addMessageToChat(
-                    response.response,
-                    false,
-                    false,
-                    false,
-                    response.is_medical,
-                    response.drug_recommendation,
-                    response.disclaimer
-                );
+        } catch (error) {
+            console.error('❌ [DEBUG] API call failed:', error);
+            throw error;
+        }
+    }
 
-                // Show translation info
-                if (response.translation && response.translation !== "Error processing request") {
-                    const translationDiv = document.createElement('div');
-                    translationDiv.style.marginTop = '10px';
-                    translationDiv.style.fontSize = '0.9rem';
-                    translationDiv.style.opacity = '0.8';
-                    translationDiv.style.fontStyle = 'italic';
-                    translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
-                    chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
-                }
+    async function processUserInput(input) {
+        if (!input.trim()) return;
 
-                statusIndicator.textContent = "Response ready";
+        addMessageToChat(input, true);
+        statusIndicator.textContent = "Processing with AI...";
 
-                // Speak the response
-                speakResponse(response.response);
+        const typingMessage = addMessageToChat("Analyzing your message...", false, true);
 
-            } catch (error) {
-                // Remove typing indicator
-                typingMessage.remove();
+        try {
+            const response = await callBackendAPI(input);
+            typingMessage.remove();
 
-                // Show error message
-                const errorMessage = `I'm having trouble connecting to the AI service. Please make sure:
+            addMessageToChat(
+                response.response,
+                false,
+                false,
+                false,
+                response.is_medical,
+                response.drug_recommendation,
+                response.disclaimer
+            );
+
+            if (response.translation && response.translation !== "Error processing request") {
+                const translationDiv = document.createElement('div');
+                translationDiv.style.marginTop = '10px';
+                translationDiv.style.fontSize = '0.9rem';
+                translationDiv.style.opacity = '0.8';
+                translationDiv.style.fontStyle = 'italic';
+                translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
+                chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
+            }
+
+            statusIndicator.textContent = "Response ready";
+            speakResponse(response.response);
+
+        } catch (error) {
+            typingMessage.remove();
+            const errorMessage = `I'm having trouble connecting to the AI service. Please make sure:
 1. Your backend server is running on ${BACKEND_URL}
 2. The GROQ_API_KEY is properly configured
 3. Your internet connection is stable
 
 Error details: ${error.message}`;
 
-                addMessageToChat(errorMessage, false, false, true);
-                statusIndicator.textContent = "Connection error. Please try again.";
-                console.error('Processing error:', error);
-            }
+            addMessageToChat(errorMessage, false, false, true);
+            statusIndicator.textContent = "Connection error. Please try again.";
+            console.error('Processing error:', error);
         }
-
-        function speakResponse(text) {
-            if (!audioEnabled) return; // Don't speak if audio is disabled
-
-            if ('speechSynthesis' in window) {
-                // Cancel any ongoing speech
-                speechSynthesis.cancel();
-                // ...
-
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                utterance.volume = 0.8;
-                speechSynthesis.speak(utterance);
-            }
-        }
-
-        function sendTextMessage() {
-            const text = textInput.value.trim();
-            if (text) {
-                processUserInput(text);
-                textInput.value = '';
-                textInput.style.height = 'auto';
-                sendBtn.classList.remove('active');
-            }
-        }
-
-        // Utility functions
-            // Generate unique chat ID
-function generateChatId() {
-    return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-}
-        function copyToClipboard(button) {
-            const messageContent = button.closest('.message').querySelector('.message-content p').textContent;
-            navigator.clipboard.writeText(messageContent).then(() => {
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                }, 2000);
-            });
-        }
-
-        // Event Listeners
-        sidebarToggle.addEventListener('click', () => {
-            sidebar.classList.toggle('open');
-        });
-
-        newChatBtn.addEventListener('click', createNewChat);
-
-        clearChatBtn.addEventListener('click', () => {
-            if (confirm("Are you sure you want to clear this conversation?")) {
-                chatHistoryData[currentChatId].messages = [
-                    {
-                        role: "ai",
-                        content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                        timestamp: new Date().toISOString()
-                    }
-                ];
-                saveChatHistory();
-                loadChat(currentChatId);
-                statusIndicator.textContent = "Conversation cleared";
-            }
-        });
-        document.getElementById('audioToggleBtn').addEventListener('click', toggleAudioResponses);
-        // Auto-resize textarea
-        textInput.addEventListener('input', function () {
-            this.style.height = 'auto';
-            this.style.height = (this.scrollHeight) + 'px';
-
-            // Toggle send button state
-            if (this.value.trim()) {
-                sendBtn.classList.add('active');
-            } else {
-                sendBtn.classList.remove('active');
-            }
-        });
-
-        // Event listeners for backend integration
-        voiceBtn.addEventListener('click', toggleListening);
-
-        sendBtn.addEventListener('click', sendTextMessage);
-
-        textInput.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendTextMessage();
-            }
-        });
-
-        // Update recognition language when selection changes
-        languageSelect.addEventListener('change', function () {
-            if (recognition) {
-                recognition.lang = this.value;
-            }
-        });
-
-        // Settings menu toggle
-        settingsBtn.addEventListener('click', () => {
-            settingsMenu.classList.toggle('show');
-        });
-
-        // Close settings menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
-                settingsMenu.classList.remove('show');
-            }
-        });
-
-        // Settings menu items
-        document.getElementById('profileSettings').addEventListener('click', () => {
-            if (currentUser) {
-                document.getElementById('profileName').value = currentUser.name;
-                document.getElementById('profileEmail').value = currentUser.email;
-                profileModal.style.display = 'flex';
-            } else {
-                loginModal.style.display = 'flex';
-            }
-            settingsMenu.classList.remove('show');
-        });
-
-        document.getElementById('privacyPolicy').addEventListener('click', () => {
-            privacyModal.style.display = 'flex';
-            settingsMenu.classList.remove('show');
-        });
-
-        document.getElementById('contactUs').addEventListener('click', () => {
-            contactModal.style.display = 'flex';
-            settingsMenu.classList.remove('show');
-        });
-
-        document.getElementById('aboutUs').addEventListener('click', () => {
-            aboutModal.style.display = 'flex';
-            settingsMenu.classList.remove('show');
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', () => {
-            logoutUser();
-            settingsMenu.classList.remove('show');
-        });
-        document.getElementById('audioToggleBtn').addEventListener('click', toggleAudioResponses);
-        // User profile click
-        userProfile.addEventListener('click', () => {
-            if (currentUser) {
-                document.getElementById('profileName').value = currentUser.name;
-                document.getElementById('profileEmail').value = currentUser.email;
-                profileModal.style.display = 'flex';
-            } else {
-                loginModal.style.display = 'flex';
-            }
-        });
-
-        // Modal close buttons
-        document.getElementById('closeLoginModal').addEventListener('click', () => {
-            loginModal.style.display = 'none';
-        });
-
-        document.getElementById('closeRegisterModal').addEventListener('click', () => {
-            registerModal.style.display = 'none';
-        });
-
-        document.getElementById('closeProfileModal').addEventListener('click', () => {
-            profileModal.style.display = 'none';
-        });
-
-        document.getElementById('closePrivacyModal').addEventListener('click', () => {
-            privacyModal.style.display = 'none';
-        });
-
-        document.getElementById('closeContactModal').addEventListener('click', () => {
-            contactModal.style.display = 'none';
-        });
-
-        document.getElementById('closeAboutModal').addEventListener('click', () => {
-            aboutModal.style.display = 'none';
-        });
-
-        // Modal links
-        document.getElementById('showRegister').addEventListener('click', (e) => {
-            e.preventDefault();
-            loginModal.style.display = 'none';
-            registerModal.style.display = 'flex';
-        });
-
-        document.getElementById('showLogin').addEventListener('click', (e) => {
-            e.preventDefault();
-            registerModal.style.display = 'none';
-            loginModal.style.display = 'flex';
-        });
-        document.getElementById('closeVerificationModal').addEventListener('click', () => {
-    verificationModal.style.display = 'none';
-    registerModal.style.display = 'flex'; // Go back to register modal
-    pendingUser = null; // Reset pending user
-    verificationCode = ''; // Reset code
-});
-
-        // Form submissions
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            loginUser(email, password);
-        });
-
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-            if (password !== confirmPassword) {
-                alert("Passwords do not match");
-                return;
-            }
-
-            if (password.length < 6) {
-                alert("Password must be at least 6 characters long");
-                return;
-            }
-
-            registerUser(name, email, password);
-        });
-
-        document.getElementById('updateProfileBtn').addEventListener('click', () => {
-            const name = document.getElementById('profileName').value;
-            const email = document.getElementById('profileEmail').value;
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-
-            if (newPassword && newPassword !== confirmNewPassword) {
-                alert("New passwords do not match");
-                return;
-            }
-
-            updateUserProfile(name, email, currentPassword, newPassword);
-        });
-
-        // Close modals when clicking outside
-       window.addEventListener('click', (e) => {
-    if (e.target === loginModal) loginModal.style.display = 'none';
-    if (e.target === registerModal) registerModal.style.display = 'none';
-    if (e.target === profileModal) profileModal.style.display = 'none';
-    if (e.target === privacyModal) privacyModal.style.display = 'none';
-    if (e.target === contactModal) contactModal.style.display = 'none';
-    if (e.target === aboutModal) aboutModal.style.display = 'none';
-    if (e.target === verificationModal) {
-        verificationModal.style.display = 'none';
-        registerModal.style.display = 'flex'; // Go back to register
-        pendingUser = null; // Reset
     }
-});
 
-        // Initialize the application
-        initializeApp();
-        console.log(`Frontend configured to connect to: ${BACKEND_URL}`);
-        console.log('Make sure your Flask backend is running on the specified URL');
-    </script>
+    function speakResponse(text) {
+        if (!audioEnabled) return;
 
-</body>
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+    }
 
-</html>
+    function sendTextMessage() {
+        const text = textInput.value.trim();
+        if (text) {
+            processUserInput(text);
+            textInput.value = '';
+            textInput.style.height = 'auto';
+            sendBtn.classList.remove('active');
+        }
+    }
 
+    function copyToClipboard(button) {
+        const messageContent = button.closest('.message').querySelector('.message-content p').textContent;
+        navigator.clipboard.writeText(messageContent).then(() => {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => {
+                button.innerHTML = originalHTML;
+            }, 2000);
+        });
+    }
 
+    // ============================================
+    // SPEECH RECOGNITION
+    // ============================================
 
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = languageSelect ? languageSelect.value : 'ak-GH';
 
+        recognition.onstart = function () {
+            isListening = true;
+            voiceBtn.classList.add('listening');
+            const langName = languageSelect && languageSelect.value === 'ak-GH' ? "Twi" : "English";
+            statusIndicator.textContent = `Listening... Speak now in ${langName}`;
+        };
 
+        recognition.onresult = function (event) {
+            const rawTranscript = event.results[0][0].transcript;
+            const transcript = rawTranscript.trim();
 
+            if (!transcript) {
+                statusIndicator.textContent = "No speech detected.";
+                resetListeningState();
+                return;
+            }
 
+            console.log('Voice transcript:', transcript);
+            statusIndicator.textContent = `Heard: "${transcript}"`;
+            processUserInput(transcript);
+        };
 
+        recognition.onerror = function (event) {
+            console.error('Speech recognition error', event.error);
+            let errorMsg = `Error: ${event.error}`;
 
+            if (event.error === 'no-speech') {
+                errorMsg = "No speech detected. Please try again.";
+            } else if (event.error === 'audio-capture') {
+                errorMsg = "No microphone found. Ensure it is plugged in.";
+            } else if (event.error === 'not-allowed') {
+                errorMsg = "Microphone permission denied.";
+            }
 
+            statusIndicator.textContent = errorMsg;
+            resetListeningState();
+        };
 
+        recognition.onend = function () {
+            resetListeningState();
+        };
+    } else {
+        statusIndicator.textContent = "Speech recognition not supported in this browser";
+    }
 
+    function resetListeningState() {
+        isListening = false;
+        voiceBtn.classList.remove('listening');
+        if (statusIndicator.textContent.startsWith("Listening")) {
+            statusIndicator.textContent = "Ready to chat";
+        }
+    }
 
+    function toggleListening() {
+        if (!SpeechRecognition) {
+            statusIndicator.textContent = "Speech recognition not supported";
+            return;
+        }
 
+        if (isListening) {
+            recognition.stop();
+            resetListeningState();
+        } else {
+            try {
+                if (languageSelect) {
+                    recognition.lang = languageSelect.value;
+                }
+                recognition.start();
+            } catch (error) {
+                console.error('Error starting recognition:', error);
+                statusIndicator.textContent = "Error starting voice recognition";
+            }
+        }
+    }
 
+    // ============================================
+    // EVENT LISTENERS
+    // ============================================
 
+    sidebarToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+    });
 
+    newChatBtn.addEventListener('click', createNewChat);
+
+    clearChatBtn.addEventListener('click', () => {
+        if (confirm("Are you sure you want to clear this conversation?")) {
+            chatHistoryData[currentChatId].messages = [
+                {
+                    role: "ai",
+                    content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                    timestamp: new Date().toISOString()
+                }
+            ];
+            saveChatHistory();
+            loadChat(currentChatId);
+            statusIndicator.textContent = "Conversation cleared";
+        }
+    });
+
+    document.getElementById('audioToggleBtn').addEventListener('click', toggleAudioResponses);
+
+    textInput.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = (this.scrollHeight) + 'px';
+
+        if (this.value.trim()) {
+            sendBtn.classList.add('active');
+        } else {
+            sendBtn.classList.remove('active');
+        }
+    });
+
+    voiceBtn.addEventListener('click', toggleListening);
+    sendBtn.addEventListener('click', sendTextMessage);
+
+    textInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendTextMessage();
+        }
+    });
+
+    languageSelect.addEventListener('change', function () {
+        if (recognition) {
+            recognition.lang = this.value;
+        }
+    });
+
+    settingsBtn.addEventListener('click', () => {
+        settingsMenu.classList.toggle('show');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+            settingsMenu.classList.remove('show');
+        }
+    });
+
+    document.getElementById('profileSettings').addEventListener('click', () => {
+        if (currentUser) {
+            document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            profileModal.style.display = 'flex';
+        } else {
+            loginModal.style.display = 'flex';
+        }
+        settingsMenu.classList.remove('show');
+    });
+
+    document.getElementById('privacyPolicy').addEventListener('click', () => {
+        privacyModal.style.display = 'flex';
+        settingsMenu.classList.remove('show');
+    });
+
+    document.getElementById('contactUs').addEventListener('click', () => {
+        contactModal.style.display = 'flex';
+        settingsMenu.classList.remove('show');
+    });
+
+    document.getElementById('aboutUs').addEventListener('click', () => {
+        aboutModal.style.display = 'flex';
+        settingsMenu.classList.remove('show');
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+        logoutUser();
+        settingsMenu.classList.remove('show');
+    });
+
+    userProfile.addEventListener('click', () => {
+        if (currentUser) {
+            document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            profileModal.style.display = 'flex';
+        } else {
+            loginModal.style.display = 'flex';
+        }
+    });
+
+    // Modal close buttons
+    document.getElementById('closeLoginModal').addEventListener('click', () => {
+        loginModal.style.display = 'none';
+    });
+    document.getElementById('closeRegisterModal').addEventListener('click', () => {
+        registerModal.style.display = 'none';
+    });
+    document.getElementById('closeProfileModal').addEventListener('click', () => {
+        profileModal.style.display = 'none';
+    });
+    document.getElementById('closePrivacyModal').addEventListener('click', () => {
+        privacyModal.style.display = 'none';
+    });
+    document.getElementById('closeContactModal').addEventListener('click', () => {
+        contactModal.style.display = 'none';
+    });
+    document.getElementById('closeAboutModal').addEventListener('click', () => {
+        aboutModal.style.display = 'none';
+    });
+    document.getElementById('closeVerificationModal').addEventListener('click', () => {
+        verificationModal.style.display = 'none';
+        registerModal.style.display = 'flex';
+        pendingUser = null;
+        verificationCode = '';
+    });
+
+    // Modal links
+    document.getElementById('showRegister').addEventListener('click', (e) => {
+        e.preventDefault();
+        loginModal.style.display = 'none';
+        registerModal.style.display = 'flex';
+    });
+
+    document.getElementById('showLogin').addEventListener('click', (e) => {
+        e.preventDefault();
+        registerModal.style.display = 'none';
+        loginModal.style.display = 'flex';
+    });
+
+    // Form submissions
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        loginUser(email, password);
+    });
+
+    document.getElementById('registerForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('registerName').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Password must be at least 6 characters long");
+            return;
+        }
+
+        registerUser(name, email, password);
+    });
+
+    document.getElementById('updateProfileBtn').addEventListener('click', () => {
+        const name = document.getElementById('profileName').value;
+        const email = document.getElementById('profileEmail').value;
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+        if (newPassword && newPassword !== confirmNewPassword) {
+            alert("New passwords do not match");
+            return;
+        }
+
+        updateUserProfile(name, email, currentPassword, newPassword);
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === loginModal) loginModal.style.display = 'none';
+        if (e.target === registerModal) registerModal.style.display = 'none';
+        if (e.target === profileModal) profileModal.style.display = 'none';
+        if (e.target === privacyModal) privacyModal.style.display = 'none';
+        if (e.target === contactModal) contactModal.style.display = 'none';
+        if (e.target === aboutModal) aboutModal.style.display = 'none';
+        if (e.target === verificationModal) {
+            verificationModal.style.display = 'none';
+            registerModal.style.display = 'flex';
+            pendingUser = null;
+        }
+    });
+
+    // Initialize the application
+    initializeApp();
+    console.log(`Frontend configured to connect to: ${BACKEND_URL}`);
+    console.log('Make sure your Flask backend is running on the specified URL');
+</script>
 
 
