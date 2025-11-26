@@ -271,7 +271,59 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
         
     except Exception as e:
         return {"success": False, "error": str(e)}
+def save_user_chat(user_id, chat_data):
+    """Save user chat to cloud database"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        # Create chats table if not exists
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS user_chats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                chat_id TEXT NOT NULL,
+                chat_data TEXT NOT NULL,
+                last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+        
+        # Save each chat
+        for chat_id, chat in chat_data.items():
+            cursor.execute('''
+                INSERT OR REPLACE INTO user_chats (user_id, chat_id, chat_data)
+                VALUES (?, ?, ?)
+            ''', (user_id, chat_id, json.dumps(chat)))
+        
+        conn.commit()
+        conn.close()
+        return {"success": True}
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
+def get_user_chats(user_id):
+    """Get all chats for a user"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            'SELECT chat_id, chat_data FROM user_chats WHERE user_id = ?',
+            (user_id,)
+        )
+        
+        chats = {}
+        for row in cursor.fetchall():
+            chats[row[0]] = json.loads(row[1])
+        
+        conn.close()
+        return chats
+        
+    except Exception as e:
+        return {}
 # Initialize database when module is imported
 init_db()
+
 
