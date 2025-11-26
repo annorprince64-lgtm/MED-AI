@@ -1542,53 +1542,52 @@
             }
             return messageDiv;
         }
+async function registerUser(name, email, password) {
+    console.log('[AUTH] Registration attempt for:', email);
 
-        async function registerUser(name, email, password) {
-            console.log('[AUTH] Registration attempt for:', email);
+    try {
+        // Generate verification code FIRST
+        verificationCode = generateVerificationCode();
+        console.log('[AUTH] Generated verification code:', verificationCode);
 
-            try {
-                const response = await fetch(`${AUTH_URL}/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: name,
-                        email: email,
-                        password: password
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    console.log('[AUTH] Registration successful');
-
-                    // Set current user
-                    currentUser = result.user;
-                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-
-                    // Extract surname for display
-                    const nameParts = currentUser.username.trim().split(' ');
-                    const surname = nameParts[nameParts.length - 1];
-                    userName.textContent = surname;
-
-                    // Initialize user chat history
-                    loadUserChatHistory(currentUser.id);
-
-                    registerModal.style.display = 'none';
-                    statusIndicator.textContent = `Welcome to MED AI, ${surname}!`;
-
-                    // Clear form
-                    document.getElementById('registerForm').reset();
-                } else {
-                    alert(result.error || 'Registration failed');
-                }
-            } catch (error) {
-                console.error('[AUTH] Registration error:', error);
-                alert('Registration failed. Please try again.');
-            }
+        // Send verification email
+        const emailSent = await sendVerificationEmail(email, verificationCode);
+        
+        if (!emailSent) {
+            alert('Failed to send verification email. Please try again.');
+            return;
         }
+
+        // Store pending user data for after verification
+        pendingUser = {
+            name: name,
+            email: email,
+            password: password
+        };
+
+        // Show verification modal
+        registerModal.style.display = 'none';
+        verificationModal.style.display = 'flex';
+        
+        // Reset verification input
+        const input = document.getElementById('verificationCodeInput');
+        const errorDiv = document.getElementById('verificationError');
+        const successDiv = document.getElementById('verificationSuccess');
+        
+        input.value = '';
+        input.disabled = false;
+        input.style.borderColor = '';
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        
+        input.focus();
+
+    } catch (error) {
+        console.error('[AUTH] Registration error:', error);
+        alert('Registration failed. Please try again.');
+    }
+}
+       
                 async function loginUser(email, password) {
             console.log('[AUTH] Login attempt for:', email);
             
@@ -2149,6 +2148,7 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
 
 
 
