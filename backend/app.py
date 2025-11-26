@@ -23,7 +23,8 @@ def home():
         "endpoints": {
             "analyze": "/api/analyze (POST)",
             "register": "/api/register (POST)",
-            "login": "/api/login (POST)"
+            "login": "/api/login (POST)",
+            "update-profile": "/api/update-profile (POST)"
         }
     })
 
@@ -81,6 +82,45 @@ def login():
             return jsonify(result), 401
             
     except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+# ADD THIS NEW ENDPOINT - STEP 1
+@app.route('/api/update-profile', methods=['POST'])
+def update_profile():
+    """Update user profile using email to identify user"""
+    try:
+        data = request.get_json()
+        print(f"📧 Update profile request received for email: {data.get('originalEmail')}")
+        
+        if not data or 'originalEmail' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Need to know which user to update (originalEmail required)"
+            }), 400
+        
+        # Call database function to update user
+        result = database.update_user_profile(
+            original_email=data['originalEmail'],
+            name=data.get('name'),
+            new_email=data.get('newEmail'),
+            current_password=data.get('currentPassword'),
+            new_password=data.get('newPassword')
+        )
+        
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Profile updated successfully!",
+                "user": result['user']
+            }), 200
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        print(f"❌ Error in update_profile: {str(e)}")
         return jsonify({
             "success": False,
             "error": str(e)
