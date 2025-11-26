@@ -2139,6 +2139,12 @@ Error details: ${error.message}`;
             registerModal.style.display = 'none';
             loginModal.style.display = 'flex';
         });
+        document.getElementById('closeVerificationModal').addEventListener('click', () => {
+    verificationModal.style.display = 'none';
+    registerModal.style.display = 'flex'; // Go back to register modal
+    pendingUser = null; // Reset pending user
+    verificationCode = ''; // Reset code
+});
 
         // Form submissions
         document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -2202,6 +2208,7 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
 
 
 
