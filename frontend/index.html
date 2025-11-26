@@ -1660,33 +1660,31 @@ async function registerUser(name, email, password) {
                 const result = await response.json();
                 
                 if (response.ok && result.success) {
-                    console.log('[AUTH] Login successful');
-                    currentUser = result.user;
+    console.log('[AUTH] Login successful');
+    currentUser = result.user;
 
-                    // Save user session
-                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-                    
-                    // Extract surname for display
-                    const nameParts = currentUser.username.trim().split(' ');
-                    const surname = nameParts[nameParts.length - 1];
-                    userName.textContent = surname;
+    // Debug: Check user object structure
+    console.log('[AUTH] User object:', currentUser);
+    console.log('[AUTH] Available properties:', Object.keys(currentUser));
 
-                    // Load user's chat history
-                    loadUserChatHistory(currentUser.id);
+    // Save user session
+    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+    
+    // Extract surname for display - use the correct property name
+    const nameProperty = currentUser.name || currentUser.username || currentUser.fullName;
+    const nameParts = nameProperty.trim().split(' ');
+    const surname = nameParts[nameParts.length - 1];
+    userName.textContent = surname;
 
-                    loginModal.style.display = 'none';
-                    statusIndicator.textContent = `Welcome back, ${surname}!`;
+    // Load user's chat history
+    loadUserChatHistory(currentUser.id);
 
-                    // Clear form
-                    document.getElementById('loginForm').reset();
-                } else {
-                    alert(result.error || "Invalid email or password. Please try again.");
-                }
-            } catch (error) {
-                console.error('[AUTH] Login error:', error);
-                alert("Login failed. Please check your connection and try again.");
-            }
-        }
+    loginModal.style.display = 'none';
+    statusIndicator.textContent = `Welcome back, ${surname}!`;
+
+    // Clear form
+    document.getElementById('loginForm').reset();
+}
 
         function logoutUser() {
             console.log('[AUTH] Logging out user:', currentUser?.email);
@@ -2217,6 +2215,7 @@ function generateChatId() {
 </body>
 
 </html>
+
 
 
 
