@@ -1,19 +1,28 @@
 import sqlite3
+import hashlib
+import secrets
 import os
-from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
 
-DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'users.db')
+def get_db_connection():
+    """Create and return a database connection"""
+    # Get the directory where this script is located
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(current_dir, 'users.db')
+    
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row  # This enables column access by name
+    return conn
 
 def init_db():
     """Initialize the database with users table"""
-    conn = sqlite3.connect(DATABASE_PATH)
+    conn = get_db_connection()
     cursor = conn.cursor()
     
+    # Create users table if it doesn't exist
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
+            username TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password_hash TEXT NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -22,97 +31,96 @@ def init_db():
     
     conn.commit()
     conn.close()
-    print("Database initialized successfully")
+    print("✅ Database initialized successfully")
+
+def hash_password(password):
+    """Hash a password for storing."""
+    salt = secrets.token_hex(16)
+    pwdhash = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt.encode('ascii'), 100000)
+    pwdhash = pwdhash.hex()
+    return f"{salt}${pwdhash}"
+
+def verify_password(provided_password, stored_password):
+    """Verify a stored password against one provided by user"""
+    try:
+        salt, stored_hash = stored_password.split('$')
+        pwdhash = hashlib.pbkdf2_hmac('sha256', provided_password.encode('utf-8'), salt.encode('ascii'), 100000)
+        pwdhash = pwdhash.hex()
+        return pwdhash == stored_hash
+    except:
+        return False
 
 def create_user(username, email, password):
-    """Create a new user"""
+    """Create a new user in the database"""
     try:
-        conn = sqlite3.connect(DATABASE_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
-        # Hash the password
-        password_hash = generate_password_hash(password)
+        # Check if user already exists
+        cursor.execute("SELECT id FROM users WHERE email = ?", (email,))
+        if cursor.fetchone():
+            return {"success": False, "error": "User already exists with this email"}
         
+        # Hash the password
+        password_hash = hash_password(password)
+        
+        # Insert new user
         cursor.execute(
-            'INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)',
+            "INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)",
             (username, email, password_hash)
         )
         
         conn.commit()
-        user_id = cursor.lastrowid
+        
+        # Get the newly created user
+        cursor.execute("SELECT id, username, email, created_at FROM users WHERE email = ?", (email,))
+        user = cursor.fetchone()
+        
         conn.close()
         
         return {
-            'success': True,
-            'user': {
-                'id': user_id,
-                'username': username,
-                'email': email
+            "success": True,
+            "user": {
+                "id": user['id'],
+                "name": user['username'],
+                "email": user['email'],
+                "created_at": user['created_at']
             }
         }
-    except sqlite3.IntegrityError as e:
-        if 'username' in str(e):
-            return {'success': False, 'error': 'Username already exists'}
-        elif 'email' in str(e):
-            return {'success': False, 'error': 'Email already exists'}
-        else:
-            return {'success': False, 'error': 'User creation failed'}
+        
     except Exception as e:
-        return {'success': False, 'error': str(e)}
+        return {"success": False, "error": str(e)}
 
 def verify_user(email, password):
     """Verify user credentials"""
     try:
-        conn = sqlite3.connect(DATABASE_PATH)
+        conn = get_db_connection()
         cursor = conn.cursor()
         
-        cursor.execute(
-            'SELECT id, username, email, password_hash FROM users WHERE email = ?',
-            (email,)
-        )
-        
+        # Find user by email
+        cursor.execute("SELECT * FROM users WHERE email = ?", (email,))
         user = cursor.fetchone()
-        conn.close()
         
-        if user and check_password_hash(user[3], password):
+        if not user:
+            return {"success": False, "error": "User not found"}
+        
+        # Verify password
+        if verify_password(password, user['password_hash']):
             return {
-                'success': True,
-                'user': {
-                    'id': user[0],
-                    'username': user[1],
-                    'email': user[2]
+                "success": True,
+                "user": {
+                    "id": user['id'],
+                    "name": user['username'],
+                    "email": user['email'],
+                    "created_at": user['created_at']
                 }
             }
         else:
-            return {'success': False, 'error': 'Invalid email or password'}
+            return {"success": False, "error": "Invalid password"}
+            
     except Exception as e:
-        return {'success': False, 'error': str(e)}
+        return {"success": False, "error": str(e)}
 
-def get_user_by_id(user_id):
-    """Get user by ID"""
-    try:
-        conn = sqlite3.connect(DATABASE_PATH)
-        cursor = conn.cursor()
-        
-        cursor.execute(
-            'SELECT id, username, email FROM users WHERE id = ?',
-            (user_id,)
-        )
-        
-        user = cursor.fetchone()
-        conn.close()
-        
-        if user:
-            return {
-                'id': user[0],
-                'username': user[1],
-                'email': user[2]
-            }
-        return None
-    except Exception as e:
-        print(f"Error getting user: {e}")
-        return None
-# ADD THIS FUNCTION TO YOUR database.py FILE
 def update_user_profile(original_email, name=None, new_email=None, current_password=None, new_password=None):
     """
     Update user profile information using original email to identify user
@@ -200,6 +208,6 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
         print(f"❌ Database error: {str(e)}")
         return {"success": False, "error": str(e)}
 
-# Initialize database when module is imported
+# Initialize the database when this module is imported
 init_db()
-
+print("✅ Database module loaded successfully")
