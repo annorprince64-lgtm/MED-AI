@@ -1684,7 +1684,14 @@ async function registerUser(name, email, password) {
 
     // Clear form
     document.getElementById('loginForm').reset();
-}
+} else {
+            alert(result.error || "Invalid email or password. Please try again.");
+        }
+    } catch (error) {
+        console.error('[AUTH] Login error:', error);
+        alert("Login failed. Please check your connection and try again.");
+    }
+} // ← This closing brace is missing
 
         function logoutUser() {
             console.log('[AUTH] Logging out user:', currentUser?.email);
@@ -2215,6 +2222,7 @@ function generateChatId() {
 </body>
 
 </html>
+
 
 
 
