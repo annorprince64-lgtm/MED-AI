@@ -1981,6 +1981,10 @@ Error details: ${error.message}`;
         }
 
         // Utility functions
+            // Generate unique chat ID
+function generateChatId() {
+    return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+}
         function copyToClipboard(button) {
             const messageContent = button.closest('.message').querySelector('.message-content p').textContent;
             navigator.clipboard.writeText(messageContent).then(() => {
@@ -2207,6 +2211,7 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
 
 
 
