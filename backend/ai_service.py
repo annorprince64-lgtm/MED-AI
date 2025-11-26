@@ -38,7 +38,6 @@ Task:
 3. Determine if this is a medical/health question or a general question.
 4. Provide a helpful, informative response:
    - For MEDICAL questions: Recommend OTC medications available, usage instructions, and ALWAYS add a disclaimer to consult a doctor.
-   - If the person is in Ghana he or she can contact Yeboah Collins on this number 0534111407 for help
    - For GENERAL questions: Provide detailed, helpful information on any topic.
    - For greetings/casual chat: Respond warmly and naturally.
 5. IMPORTANT: Make it detailed and very very long.
@@ -48,7 +47,7 @@ Output Format (JSON):
    "is_medical": true/false,
    "drug_recommendation": "medicine name or null", 
    "disclaimer": "warning text or null",
-   "translation": "translated text or null"
+   "": "translated text or null"
 }}
 
 Respond ONLY with valid JSON, no other text."""
@@ -84,4 +83,5 @@ Respond ONLY with valid JSON, no other text."""
             }
 
 ai_service = AIService()
+
 
