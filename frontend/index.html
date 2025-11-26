@@ -1823,7 +1823,46 @@ const nameParts = nameProperty.trim().split(' ');
                 }
             }
         }
+function completeRegistration() {
+    if (!pendingUser) return;
 
+    console.log('[REGISTRATION] Completing registration for:', pendingUser.email);
+
+    // Save user to localStorage
+    const storedUsers = JSON.parse(localStorage.getItem('medAI_users') || '{}');
+    storedUsers[pendingUser.email] = pendingUser;
+    localStorage.setItem('medAI_users', JSON.stringify(storedUsers));
+
+    // Set as current user
+    currentUser = pendingUser;
+    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+
+    // Extract surname
+    const nameParts = pendingUser.name.trim().split(' ');
+    const surname = nameParts[nameParts.length - 1];
+    userName.textContent = surname;
+
+    // Initialize chat history
+    loadUserChatHistory(currentUser.id);
+
+    // Close modals
+    verificationModal.style.display = 'none';
+    registerModal.style.display = 'none';
+
+    statusIndicator.textContent = `Welcome, ${surname}! Email verified ✓`;
+
+    // Clear form
+    document.getElementById('registerForm').reset();
+
+    // Reset verification state
+    pendingUser = null;
+    verificationCode = '';
+}
+
+// Keep your existing backend API version below this
+async function completeRegistration() {
+    // ... your existing backend API code ...
+}
       async function callBackendAPI(userMessage) {
     try {
         console.log('🌐 [DEBUG] Sending to:', BACKEND_URL);
@@ -2190,6 +2229,7 @@ function generateChatId() {
 </body>
 
 </html>
+
 
 
 
