@@ -1281,83 +1281,137 @@
         }
     }
 
-    async function updateUserProfile(name, email, currentPassword, newPassword) {
-        if (!currentUser) {
-            alert("Please login first");
-            return;
+   async function updateUserProfile(name, email, currentPassword, newPassword) {
+    if (!currentUser) {
+        alert("Please login first");
+        return;
+    }
+
+    const updateBtn = document.getElementById('updateProfileBtn');
+    const originalText = updateBtn.textContent;
+
+    try {
+        // Show loading state
+        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+        updateBtn.disabled = true;
+
+        // Validate the update request
+        const validationError = validateProfileUpdate(name, email, currentPassword, newPassword);
+        if (validationError) {
+            throw new Error(validationError);
         }
 
-        const updateBtn = document.getElementById('updateProfileBtn');
-        const originalText = updateBtn.textContent;
+        // Prepare update data - only send what's being changed
+        const updateData = {};
+        
+        // Always include name and email if they're different
+        if (name !== currentUser.name && name !== currentUser.username) {
+            updateData.name = name;
+        }
+        
+        if (email !== currentUser.email) {
+            updateData.email = email;
+        }
 
-        try {
-            // Show loading state
-            updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-            updateBtn.disabled = true;
-
-            // Prepare update data
-            const updateData = {
-                name: name,
-                email: email,
-                currentPassword: currentPassword
-            };
-
-            if (newPassword) {
-                updateData.newPassword = newPassword;
+        // Only include password fields if user wants to change password
+        if (newPassword) {
+            if (!currentPassword) {
+                throw new Error("Please provide your current password to change your password");
             }
+            updateData.currentPassword = currentPassword;
+            updateData.newPassword = newPassword;
+        }
 
-            const response = await fetch(`${AUTH_URL}/update-profile`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(updateData)
-            });
+        // If nothing to update, show message
+        if (Object.keys(updateData).length === 0) {
+            throw new Error("No changes detected");
+        }
 
-            const result = await response.json();
+        console.log('[PROFILE] Sending update data:', updateData);
 
-            if (response.ok && result.success) {
-                console.log('[PROFILE] Update successful');
-                currentUser = result.user;
-                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+        const response = await fetch(`${AUTH_URL}/update-profile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updateData)
+        });
 
-                updateUserDisplay();
+        const result = await response.json();
 
-                // Show success feedback
-                updateBtn.innerHTML = '<i class="fas fa-check"></i> Updated!';
-                updateBtn.style.backgroundColor = '#10a37f';
-                
-                setTimeout(() => {
-                    profileModal.style.display = 'none';
-                    statusIndicator.textContent = "Profile updated successfully";
-                    
-                    // Reset button and form
-                    updateBtn.textContent = originalText;
-                    updateBtn.disabled = false;
-                    updateBtn.style.backgroundColor = '';
-                    document.getElementById('currentPassword').value = '';
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmNewPassword').value = '';
-                }, 1000);
+        if (response.ok && result.success) {
+            console.log('[PROFILE] Update successful');
+            currentUser = result.user;
+            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
 
-            } else {
-                throw new Error(result.error || "Profile update failed");
-            }
-        } catch (error) {
-            console.error('[PROFILE] Update error:', error);
-            
-            // Show error feedback
-            updateBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
-            updateBtn.style.backgroundColor = '#ef4444';
+            updateUserDisplay();
+
+            // Show success feedback
+            updateBtn.innerHTML = '<i class="fas fa-check"></i> Updated!';
+            updateBtn.style.backgroundColor = '#10a37f';
             
             setTimeout(() => {
-                alert(error.message || "Profile update failed. Please try again.");
+                profileModal.style.display = 'none';
+                statusIndicator.textContent = "Profile updated successfully";
+                
+                // Reset button and form
                 updateBtn.textContent = originalText;
                 updateBtn.disabled = false;
                 updateBtn.style.backgroundColor = '';
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
             }, 1000);
+
+        } else {
+            throw new Error(result.error || "Profile update failed");
+        }
+    } catch (error) {
+        console.error('[PROFILE] Update error:', error);
+        
+        // Show error feedback
+        updateBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+        updateBtn.style.backgroundColor = '#ef4444';
+        
+        setTimeout(() => {
+            alert(error.message || "Profile update failed. Please try again.");
+            updateBtn.textContent = originalText;
+            updateBtn.disabled = false;
+            updateBtn.style.backgroundColor = '';
+        }, 1000);
+    }
+}
+
+// Add this validation function
+function validateProfileUpdate(name, email, currentPassword, newPassword) {
+    // Basic validation
+    if (!name.trim()) {
+        return "Name is required";
+    }
+    
+    if (!email.trim()) {
+        return "Email is required";
+    }
+    
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return "Please enter a valid email address";
+    }
+    
+    // Password validation (only if trying to change password)
+    if (newPassword) {
+        if (!currentPassword) {
+            return "Current password is required to change your password";
+        }
+        
+        if (newPassword.length < 6) {
+            return "New password must be at least 6 characters long";
         }
     }
+    
+    return null; // No errors
+}
 
     function logoutUser() {
         console.log('[AUTH] Logging out user:', currentUser?.email);
@@ -2177,5 +2231,6 @@ Error details: ${error.message}`;
     console.log(`Frontend configured to connect to: ${BACKEND_URL}`);
     console.log('Make sure your Flask backend is running on the specified URL');
 </script>
+
 
 
