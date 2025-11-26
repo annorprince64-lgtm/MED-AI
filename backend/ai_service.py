@@ -41,11 +41,11 @@ Task:
 
 Output Format (JSON):
 {{
-    "translation": "English translation of the input",
-    "is_medical": true/false,
-    "response": "Your detailed, helpful response here",
-    "drug_recommendation": "Name of drug (only if medical, otherwise null)",
-    "disclaimer": "Consult a doctor... (only if medical, otherwise null)"
+   "response": "AI response text here",
+  "is_medical": true/false,
+  "drug_recommendation": "medicine name or null", 
+  "disclaimer": "warning text or null",
+  "translation": "translated text or null"
 }}
 
 Respond ONLY with valid JSON, no other text."""
@@ -79,3 +79,4 @@ Respond ONLY with valid JSON, no other text."""
             }
 
 ai_service = AIService()
+
