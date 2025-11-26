@@ -19,14 +19,15 @@ class AIService:
         Translates Twi text to English and provides helpful responses on ANY topic.
         """
         if not self.api_key:
-          print("❌ ERROR: GROQ_API_KEY not configured")
-             return {
-              "response": "AI service is not configured properly. Please check the GROQ API key.",
-              "is_medical": False,
-              "drug_recommendation": None,
-              "disclaimer": None,
-              "translation": None
-        }
+            print("❌ ERROR: GROQ_API_KEY not configured")
+            return {
+                "response": "AI service is not configured properly. Please check the GROQ API key.",
+                "is_medical": False,
+                "drug_recommendation": None,
+                "disclaimer": None,
+                "translation": None
+            }
+        
         prompt = f"""You are a helpful bilingual AI assistant (Twi <-> English) that can discuss ANY topic.
 
 Input Text (Twi or English): "{text}"
@@ -44,10 +45,10 @@ Task:
 Output Format (JSON):
 {{
    "response": "AI response text here",
-  "is_medical": true/false,
-  "drug_recommendation": "medicine name or null", 
-  "disclaimer": "warning text or null",
-  "translation": "translated text or null"
+   "is_medical": true/false,
+   "drug_recommendation": "medicine name or null", 
+   "disclaimer": "warning text or null",
+   "translation": "translated text or null"
 }}
 
 Respond ONLY with valid JSON, no other text."""
@@ -75,12 +76,11 @@ Respond ONLY with valid JSON, no other text."""
             # Use ascii() to guarantee escaping of non-ASCII characters
             print(f"Groq Error: {ascii(e)}")
             return {
-                "translation": "Error processing request",
                 "response": f"I'm having trouble connecting. Error: {str(e)}",
-                "is_medical": False
+                "is_medical": False,
+                "drug_recommendation": None,
+                "disclaimer": None,
+                "translation": "Error processing request"
             }
 
 ai_service = AIService()
-
-
-
