@@ -1281,7 +1281,7 @@
         }
     }
 
-   async function updateUserProfile(name, email, currentPassword, newPassword) {
+ async function updateUserProfile(name, email, currentPassword, newPassword) {
     if (!currentUser) {
         alert("Please login first");
         return;
@@ -1301,19 +1301,23 @@
             throw new Error(validationError);
         }
 
-        // Prepare update data - only send what's being changed
-        const updateData = {};
+        // Prepare update data - ALWAYS send originalEmail to identify user
+        const updateData = {
+            originalEmail: currentUser.email,  // ⭐ THIS IDENTIFIES THE USER ⭐
+        };
         
-        // Always include name and email if they're different
-        if (name !== currentUser.name && name !== currentUser.username) {
+        // Add name if changed
+        const currentName = currentUser.name || currentUser.username;
+        if (name !== currentName) {
             updateData.name = name;
         }
         
+        // Add email if changed (send as newEmail)
         if (email !== currentUser.email) {
-            updateData.email = email;
+            updateData.newEmail = email;
         }
 
-        // Only include password fields if user wants to change password
+        // Add password fields if changing password
         if (newPassword) {
             if (!currentPassword) {
                 throw new Error("Please provide your current password to change your password");
@@ -1323,7 +1327,7 @@
         }
 
         // If nothing to update, show message
-        if (Object.keys(updateData).length === 0) {
+        if (Object.keys(updateData).length === 1) { // Only has originalEmail
             throw new Error("No changes detected");
         }
 
@@ -2231,6 +2235,7 @@ Error details: ${error.message}`;
     console.log(`Frontend configured to connect to: ${BACKEND_URL}`);
     console.log('Make sure your Flask backend is running on the specified URL');
 </script>
+
 
 
 
