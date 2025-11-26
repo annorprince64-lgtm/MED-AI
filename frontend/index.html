@@ -1537,13 +1537,8 @@
                     const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
                     chatHistoryData[currentChatId].title = shortMessage;
                     renderChatHistory();
-                    // Update chat title with first user message
-                    if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
-                        const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
-                        chatHistoryData[currentChatId].title = shortMessage;
-                        renderChatHistory();
+                 
                     }
-                }
             }
             return messageDiv;
         }
@@ -2138,4 +2133,5 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
 
