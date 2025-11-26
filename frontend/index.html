@@ -1010,32 +1010,27 @@
         // EMAIL VERIFICATION FUNCTIONS
         // ============================================
 
-        // Send verification email using EmailJS
-        function sendVerificationEmail(email, code) {
-            console.log(`[EMAIL] Sending verification email to: ${email} with code: ${code}`);
+// Send verification email using EmailJS - CORRECTED VERSION
+async function sendVerificationEmail(email, code) {
+    console.log(`[EMAIL] Sending verification email to: ${email} with code: ${code}`);
 
-            try {
-                emailjs.send('service_zjhyid5', 'template_vha29yp', {
-                    to_email: email,
-                    verification_code: code,
-                }).then(
-                    function (response) {
-                        console.log('[EMAIL] Email sent successfully:', response.status, response.text);
-                        return true;
-                    },
-                    function (error) {
-                        console.error('[EMAIL] Failed to send email:', error);
-                        alert('Failed to send verification email. Please try again.');
-                        return false;
-                    }
-                );
-                return true;
-            } catch (error) {
-                console.error('[EMAIL] Error in sendVerificationEmail:', error);
-                return false;
+    return new Promise((resolve) => {
+        emailjs.send('service_zjhyid5', 'template_vha29yp', {
+            to_email: email,
+            verification_code: code,
+        }).then(
+            function (response) {
+                console.log('[EMAIL] Email sent successfully:', response.status, response.text);
+                resolve(true);
+            },
+            function (error) {
+                console.error('[EMAIL] Failed to send email:', error);
+                alert('Failed to send verification email. Please check your email address and try again.');
+                resolve(false);
             }
-        }
-
+        );
+    });
+}
         // Generate random 6-digit verification code
         function generateVerificationCode() {
             return Math.floor(100000 + Math.random() * 900000).toString();
@@ -2148,6 +2143,7 @@ Error details: ${error.message}`;
 </body>
 
 </html>
+
 
 
 
