@@ -1691,7 +1691,7 @@ function validateProfileUpdate(name, email, currentPassword, newPassword) {
     }
 
     function deleteChat(chatId) {
-        if (Object.keys(chatHistoryData).length <= 1) {
+        if (Object.keys(chatHistoryData).length = 0) {
             alert('You cannot delete your only chat.');
             return;
         }
@@ -1894,10 +1894,8 @@ function validateProfileUpdate(name, email, currentPassword, newPassword) {
 
         } catch (error) {
             typingMessage.remove();
-            const errorMessage = `I'm having trouble connecting to the AI service. Please make sure:
-1. Your backend server is running on ${BACKEND_URL}
-2. The GROQ_API_KEY is properly configured
-3. Your internet connection is stable
+            const errorMessage = `I'm having trouble connecting
+
 
 Error details: ${error.message}`;
 
@@ -2235,6 +2233,7 @@ Error details: ${error.message}`;
     console.log(`Frontend configured to connect to: ${BACKEND_URL}`);
     console.log('Make sure your Flask backend is running on the specified URL');
 </script>
+
 
 
 
