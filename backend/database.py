@@ -213,6 +213,65 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
     except Exception as e:
         print(f"❌ Database error: {str(e)}")
         return {"success": False, "error": str(e)}
+def update_user_profile(original_email, name=None, new_email=None, current_password=None, new_password=None):
+    """
+    Update user profile - SIMPLE VERSION
+    """
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        print(f"Updating profile for: {original_email}")
+        
+        # Get the user
+        cursor.execute('SELECT * FROM users WHERE email = ?', (original_email,))
+        user = cursor.fetchone()
+        
+        if not user:
+            return {"success": False, "error": "User not found"}
+        
+        # If changing password, check current password
+        if new_password:
+            if not current_password:
+                return {"success": False, "error": "Current password required"}
+            
+            if not check_password_hash(user[3], current_password):
+                return {"success": False, "error": "Current password is wrong"}
+            
+            # Update password
+            new_hash = generate_password_hash(new_password)
+            cursor.execute('UPDATE users SET password_hash = ? WHERE email = ?', (new_hash, original_email))
+        
+        # Update name if provided
+        if name:
+            cursor.execute('UPDATE users SET username = ? WHERE email = ?', (name, original_email))
+        
+        # Update email if provided
+        final_email = original_email
+        if new_email and new_email != original_email:
+            cursor.execute('UPDATE users SET email = ? WHERE email = ?', (new_email, original_email))
+            final_email = new_email
+        
+        conn.commit()
+        
+        # Get updated user
+        cursor.execute('SELECT id, username, email FROM users WHERE email = ?', (final_email,))
+        updated = cursor.fetchone()
+        
+        conn.close()
+        
+        return {
+            "success": True,
+            "user": {
+                "id": updated[0],
+                "username": updated[1],
+                "email": updated[2]
+            }
+        }
+        
+    except Exception as e:
+        return {"success": False, "error": str(e)}
 
 # Initialize database when module is imported
 init_db()
+
