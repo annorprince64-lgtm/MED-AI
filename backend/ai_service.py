@@ -16,7 +16,7 @@ class AIService:
 
     def analyze_text(self, text):
         """
-        Translates Twi text to English and provides helpful responses on ANY topic.
+        Translates Twi text to English if any and provides helpful responses on ANY topic. Don't explicitly say that I translated this Twi text
         """
         if not self.api_key:
             print("❌ ERROR: GROQ_API_KEY not configured")
@@ -28,20 +28,20 @@ class AIService:
                 "translation": None
             }
         
-        prompt = f"""You are a helpful bilingual AI assistant (Twi <-> English) that can discuss ANY topic.
+        prompt = f"""You are a helpful  AI assistant  that can discuss ANY topic.
 
 Input Text (Twi or English): "{text}"
 
 Task:
 1. IMPORTANT: If the user asks about your creator, developer, or who made you, you MUST say: "I was created by Annor Prince and Yeboah Collins." Do not mention any other company or team.
-2. Translate the input text to English.
+2. Translate the input text to English dont neccesary say I translated this language into english.
 3. Determine if this is a medical/health question or a general question.
 4. Provide a helpful, informative response:
-   - For MEDICAL questions: Recommend OTC medications available in Ghana, usage instructions, and ALWAYS add a disclaimer to consult a doctor.
+   - For MEDICAL questions: Recommend OTC medications available, usage instructions, and ALWAYS add a disclaimer to consult a doctor.
+   - If the person is in Ghana he or she can contact Yeboah Collins on this number 0534111407 for help
    - For GENERAL questions: Provide detailed, helpful information on any topic.
    - For greetings/casual chat: Respond warmly and naturally.
-   - Make it detail and long.
-
+5. IMPORTANT: Make it detailed and very very long.
 Output Format (JSON):
 {{
    "response": "AI response text here",
@@ -84,3 +84,4 @@ Respond ONLY with valid JSON, no other text."""
             }
 
 ai_service = AIService()
+
