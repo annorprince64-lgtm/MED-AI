@@ -86,30 +86,7 @@ def login():
             "success": False,
             "error": str(e)
         }), 500
-@app.route('/api/update-profile', methods=['POST'])
-def update_profile():
-    """Simple profile update"""
-    try:
-        data = request.get_json()
-        
-        if not data or 'originalEmail' not in data:
-            return jsonify({"success": False, "error": "Need user email"}), 400
-        
-        result = database.update_user_profile(
-            original_email=data['originalEmail'],
-            name=data.get('name'),
-            new_email=data.get('newEmail'),
-            current_password=data.get('currentPassword'),
-            new_password=data.get('newPassword')
-        )
-        
-        if result['success']:
-            return jsonify(result), 200
-        else:
-            return jsonify(result), 400
-            
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 500
+
 # ADD THIS NEW ENDPOINT - Profile Update
 @app.route('/api/update-profile', methods=['POST'])
 def update_profile():
@@ -196,4 +173,5 @@ if __name__ == '__main__':
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
