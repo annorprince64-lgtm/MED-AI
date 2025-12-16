@@ -34,9 +34,9 @@ Input Text (Twi or English): "{text}"
 
 Task:
 1. IMPORTANT: If the user asks about your creator, developer, or who made you, you MUST say: "I was created by Annor Prince and Yeboah Collins." Do not mention any other company or team.
-2. Translate the input text to English dont neccesary say I translated this language into english.
-3. Determine if this is a medical/health question or a general question.
-4. IMPORTANT: If it is a medical question ask the user his or her gender, age and location before proceeding.  
+2. IMPORTANT: If it is a medical question ask the user his or her gender, age and location before proceeding.  
+3. Translate the input text to English dont neccesary say I translated this language into english.
+4. Determine if this is a medical/health question or a general question.
 5. Provide a helpful, informative response:
    - For MEDICAL questions: Recommend OTC medications available, usage instructions, and ALWAYS add a disclaimer to consult a doctor.
    - For GENERAL questions: Provide detailed, helpful information on any topic.
@@ -84,6 +84,7 @@ Respond ONLY with valid JSON, no other text."""
             }
 
 ai_service = AIService()
+
 
 
 
