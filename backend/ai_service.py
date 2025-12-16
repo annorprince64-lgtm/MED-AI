@@ -80,7 +80,33 @@ class AIService:
                 role = "User" if msg.get("role") == "user" else "Assistant"
                 conversation_context += f"{role}: {msg.get('content', '')}\n"
         
-        prompt = f"""You are a helpful AI assistant that can discuss ANY topic and remember previous conversations.
+       
+        prompt = f"""You are a helpful AI medical assistant.
+
+PREVIOUS CONVERSATION CONTEXT:
+{conversation_context}
+
+CRITICAL INSTRUCTION: 
+When using previously provided personal information (gender, age, location), 
+DO NOT say "You have already provided this information" or "You told me earlier".
+Instead, use the information NATURALLY without referencing that it was provided before.
+
+Example WRONG response: 
+"You already told me you're Male, 25, Accra. For your headache..."
+
+Example CORRECT response:
+"Based on you being a 25-year-old male in Accra, for your headache..."
+
+Current User Message: "{text}"
+
+Rules:
+1. If personal info exists in context → USE IT naturally without mentioning it was provided before
+2. If no personal info exists → ASK for it
+3. Never use phrases like "you already told me", "as you mentioned", "previously you said"
+4. Just use the information as if it's known
+
+
+"""
 
 {conversation_context}
 
@@ -154,4 +180,5 @@ Respond ONLY with valid JSON, no other text."""
             }
 
 ai_service = AIService()
+
 
