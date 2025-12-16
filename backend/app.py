@@ -192,12 +192,54 @@ def load_chats():
 @app.route('/health', methods=['GET'])
 def health_check():
     return jsonify({"status": "healthy", "service": "MED AI Backend"})
+@app.route('/api/analyze', methods=['POST'])
+def analyze_text():
+    print("--- Incoming Request to /api/analyze ---")
+    try:
+        data = request.get_json()
+        print(f"Request received with {len(data.get('text', ''))} characters")
+        
+        if not data or 'text' not in data:
+            print("Error: Missing 'text' in request body")
+            return jsonify({
+                "error": "Missing 'text' in request body",
+                "translation": "Invalid request",
+                "response": "Please provide text to analyze",
+                "is_medical": False,
+                "context_used": False
+            }), 400
+        
+        text = data['text']
+        chat_id = data.get('chat_id', 'default')
+        previous_messages = data.get('previous_messages', [])
+        
+        print(f"Processing text (length: {len(text)}), chat_id: {chat_id}, history: {len(previous_messages)} messages")
+        
+        # Use your AIService with conversation history
+        result = ai_service.analyze_text(text, chat_id, previous_messages)
+        
+        print(f"Analysis complete, context used: {result.get('context_used', False)}")
+        return jsonify(result)
+        
+    except Exception as e:
+        import traceback
+        print(f"An error occured when processing")
+        print(traceback.format_exc())
+        return jsonify({
+            "error": str(e),
+            "translation": "Server error",
+            "response": "An error occurred while processing your request",
+            "is_medical": False,
+            "context_used": False,
+            "details": str(e)
+        }), 500    
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
 
 
