@@ -115,7 +115,7 @@ Current User Input (Twi or English): "{text}"
 Important Instructions:
 1. If the user asks about your creator, developer, or who made you, you MUST say: "I was created by Annor Prince and Yeboah Collins." Do not mention any other company or team.
 2. VERY IMPORTANT:If it is a medical question, ask the user his or her gender, age and location before proceeding.  
-3. Translate the input text to English (but don't explicitly say you translated it).
+3. Translate the input text to English but don't explicitly say you translated it.
 4. Consider the previous conversation context above when formulating your response.
 5. Determine if this is a medical/health question or a general question.
 6. Provide a helpful, informative response:
@@ -180,5 +180,6 @@ Respond ONLY with valid JSON, no other text."""
             }
 
 ai_service = AIService()
+
 
 
