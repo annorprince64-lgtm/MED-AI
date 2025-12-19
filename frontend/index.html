@@ -2508,121 +2508,45 @@ To summarize the data flow and purposes clearly, the following table provides an
         // ============================================
         // AI & VOICE FUNCTIONS
         // ============================================
-      // In your JavaScript, modify the callBackendAPI function:
+        async function callBackendAPI(userMessage) {
+            try {
+                console.log('🌐 [DEBUG] Sending to:', BACKEND_URL);
+                
+                const response = await fetch(BACKEND_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: userMessage
+                    })
+                });
 
-async function callBackendAPI(userMessage) {
-    try {
-        console.log('🌐 [DEBUG] Sending to:', BACKEND_URL);
-        
-        // Get current chat history to send as context
-        const currentChat = chatHistoryData[currentChatId];
-        const previousMessages = currentChat ? currentChat.messages.slice(-6) : []; // Send last 6 messages
-        
-        // Format messages for AI service
-        const formattedMessages = previousMessages.map(msg => ({
-            role: msg.role,
-            content: msg.content
-        }));
-        
-        const response = await fetch(BACKEND_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                text: userMessage,
-                chat_id: currentChatId,  // Send chat ID for memory
-                previous_messages: formattedMessages  // Send conversation history
-            })
-        });
+                console.log('📥 [DEBUG] Response status:', response.status);
+                
+                const responseText = await response.text();
+                console.log('📄 [DEBUG] Raw response:', responseText);
 
-        console.log('📥 [DEBUG] Response status:', response.status);
-        
-        const responseText = await response.text();
-        console.log('📄 [DEBUG] Raw response:', responseText);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                    console.log('✅ [DEBUG] Parsed JSON:', data);
+                } catch (parseError) {
+                    console.error('❌ [DEBUG] JSON parse error:', parseError);
+                    throw new Error('Invalid JSON from server: ' + responseText);
+                }
 
-        let data;
-        try {
-            data = JSON.parse(responseText);
-            console.log('✅ [DEBUG] Parsed JSON:', data);
-            
-            // Log if context was used
-            if (data.context_used) {
-                console.log('🧠 [CONTEXT] AI used previous conversation context');
+                return data;
+
+            } catch (error) {
+                console.error('❌ [DEBUG] API call failed:', error);
+                throw error;
             }
-        } catch (parseError) {
-            console.error('❌ [DEBUG] JSON parse error:', parseError);
-            throw new Error('Invalid JSON from server: ' + responseText);
         }
-
-        return data;
-
-    } catch (error) {
-        console.error('❌ [DEBUG] API call failed:', error);
-        throw error;
-    }
-}
-
-// Also update your processUserInput function to show context usage:
-async function processUserInput(input) {
-    if (!input.trim()) return;
-
-    addMessageToChat(input, true);
-    statusIndicator.textContent = "Processing with AI...";
-
-    const typingMessage = addMessageToChat("Analyzing your message...", false, true);
-
-    try {
-        const response = await callBackendAPI(input);
-        typingMessage.remove();
-
-        addMessageToChat(
-            response.response,
-            false,
-            false,
-            false,
-            response.is_medical,
-            response.drug_recommendation,
-            response.disclaimer
-        );
-
-        // Show if context was used
-        if (response.context_used) {
-            const contextDiv = document.createElement('div');
-            contextDiv.style.marginTop = '10px';
-            contextDiv.style.fontSize = '0.8rem';
-            contextDiv.style.opacity = '0.7';
-            contextDiv.style.fontStyle = 'italic';
-            contextDiv.innerHTML = '🧠 <small>Using context from previous conversation</small>';
-            chatContainer.lastChild.querySelector('.message-content').appendChild(contextDiv);
-        }
-
-        if (response.translation && response.translation !== "Error processing request") {
-            const translationDiv = document.createElement('div');
-            translationDiv.style.marginTop = '10px';
-            translationDiv.style.fontSize = '0.9rem';
-            translationDiv.style.opacity = '0.8';
-            translationDiv.style.fontStyle = 'italic';
-            translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
-            chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
-        }
-
-        statusIndicator.textContent = "Response ready";
-        speakResponse(response.response);
-
-    } catch (error) {
-        typingMessage.remove();
-        const errorMessage = `I'm having trouble connecting to the server. Please check your internet connection and try again.\n\nError details: ${error.message}`;
-
-        addMessageToChat(errorMessage, false, false, true);
-        statusIndicator.textContent = "Connection error. Please try again.";
-        console.error('Processing error:', error);
-    }
-}
 
         async function processUserInput(input) {
             if (!input.trim()) return;
@@ -2882,4 +2806,3 @@ async function processUserInput(input) {
     </script>
 </body>
 </html>
-
