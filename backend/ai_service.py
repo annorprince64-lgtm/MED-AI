@@ -1,185 +1,174 @@
 import os
+import json
 from groq import Groq
 from dotenv import load_dotenv
-import json
-from datetime import datetime
 
+# Load environment variables
 load_dotenv()
 
 class AIService:
+    """
+    AIService handles all interactions with the Groq LLM.
+    It supports multi-stage medical reasoning (questioning -> analysis)
+   
+    """
+
     def __init__(self):
         self.api_key = os.getenv("GROQ_API_KEY")
         if not self.api_key:
-            print("WARNING: GROQ_API_KEY not found in .env file.")
+            print("⚠️ WARNING: GROQ_API_KEY not found. AI responses will fail.")
+            self.client = None
         else:
             self.client = Groq(api_key=self.api_key)
-            self.model = "llama-3.3-70b-versatile" 
         
-        # Dictionary to store conversation history by user/chat ID
-        self.conversation_history = {}
-    
-    def get_conversation_history(self, chat_id, max_history=5):
-        """Retrieve recent conversation history for a chat"""
-        if chat_id not in self.conversation_history:
-            return []
-        
-        # Return last N messages (excluding system messages)
-        history = self.conversation_history[chat_id]
-        return history[-max_history*2:] if len(history) > max_history*2 else history
-    
-    def add_to_history(self, chat_id, role, content):
-        """Add a message to conversation history"""
-        if chat_id not in self.conversation_history:
-            self.conversation_history[chat_id] = []
-        
-        self.conversation_history[chat_id].append({
-            "role": role,
-            "content": content,
-            "timestamp": datetime.now().isoformat()
-        })
-        
-        # Keep only last 20 messages to manage token usage
-        if len(self.conversation_history[chat_id]) > 20:
-            self.conversation_history[chat_id] = self.conversation_history[chat_id][-20:]
-    
-    def clear_history(self, chat_id=None):
-        """Clear conversation history for a specific chat or all chats"""
-        if chat_id:
-            if chat_id in self.conversation_history:
-                del self.conversation_history[chat_id]
-        else:
-            self.conversation_history.clear()
-    
-    def analyze_text(self, text, chat_id="default", previous_messages=None):
+        # Centralized model config
+        self.model = "llama-3.3-70b-versatile"
+
+    def analyze_text(self, text: str) -> dict:
         """
-        Translates Twi text to English if any and provides helpful responses on ANY topic.
-        Uses conversation history for context.
+        Analyze user input and return a structured JSON response.
+        This function is SINGLE-CALL SAFE and does not break app.py.
         """
-        if not self.api_key:
-            print("❌ ERROR: GROQ_API_KEY not configured")
-            return {
-                "response": "AI service is not configured properly. Please check the GROQ API key.",
-                "is_medical": False,
-                "drug_recommendation": None,
-                "disclaimer": None,
-                "translation": None,
-                "context_used": False
-            }
-        
-        # Get conversation history (from memory or provided)
-        if previous_messages:
-            conversation_history = previous_messages
-        else:
-            conversation_history = self.get_conversation_history(chat_id)
-        
-        # Build conversation context
-        conversation_context = ""
-        if conversation_history:
-            conversation_context = "\nPrevious conversation context:\n"
-            for msg in conversation_history:
-                role = "User" if msg.get("role") == "user" else "Assistant"
-                conversation_context += f"{role}: {msg.get('content', '')}\n"
-        
-       
-        prompt = f"""You are a helpful AI medical assistant.
 
-PREVIOUS CONVERSATION CONTEXT:
-{conversation_context}
+        if not self.client:
+            return self._error_response("AI service is not configured correctly.")
 
-CRITICAL INSTRUCTION: 
-When using previously provided personal information (gender, age, location), 
-DO NOT say "You have already provided this information" or "You told me earlier".
-Instead, use the information NATURALLY without referencing that it was provided before.
+        prompt = f"""
+                    You are a highly professional AI medical and general knowledge assistant.
 
-Example WRONG response: 
-"You already told me you're Male, 25, Accra. For your headache..."
+            Input Text (Twi or English): "{text}"
 
-Example CORRECT response:
-"Based on you being a 25-year-old male in Accra, for your headache..."
+            GENERAL RULES:
+            - Translate internally to English if needed, but DO NOT say you translated it.
+            - Use professional, well-formatted English.
+            - Be very detailed and educational.
+            - Never give a definitive diagnosis.
+            - Use probability-based reasoning.
 
-Current User Message: "{text}"
+            --------------------------------
+            CLASSIFICATION
+            --------------------------------
+            Determine if the input is:
+            1) Medical / Health related
+            2) Drug / Medication related
+            3) General (non-medical)
+            4) Greeting / casual
 
-Rules:
-1. If personal info exists in context → USE IT naturally without mentioning it was provided before
-2. If no personal info exists → ASK for it
-3. Never use phrases like "you already told me", "as you mentioned", "previously you said"
-4. Just use the information as if it's known
+            --------------------------------
+            MEDICAL LOGIC (CRITICAL)
+            --------------------------------
+            If MORE THAN TWO symptoms are mentioned AND key patient details are missing:
 
+            - DO NOT give diagnoses, treatments, or probabilities
+            - Ask AT LEAST FIVE follow-up questions
+            - Questions MUST include:
+            1. Age
+            2. Gender
+            3. Duration of symptoms
+            4. Presence/absence of other symptoms (cough, weakness, vomiting, diarrhea, chills, rash)
+            5. Relevant exposure (mosquito bites, travel, food/water hygiene)
 
+            In this case:
+            - Set stage = "questions"
+            - Put all questions in a list
+
+            --------------------------------
+            WHEN INFORMATION IS SUFFICIENT
+            --------------------------------
+            Then:
+            - Set stage = "analysis"
+            - List possible conditions from MOST LIKELY to LESS LIKELY
+            - For EACH condition include:
+            * Why it is possible
+            * Common symptoms
+            * Treatment (medicine + dosage by age group)
+            * Causes
+            * Prevention
+
+            Add a disclaimer ONLY if:
+            - Prescription-only medicines
+            - Injections
+            - Severe or emergency conditions
+
+            --------------------------------
+            DRUG / MEDICATION QUESTIONS
+            --------------------------------
+            If the user asks about a specific drug:
+            Structure response as:
+            1. Overview (drug class, pharmacology, pharmacokinetics)
+            2. Uses
+            3. Age & dosage
+            4. Contraindications & precautions
+            5. Side effects & adverse reactions
+            6. Pregnancy & lactation
+
+            Do NOT automatically add disclaimers for OTC drugs.
+
+            --------------------------------
+            GENERAL QUESTIONS
+            --------------------------------
+            Start with:
+            "This is not a medical question."
+            Then answer in detail.
+
+            --------------------------------
+            CREATOR RULE (STRICT)
+            --------------------------------
+            If asked who created you, reply EXACTLY:
+            "I was created by Annor Prince and Yeboah Collins."
+
+--------------------------------
+OUTPUT FORMAT (STRICT JSON)
+--------------------------------
+Return ONLY valid JSON in this format:
+{
+  "stage": "questions" | "analysis" | "general",
+  "response": "Main formatted response",
+  "questions": ["Question 1", "Question 2"] or null,
+  "is_medical": true/false,
+  "drug_recommendation": "medicine names or null",
+  "disclaimer": "disclaimer text or null",
+  "translation": "translated English text or null"
+}
 """
 
-{conversation_context}
-
-Current User Input (Twi or English): "{text}"
-
-Important Instructions:
-1. If the user asks about your creator, developer, or who made you, you MUST say: "I was created by Annor Prince and Yeboah Collins." Do not mention any other company or team.
-2. VERY IMPORTANT:If it is a medical question, ask the user his or her gender, age and location before proceeding.  
-3. Translate the input text to English but don't explicitly say you translated it.
-4. Consider the previous conversation context above when formulating your response.
-5. Determine if this is a medical/health question or a general question.
-6. Provide a helpful, informative response:
-   - For MEDICAL questions: Recommend OTC medications available, usage instructions, and ALWAYS add a disclaimer to consult a doctor.
-   - For GENERAL questions: Provide detailed, helpful information on any topic.
-   - For greetings/casual chat: Respond warmly and naturally, remembering previous context if relevant.
-7. IMPORTANT: Make responses detailed and comprehensive.
-
-Output Format (JSON):
-{{
-   "response": "AI response text here",
-   "is_medical": true/false,
-   "drug_recommendation": "medicine name or null", 
-   "disclaimer": "warning text or null",
-   "translation": "translated text or null",
-   "context_used": true/false
-}}
-
-Respond ONLY with valid JSON, no other text."""
-
         try:
-            # Add user message to history
-            self.add_to_history(chat_id, "user", text)
-            
-            chat_completion = self.client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt,
-                    }
-                ],
+            completion = self.client.chat.completions.create(
                 model=self.model,
-                temperature=0.5,
-                max_tokens=1024,
-                top_p=1,
-                stop=None,
-                stream=False,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.4,
+                max_tokens=1400,
                 response_format={"type": "json_object"}
             )
-            
-            response_content = chat_completion.choices[0].message.content
-            result = json.loads(response_content)
-            
-            # Add AI response to history
-            self.add_to_history(chat_id, "assistant", result.get("response", ""))
-            
-            # Add context_used flag
-            result["context_used"] = len(conversation_history) > 0
-            
-            return result
-            
+
+            content = completion.choices[0].message.content
+            parsed = json.loads(content)
+
+            # Safety defaults (prevents frontend crashes)
+            parsed.setdefault("stage", "analysis")
+            parsed.setdefault("questions", None)
+            parsed.setdefault("drug_recommendation", None)
+            parsed.setdefault("disclaimer", None)
+            parsed.setdefault("translation", None)
+
+            return parsed
+
         except Exception as e:
-            # Use ascii() to guarantee escaping of non-ASCII characters
-            print(f"Groq Error: {ascii(e)}")
-            return {
-                "response": f"I'm having trouble connecting. Error: {str(e)}",
-                "is_medical": False,
-                "drug_recommendation": None,
-                "disclaimer": None,
-                "translation": "Error processing request",
-                "context_used": False
-            }
+            print(f"❌ Groq Error: {ascii(e)}")
+            return self._error_response(str(e))
 
+    def _error_response(self, error_msg: str) -> dict:
+        """Standardized error response"""
+        return {
+            "stage": "analysis",
+            "response": f"An error occurred while processing your request: {error_msg}",
+            "questions": None,
+            "is_medical": False,
+            "drug_recommendation": None,
+            "disclaimer": None,
+            "translation": None
+        }
+
+
+# Singleton instance (USED BY app.py)
 ai_service = AIService()
-
-
-
