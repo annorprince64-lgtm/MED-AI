@@ -2265,24 +2265,7 @@ To summarize the data flow and purposes clearly, the following table provides an
                 }, 1000);
             }
         }
-function createInitialChat() {
-    currentChatId = generateChatId();
-    chatHistoryData = {
-        [currentChatId]: {
-            id: currentChatId,
-            title: "Welcome to DRUGBOT",
-            date: new Date().toISOString(),
-            messages: [
-                {
-                    role: "ai",
-                    content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                    timestamp: new Date().toISOString()
-                }
-            ]
-        }
-    };
-    console.log('[INIT] Created initial chat with ID:', currentChatId);
-}
+
         function validateProfileUpdate(name, email, currentPassword, newPassword) {
             // Basic validation
             if (!name.trim()) {
@@ -3463,6 +3446,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
