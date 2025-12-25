@@ -2846,26 +2846,26 @@ function renderMarkdown(text) {
         }
     }
 }
-        function createNewChat() {
-            currentChatId = generateChatId();
-            chatHistoryData[currentChatId] = {
-                id: currentChatId,
-                title: "New Conversation",
-                date: new Date().toISOString(),
-                messages: [
-                    {
-                        role: "ai",
-                        content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                        timestamp: new Date().toISOString()
-                    }
-                ]
-            };
+       function createNewChat() {
+    currentChatId = generateChatId();
+    chatHistoryData[currentChatId] = {
+        id: currentChatId,
+        title: "New Conversation",
+        date: new Date().toISOString(),
+        messages: [
+            {
+                role: "ai",
+                content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                timestamp: new Date().toISOString()
+            }
+        ]
+    };
 
-            saveChatHistory();
-            renderChatHistory();
-            loadChat(currentChatId);
-            statusIndicator.textContent = "New chat created";
-        }
+    saveChatHistory(); // This will now save to both local and cloud
+    renderChatHistory();
+    loadChat(currentChatId);
+    statusIndicator.textContent = "New chat created";
+}
 
         function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
             const messageDiv = document.createElement('div');
@@ -3256,6 +3256,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
