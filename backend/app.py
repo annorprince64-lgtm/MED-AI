@@ -4,13 +4,10 @@ from ai_service import ai_service
 import database
 import os
 import sys
-import json  # Added missing import
-import traceback  # Added for better error logging
-import logging
-
-# Configure logging
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+import json
+import traceback
+import sqlite3  # ADD THIS IMPORT
+import logging  # ADD THIS IMPORT
 
 # Force UTF-8 encoding for stdout to handle Twi characters
 if sys.platform == 'win32':
@@ -21,6 +18,30 @@ if sys.platform == 'win32':
 app = Flask(__name__)
 # Enable CORS for all origins (you can restrict this in production)
 CORS(app)  # Allow all origins to support file:// access
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+# Define DATABASE_PATH here (must match database.py)
+DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'users.db')
+
+# Check database path
+print(f"Database path: {DATABASE_PATH}")
+print(f"Database exists: {os.path.exists(DATABASE_PATH)}")
+
+# Ensure database directory exists
+db_dir = os.path.dirname(DATABASE_PATH)
+if db_dir and not os.path.exists(db_dir):
+    os.makedirs(db_dir)
+    print(f"Created database directory: {db_dir}")
+
+# Initialize database
+try:
+    database.init_db()
+    print("Database initialized successfully")
+except Exception as e:
+    print(f"Error initializing database: {e}")
 
 @app.route('/')
 def home():
@@ -36,10 +57,28 @@ def home():
                 "save": "/api/chats/save (POST)",
                 "load": "/api/chats/load (GET)",
                 "delete": "/api/chats/delete (POST)"
+            },
+            "debug": {
+                "database": "/api/debug/database (GET)",
+                "ai": "/api/debug/ai (GET)"
             }
         }
     })
 
+# Add this error handler
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Log the error
+    logger.error(f"Unhandled exception: {str(e)}", exc_info=True)
+    
+    # Return a JSON response
+    return jsonify({
+        "success": False,
+        "error": "Internal server error",
+        "message": str(e)
+    }), 500
+
+# Authentication Endpoints
 @app.route('/api/register', methods=['POST'])
 def register():
     """Register a new user"""
@@ -81,7 +120,7 @@ def register():
                 "error": "Username already exists"
             }), 400
 
-        # Create user
+        # Create user using database function
         result = database.create_user(data['username'], data['email'], data['password'])
         print(f"✅ Create user result: {result}")
 
@@ -96,12 +135,12 @@ def register():
 
     except Exception as e:
         print(f"❌ Error in register endpoint: {str(e)}")
-        import traceback
         traceback.print_exc()
         return jsonify({
             "success": False,
             "error": f"Registration failed: {str(e)}"
         }), 500
+
 @app.route('/api/login', methods=['POST'])
 def login():
     """Login a user"""
@@ -169,7 +208,6 @@ def update_profile():
             "success": False,
             "error": str(e)
         }), 500
-
 
 @app.route('/api/chats/save', methods=['POST'])
 def save_chat():
@@ -322,17 +360,7 @@ def debug_ai():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-@app.errorhandler(Exception)
-def handle_exception(e):
-    # Log the error
-    logger.error(f"Unhandled exception: {str(e)}", exc_info=True)
-    
-    # Return a JSON response
-    return jsonify({
-        "success": False,
-        "error": "Internal server error",
-        "message": str(e)
-    }), 500
+
 @app.route('/api/debug/database', methods=['GET'])
 def debug_database():
     """Debug endpoint to check database status"""
@@ -346,32 +374,86 @@ def debug_database():
         
         # Check users table structure
         users_count = 0
-        if 'users' in [t[0] for t in tables]:
+        users_structure = []
+        table_names = [t[0] for t in tables]
+        
+        if 'users' in table_names:
             cursor.execute("SELECT COUNT(*) FROM users")
             users_count = cursor.fetchone()[0]
             
             cursor.execute("PRAGMA table_info(users)")
             users_structure = cursor.fetchall()
-        else:
-            users_structure = "Table doesn't exist"
+        
+        # Check user_chats table
+        user_chats_count = 0
+        if 'user_chats' in table_names:
+            cursor.execute("SELECT COUNT(*) FROM user_chats")
+            user_chats_count = cursor.fetchone()[0]
+        
+        # Check cloud_chats table
+        cloud_chats_count = 0
+        if 'cloud_chats' in table_names:
+            cursor.execute("SELECT COUNT(*) FROM cloud_chats")
+            cloud_chats_count = cursor.fetchone()[0]
         
         conn.close()
         
         return jsonify({
+            "success": True,
             "database_path": DATABASE_PATH,
-            "tables": [t[0] for t in tables],
+            "database_exists": os.path.exists(DATABASE_PATH),
+            "tables": table_names,
             "users_count": users_count,
-            "users_structure": users_structure if isinstance(users_structure, str) else [dict(zip(['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'], row)) for row in users_structure]
+            "user_chats_count": user_chats_count,
+            "cloud_chats_count": cloud_chats_count,
+            "users_structure": [dict(zip(['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'], row)) for row in users_structure]
         })
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500    
+        print(f"❌ Error in debug_database: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route('/api/chats/status', methods=['GET'])
+def chat_status():
+    """Check chat sync status"""
+    try:
+        user_id = request.args.get('user_id')
+        
+        if not user_id:
+            return jsonify({
+                "success": False,
+                "error": "Missing user_id parameter"
+            }), 400
+        
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        # Get last sync time
+        cursor.execute('''
+            SELECT MAX(updated_at) FROM cloud_chats 
+            WHERE user_id = ?
+        ''', (user_id,))
+        
+        last_sync = cursor.fetchone()[0]
+        conn.close()
+        
+        return jsonify({
+            "success": True,
+            "lastSync": last_sync,
+            "hasCloudData": last_sync is not None
+        })
+        
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
-
-
-
-
