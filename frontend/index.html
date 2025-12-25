@@ -2914,19 +2914,52 @@ function initializeSpeechRecognition() {
                 }
             });
 
-            // Close modals when clicking outside
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) {
-                    e.target.style.display = 'none';
-                    if (e.target.id === 'verificationModal') {
-                        registerModal.style.display = 'flex';
-                        pendingUser = null;
-                    }
-                    if (e.target.id === 'profileModal') {
-                        clearProfileMessages();
-                    }
-                }
-            });
+         // Replace the existing window click event listener with this:
+window.addEventListener('click', (e) => {
+    // Close modals when clicking outside
+    if (e.target.classList.contains('modal')) {
+        e.target.style.display = 'none';
+        
+        // Specific handling for verification modal
+        if (e.target.id === 'verificationModal') {
+            registerModal.style.display = 'flex';
+            pendingUser = null;
+            verificationCode = '';
+        }
+        
+        // Specific handling for profile modal
+        if (e.target.id === 'profileModal') {
+            clearProfileMessages();
+        }
+    }
+    
+    // Close sidebar when clicking outside on mobile
+    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+            sidebar.classList.remove('open');
+        }
+    }
+    
+    // Close settings menu when clicking outside
+    if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target) && settingsMenu.classList.contains('show')) {
+        settingsMenu.classList.remove('show');
+    }
+});
+
+// Also add touch events for mobile
+document.addEventListener('touchstart', (e) => {
+    // Close sidebar on mobile when touching outside
+    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+            sidebar.classList.remove('open');
+        }
+    }
+    
+    // Close settings menu on mobile
+    if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target) && settingsMenu.classList.contains('show')) {
+        settingsMenu.classList.remove('show');
+    }
+});
 
             // Modal close buttons
             ['closeLoginModal', 'closeRegisterModal', 'closePrivacyModal',
@@ -2985,6 +3018,7 @@ function initializeSpeechRecognition() {
     </script>
 </body>
 </html>
+
 
 
 
