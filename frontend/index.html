@@ -1561,45 +1561,46 @@
         let verificationCode = '';
         let pendingUser = null;
 
-        // Initialize speech recognition
-        function initializeSpeechRecognition() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = inputLanguageSelect.value;
+   // Initialize speech recognition
+function initializeSpeechRecognition() {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        // Set English as default language (remove language selector reference)
+        recognition.lang = 'en-US';
 
-                recognition.onstart = function () {
-                    isListening = true;
-                    voiceInputBtn.classList.add('listening');
-                    statusIndicator.textContent = "Listening... Speak now";
-                    chatTextarea.disabled = true;
-                };
+        recognition.onstart = function () {
+            isListening = true;
+            voiceInputBtn.classList.add('listening');
+            statusIndicator.textContent = "Listening... Speak now";
+            chatTextarea.disabled = true;
+        };
 
-                recognition.onresult = function (event) {
-                    const transcript = event.results[0][0].transcript.trim();
-                    if (transcript) {
-                        chatTextarea.value = transcript;
-                        statusIndicator.textContent = `Heard: "${transcript}"`;
-                        autoResizeTextarea();
-                    }
-                };
-
-                recognition.onerror = function (event) {
-                    console.error('Speech recognition error', event.error);
-                    let errorMsg = `Error: ${event.error}`;
-                    statusIndicator.textContent = errorMsg;
-                    resetListeningState();
-                };
-
-                recognition.onend = function () {
-                    resetListeningState();
-                };
-            } else {
-                statusIndicator.textContent = "Speech recognition not supported in this browser";
+        recognition.onresult = function (event) {
+            const transcript = event.results[0][0].transcript.trim();
+            if (transcript) {
+                chatTextarea.value = transcript;
+                statusIndicator.textContent = `Heard: "${transcript}"`;
+                autoResizeTextarea();
             }
-        }
+        };
+
+        recognition.onerror = function (event) {
+            console.error('Speech recognition error', event.error);
+            let errorMsg = `Error: ${event.error}`;
+            statusIndicator.textContent = errorMsg;
+            resetListeningState();
+        };
+
+        recognition.onend = function () {
+            resetListeningState();
+        };
+    } else {
+        statusIndicator.textContent = "Speech recognition not supported in this browser";
+    }
+}
 
         function resetListeningState() {
             isListening = false;
@@ -2956,6 +2957,7 @@
     </script>
 </body>
 </html>
+
 
 
 
