@@ -30,32 +30,30 @@
             --border-color: #4b5563;
             --hover-color: #2d2d3a;
         }
-        /* Add this to your CSS section */
+ /* Add these styles to your existing CSS */
 .ai-table {
     width: 100%;
     border-collapse: collapse;
     margin: 15px 0;
     background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    border-radius: 8px;
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    font-size: 14px;
 }
 
 .ai-table th {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     font-weight: 600;
     padding: 12px 15px;
     text-align: left;
     font-size: 14px;
-    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .ai-table td {
     padding: 10px 15px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: var(--text-color);
+    font-size: 14px;
 }
 
 .ai-table tr:last-child td {
@@ -66,88 +64,10 @@
     background: rgba(255, 255, 255, 0.03);
 }
 
-.ai-table th:first-child,
-.ai-table td:first-child {
-    padding-left: 20px;
-}
-
-.ai-table th:last-child,
-.ai-table td:last-child {
-    padding-right: 20px;
-}
-
-.ai-list {
-    margin: 10px 0 15px 20px;
-    padding-left: 0;
-    list-style: none;
-}
-
-.ai-list li {
-    margin: 8px 0;
-    padding-left: 25px;
-    position: relative;
-    line-height: 1.5;
-    color: var(--text-light);
-}
-
-.ai-list li:before {
-    content: "•";
-    color: #667eea;
-    font-size: 1.2em;
-    position: absolute;
-    left: 10px;
-    font-weight: bold;
-}
-
-h2.ai-heading, h3.ai-heading {
-    color: #667eea;
-    margin: 20px 0 10px 0;
-    font-weight: 600;
-    border-bottom: none !important;
-    padding-bottom: 0 !important;
-}
-
-h2.ai-heading {
-    font-size: 1.4em;
-}
-
-h3.ai-heading {
-    font-size: 1.2em;
-    color: #a78bfa;
-}
-
 .message-content h2,
 .message-content h3 {
-    color: #667eea;
     margin: 20px 0 10px 0;
-    font-weight: 600;
-    border-bottom: none;
-    padding-bottom: 0;
-}
-
-.message-content h2 {
-    font-size: 1.4em;
-}
-
-.message-content h3 {
-    font-size: 1.2em;
-    color: #a78bfa;
-}
-/* Message type styles */
-.error-message .message-content {
-    background: rgba(239, 68, 68, 0.1);
-    border-left: 4px solid #ef4444;
-}
-
-.medical-message .message-content {
-    background: rgba(16, 163, 127, 0.05);
-    border-left: 4px solid var(--primary-color);
-}
-
-/* Markdown formatting styles */
-.message-content h2, .message-content h3 {
     color: #667eea;
-    margin: 15px 0 10px 0;
     font-weight: 600;
 }
 
@@ -162,7 +82,8 @@ h3.ai-heading {
     color: #a78bfa;
 }
 
-.message-content ul, .message-content ol {
+.message-content ul,
+.message-content ol {
     margin: 10px 0 10px 20px;
 }
 
@@ -179,32 +100,6 @@ h3.ai-heading {
 .message-content em {
     color: #94a3b8;
     font-style: italic;
-}
-
-.message-content table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 15px 0;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.message-content th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 10px 15px;
-    text-align: left;
-    font-weight: 600;
-}
-
-.message-content td {
-    padding: 8px 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.message-content tr:last-child td {
-    border-bottom: none;
 }
         body {
             background-color: var(--chat-bg);
@@ -3131,6 +3026,7 @@ if (content.includes('**') || content.includes('##') || content.includes('|') ||
     </script>
 </body>
 </html>
+
 
 
 
