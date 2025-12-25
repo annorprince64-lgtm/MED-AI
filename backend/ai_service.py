@@ -51,7 +51,7 @@ Recommendations
 - Recommendation 2
 
 For drugs:
-## Drug Information
+Drug Information
 | Age Group | Dosage | Frequency |
 |-----------|--------|-----------|
 | Adults | 500mg | 2x daily |
@@ -105,7 +105,7 @@ Return ONLY this JSON format:
     def _error_response(self, error_msg: str) -> dict:
         return {
             "stage": "analysis",
-            "response": f"## System Error\n\n{error_msg}\n\nPlease try again.",
+            "response": f"System Error\n\n{error_msg}\n\nPlease try again.",
             "questions": None,
             "is_medical": False,
             "drug_recommendation": None,
@@ -116,3 +116,4 @@ Return ONLY this JSON format:
 
 # Singleton instance
 ai_service = AIService()
+
