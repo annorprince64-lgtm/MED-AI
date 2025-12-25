@@ -2348,7 +2348,59 @@ function loadFromLocalStorage(userId) {
             }
         }, 30000);
     }
+async function debugCloudData(userId) {
+    console.log('=== DEBUG CLOUD DATA ===');
+    
+    try {
+        const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
+        console.log('Response status:', response.status);
+        
+        const result = await response.json();
+        console.log('Response data:', result);
+        
+        if (result.success && result.chats) {
+            console.log(`Found ${Object.keys(result.chats).length} chats:`);
+            Object.keys(result.chats).forEach(chatId => {
+                const chat = result.chats[chatId];
+                console.log(`  Chat: ${chatId}`);
+                console.log(`    Title: ${chat.title}`);
+                console.log(`    Messages: ${Array.isArray(chat.messages) ? chat.messages.length : 'Invalid'}`);
+                console.log(`    Date: ${chat.date}`);
+            });
+        } else {
+            console.log('No chats or error:', result.error);
+        }
+    } catch (error) {
+        console.error('Debug error:', error);
+    }
+}
 
+// Add a debug button to your UI temporarily
+function addDebugButton() {
+    const debugBtn = document.createElement('button');
+    debugBtn.textContent = 'Debug Cloud';
+    debugBtn.style.position = 'fixed';
+    debugBtn.style.bottom = '60px';
+    debugBtn.style.right = '10px';
+    debugBtn.style.zIndex = '1000';
+    debugBtn.style.padding = '10px';
+    debugBtn.style.background = '#f59e0b';
+    debugBtn.style.color = 'white';
+    debugBtn.style.border = 'none';
+    debugBtn.style.borderRadius = '5px';
+    debugBtn.style.cursor = 'pointer';
+    debugBtn.onclick = () => {
+        if (currentUser) {
+            debugCloudData(currentUser.id);
+        } else {
+            alert('Please login first');
+        }
+    };
+    document.body.appendChild(debugBtn);
+}
+
+// Call this in your initializeApp function
+// addDebugButton();
     async function checkCloudSyncStatus() {
         if (!currentUser) return;
         
@@ -3090,5 +3142,6 @@ function loadFromLocalStorage(userId) {
         setupAutoVerify();
     });
 </script>
+
 
 
