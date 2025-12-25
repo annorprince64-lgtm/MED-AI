@@ -126,44 +126,6 @@ def update_profile():
             "error": str(e)
         }), 500
 
-# Existing AI Endpoint (unchanged)
-@app.route('/api/analyze', methods=['POST'])
-def analyze_text():
-    print("--- Incoming Request to /api/analyze ---")
-    try:
-        data = request.get_json()
-        print(f"Request received with {len(data.get('text', ''))} characters")
-
-        if not data or 'text' not in data:
-            print("Error: Missing 'text' in request body")
-            return jsonify({
-                "error": "Missing 'text' in request body",
-                "translation": "Invalid request",
-                "response": "Please provide text to analyze",
-                "is_medical": False
-            }), 400
-
-        text = data['text']
-        print(f"Processing text (length: {len(text)})")
-
-        # Use your AIService to process the text
-        result = ai_service.analyze_text(text)
-
-        print(f"Analysis complete, returning result")
-        return jsonify(result)
-
-    except Exception as e:
-        import traceback
-        print(f"An error occured when processing")
-        print(traceback.format_exc())
-        return jsonify({
-            "error": str(e),
-            "translation": "Server error",
-            "response": "An error occurred while processing your request",
-            "is_medical": False,
-            "details": str(e)
-        }), 500
-# Add these endpoints after your existing endpoints
 
 @app.route('/api/chats/save', methods=['POST'])
 def save_chat():
@@ -298,6 +260,7 @@ if __name__ == '__main__':
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
 
 
