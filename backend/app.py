@@ -40,6 +40,7 @@ def register():
     """Register a new user"""
     try:
         data = request.get_json()
+        print(f"📝 Register request received: {data}")
 
         if not data or 'username' not in data or 'email' not in data or 'password' not in data:
             return jsonify({
@@ -47,7 +48,7 @@ def register():
                 "error": "Missing required fields (username, email, password)"
             }), 400
 
-        # Check if email already exists
+        # Check if email already exists using database function
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         cursor.execute('SELECT id FROM users WHERE email = ?', (data['email'],))
@@ -55,12 +56,29 @@ def register():
         conn.close()
         
         if existing_user:
+            print(f"❌ Email already exists: {data['email']}")
             return jsonify({
                 "success": False,
                 "error": "Email already registered"
             }), 400
 
+        # Check if username already exists
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM users WHERE username = ?', (data['username'],))
+        existing_username = cursor.fetchone()
+        conn.close()
+        
+        if existing_username:
+            print(f"❌ Username already exists: {data['username']}")
+            return jsonify({
+                "success": False,
+                "error": "Username already exists"
+            }), 400
+
+        # Create user
         result = database.create_user(data['username'], data['email'], data['password'])
+        print(f"✅ Create user result: {result}")
 
         if result['success']:
             return jsonify({
@@ -72,9 +90,12 @@ def register():
             return jsonify(result), 400
 
     except Exception as e:
+        print(f"❌ Error in register endpoint: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             "success": False,
-            "error": str(e)
+            "error": f"Registration failed: {str(e)}"
         }), 500
 @app.route('/api/login', methods=['POST'])
 def login():
@@ -302,4 +323,5 @@ if __name__ == '__main__':
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
