@@ -248,8 +248,15 @@ def load_chats():
                 "error": "Missing user_id parameter"
             }), 400
         
+        print(f"📥 Loading chats for user_id: {user_id}")
+        
         # Get chats from cloud
         chats = database.get_user_chats_from_cloud(user_id)
+        print(f"📥 Found {len(chats)} chats in cloud")
+        
+        # Debug: Print chat IDs
+        for chat_id, chat in chats.items():
+            print(f"  - Chat: {chat_id}, Title: {chat.get('title', 'No title')}, Messages: {len(chat.get('messages', []))}")
         
         return jsonify({
             "success": True,
@@ -258,6 +265,8 @@ def load_chats():
         
     except Exception as e:
         print(f"❌ Error in load_chats: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             "success": False,
             "error": str(e)
@@ -457,3 +466,4 @@ if __name__ == '__main__':
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
