@@ -333,11 +333,45 @@ def handle_exception(e):
         "error": "Internal server error",
         "message": str(e)
     }), 500
+@app.route('/api/debug/database', methods=['GET'])
+def debug_database():
+    """Debug endpoint to check database status"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        # Check if tables exist
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+        tables = cursor.fetchall()
+        
+        # Check users table structure
+        users_count = 0
+        if 'users' in [t[0] for t in tables]:
+            cursor.execute("SELECT COUNT(*) FROM users")
+            users_count = cursor.fetchone()[0]
+            
+            cursor.execute("PRAGMA table_info(users)")
+            users_structure = cursor.fetchall()
+        else:
+            users_structure = "Table doesn't exist"
+        
+        conn.close()
+        
+        return jsonify({
+            "database_path": DATABASE_PATH,
+            "tables": [t[0] for t in tables],
+            "users_count": users_count,
+            "users_structure": users_structure if isinstance(users_structure, str) else [dict(zip(['cid', 'name', 'type', 'notnull', 'dflt_value', 'pk'], row)) for row in users_structure]
+        })
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500    
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
 
 
