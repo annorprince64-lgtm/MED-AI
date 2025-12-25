@@ -2248,36 +2248,49 @@ To summarize the data flow and purposes clearly, the following table provides an
         // ============================================
         // CHAT HISTORY FUNCTIONS
         // ============================================
-        function loadUserChatHistory(userId) {
-            console.log('[USER] Loading chat history for user:', userId);
+       async function loadUserChatHistory(userId) {
+    console.log('[USER] Loading chat history for user:', userId);
+    
+    if (userId) {
+        try {
+            // Try to load from cloud first
+            const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
+            const result = await response.json();
+            
+            if (result.success && result.chats && Object.keys(result.chats).length > 0) {
+                chatHistoryData = result.chats;
+                console.log('[CLOUD] Loaded from cloud:', Object.keys(chatHistoryData).length, 'chats');
+            } else {
+                // Fallback to local storage
+                const userHistoryKey = `medAI_chatHistory_${userId}`;
+                const savedHistory = localStorage.getItem(userHistoryKey);
+                
+                if (savedHistory) {
+                    chatHistoryData = JSON.parse(savedHistory);
+                    console.log('[USER] Loaded from local storage');
+                } else {
+                    console.log('[USER] No existing history, creating initial chat');
+                    createInitialChat();
+                }
+            }
+        } catch (error) {
+            console.error('[CLOUD] Error loading from cloud, using local:', error);
             const userHistoryKey = `medAI_chatHistory_${userId}`;
             const savedHistory = localStorage.getItem(userHistoryKey);
-
+            
             if (savedHistory) {
                 chatHistoryData = JSON.parse(savedHistory);
-                console.log('[USER] Loaded user chat history:', Object.keys(chatHistoryData).length, 'chats');
             } else {
-                console.log('[USER] No existing history, creating initial chat');
-                chatHistoryData = {};
-                currentChatId = generateChatId();
-                chatHistoryData[currentChatId] = {
-                    id: currentChatId,
-                    title: "Welcome to DRUGBOT",
-                    date: new Date().toISOString(),
-                    messages: [
-                        {
-                            role: "ai",
-                            content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                            timestamp: new Date().toISOString()
-                        }
-                    ]
-                };
-                saveChatHistory();
+                createInitialChat();
             }
-
-            renderChatHistory();
-            loadChat(currentChatId);
         }
+    } else {
+        loadGuestData();
+    }
+
+    renderChatHistory();
+    loadChat(currentChatId);
+}
 
         function loadGuestData() {
             console.log('[GUEST] Loading guest data');
@@ -2903,5 +2916,6 @@ To summarize the data flow and purposes clearly, the following table provides an
     </script>
 </body>
 </html>
+
 
 
