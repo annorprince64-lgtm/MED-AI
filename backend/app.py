@@ -35,7 +35,6 @@ def home():
         }
     })
 
-# Authentication Endpoints
 @app.route('/api/register', methods=['POST'])
 def register():
     """Register a new user"""
@@ -46,6 +45,19 @@ def register():
             return jsonify({
                 "success": False,
                 "error": "Missing required fields (username, email, password)"
+            }), 400
+
+        # Check if email already exists
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        cursor.execute('SELECT id FROM users WHERE email = ?', (data['email'],))
+        existing_user = cursor.fetchone()
+        conn.close()
+        
+        if existing_user:
+            return jsonify({
+                "success": False,
+                "error": "Email already registered"
             }), 400
 
         result = database.create_user(data['username'], data['email'], data['password'])
@@ -64,7 +76,6 @@ def register():
             "success": False,
             "error": str(e)
         }), 500
-
 @app.route('/api/login', methods=['POST'])
 def login():
     """Login a user"""
@@ -291,3 +302,4 @@ if __name__ == '__main__':
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
