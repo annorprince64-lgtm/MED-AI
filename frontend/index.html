@@ -2533,186 +2533,182 @@ function createInitialChat() {
 function renderMarkdown(text) {
     if (!text) return '';
     
-    // Step 1: Parse tables first (since they have specific formatting)
+    // Split into lines for processing
     const lines = text.split('\n');
     let result = [];
     let i = 0;
+    let inTable = false;
+    let tableRows = [];
     
     while (i < lines.length) {
-        // Check if this is a table row (contains | and not empty)
-        if (lines[i].includes('|') && lines[i].trim().length > 0) {
-            // Found a table - collect all table rows
-            const tableRows = [];
-            let headerSeparatorFound = false;
-            
-            while (i < lines.length && lines[i].includes('|') && lines[i].trim().length > 0) {
-                tableRows.push(lines[i]);
-                
-                // Check if this is a header separator (contains only dashes and pipes)
-                if (/^[\s\|:-]+$/.test(lines[i])) {
-                    headerSeparatorFound = true;
-                }
-                
+        const line = lines[i];
+        const trimmedLine = line.trim();
+        
+        // Handle tables
+        if (trimmedLine.includes('|') && !inTable) {
+            inTable = true;
+            tableRows = [line];
+            i++;
+            continue;
+        }
+        
+        if (inTable) {
+            if (trimmedLine.includes('|')) {
+                tableRows.push(line);
                 i++;
-            }
-            
-            // Process the table
-            if (tableRows.length >= 2) {
-                let tableHtml = '<table class="ai-table">';
-                
-                for (let rowIndex = 0; rowIndex < tableRows.length; rowIndex++) {
-                    const row = tableRows[rowIndex];
-                    
-                    // Skip header separator row
-                    if (/^[\s\|:-]+$/.test(row)) {
-                        continue;
-                    }
-                    
-                    // Split by pipe and clean up
-                    const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell !== '');
-                    
-                    if (cells.length > 0) {
-                        tableHtml += '<tr>';
-                        
-                        for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
-                            const cellContent = cells[cellIndex];
-                            let processedCell = cellContent;
-                            
-                            // Apply inline formatting
-                            processedCell = processedCell.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                            processedCell = processedCell.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                            
-                            if (rowIndex === 0 && !headerSeparatorFound) {
-                                // First row is header if no separator found
-                                tableHtml += `<th>${processedCell}</th>`;
-                            } else if (rowIndex === 1 && headerSeparatorFound) {
-                                // Second row is header if separator was found
-                                tableHtml += `<th>${processedCell}</th>`;
-                            } else if (rowIndex === 0 && headerSeparatorFound) {
-                                // Skip processing the separator row
-                                continue;
-                            } else {
-                                tableHtml += `<td>${processedCell}</td>`;
-                            }
-                        }
-                        
-                        tableHtml += '</tr>';
-                    }
-                }
-                
-                tableHtml += '</table>';
-                result.push(tableHtml);
+                continue;
             } else {
-                // Not enough rows for a proper table, add as plain text
-                result.push(tableRows.join('<br>'));
+                // End of table found, process it
+                processTable();
+                inTable = false;
+                // Don't increment i, process this line normally
+                continue;
+            }
+        }
+        
+        // Process regular lines
+        processRegularLine();
+        i++;
+    }
+    
+    // Process any remaining table at the end
+    if (inTable && tableRows.length > 0) {
+        processTable();
+    }
+    
+    // Join results
+    let html = result.join('');
+    
+    // Clean up
+    html = html.replace(/<br>\s*<br>/g, '<br><br>');
+    
+    return html;
+    
+    // Helper functions
+    function processTable() {
+        if (tableRows.length < 2) {
+            // Not a valid table, add as plain text
+            result.push(tableRows.join('<br>') + '<br>');
+            tableRows = [];
+            return;
+        }
+        
+        let tableHtml = '<table class="ai-table"><tbody>';
+        let isFirstRow = true;
+        let hasHeaderSeparator = false;
+        
+        // Check if second row is a separator
+        if (tableRows.length > 1 && /^[\s\|:-]+$/.test(tableRows[1].trim())) {
+            hasHeaderSeparator = true;
+        }
+        
+        for (let rowIndex = 0; rowIndex < tableRows.length; rowIndex++) {
+            const row = tableRows[rowIndex];
+            
+            // Skip separator rows
+            if (/^[\s\|:-]+$/.test(row.trim())) {
+                continue;
             }
             
-            continue;
-        }
-        
-        // Step 2: Handle headers
-        if (lines[i].startsWith('### ')) {
-            result.push(`<h3>${lines[i].substring(4).trim()}</h3>`);
-            i++;
-            continue;
-        }
-        
-        if (lines[i].startsWith('## ')) {
-            result.push(`<h2>${lines[i].substring(3).trim()}</h2>`);
-            i++;
-            continue;
-        }
-        
-        // Step 3: Handle bullet points
-        if (lines[i].trim().match(/^[-*]\s+/)) {
-            const listItems = [];
+            const cells = row.split('|')
+                .map(cell => cell.trim())
+                .filter(cell => cell !== '');
             
+            if (cells.length === 0) continue;
+            
+            tableHtml += '<tr>';
+            
+            for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+                let cellContent = cells[cellIndex];
+                
+                // Apply basic formatting
+                cellContent = cellContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                cellContent = cellContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                if ((rowIndex === 0 && !hasHeaderSeparator) || 
+                    (rowIndex === 1 && hasHeaderSeparator)) {
+                    tableHtml += `<th>${cellContent}</th>`;
+                } else {
+                    tableHtml += `<td>${cellContent}</td>`;
+                }
+            }
+            
+            tableHtml += '</tr>';
+        }
+        
+        tableHtml += '</tbody></table>';
+        result.push(tableHtml);
+        tableRows = [];
+    }
+    
+    function processRegularLine() {
+        let processedLine = line;
+        
+        // Handle headers - MUST COME FIRST
+        if (trimmedLine.startsWith('### ')) {
+            result.push(`<h3>${trimmedLine.substring(4)}</h3>`);
+            return;
+        }
+        
+        if (trimmedLine.startsWith('## ')) {
+            result.push(`<h2>${trimmedLine.substring(3)}</h2>`);
+            return;
+        }
+        
+        // Handle lists
+        if (trimmedLine.match(/^[-*]\s+/)) {
+            let listHtml = '<ul>';
             while (i < lines.length && lines[i].trim().match(/^[-*]\s+/)) {
                 let item = lines[i].trim().substring(2).trim();
-                // Apply inline formatting
                 item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                listItems.push(`<li>${item}</li>`);
+                listHtml += `<li>${item}</li>`;
                 i++;
             }
-            
-            result.push(`<ul>${listItems.join('')}</ul>`);
-            continue;
+            listHtml += '</ul>';
+            result.push(listHtml);
+            i--; // Adjust since we incremented in the loop
+            return;
         }
         
-        // Step 4: Handle numbered lists
-        if (lines[i].trim().match(/^\d+\.\s+/)) {
-            const listItems = [];
-            
+        // Handle numbered lists
+        if (trimmedLine.match(/^\d+\.\s+/)) {
+            let listHtml = '<ol>';
             while (i < lines.length && lines[i].trim().match(/^\d+\.\s+/)) {
                 let item = lines[i].trim().replace(/^\d+\.\s+/, '').trim();
-                // Apply inline formatting
                 item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
                 item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                listItems.push(`<li>${item}</li>`);
+                listHtml += `<li>${item}</li>`;
                 i++;
             }
-            
-            result.push(`<ol>${listItems.join('')}</ol>`);
-            continue;
+            listHtml += '</ol>';
+            result.push(listHtml);
+            i--; // Adjust since we incremented in the loop
+            return;
         }
         
-        // Step 5: Handle regular text with inline formatting
-        if (lines[i].trim().length > 0) {
-            let processedLine = lines[i];
-            
+        // Handle regular text
+        if (trimmedLine.length > 0) {
             // Apply inline formatting
             processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
             processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
             
-            // Check if next line is also regular text to combine paragraphs
-            if (i + 1 < lines.length && lines[i + 1].trim().length > 0 && 
-                !lines[i + 1].startsWith('#') && 
-                !lines[i + 1].includes('|') && 
-                !lines[i + 1].trim().match(/^[-*]\s+/) &&
-                !lines[i + 1].trim().match(/^\d+\.\s+/)) {
-                
-                // Combine with next line
-                result.push(`<p>${processedLine}<br>`);
-                i++;
-                
-                while (i < lines.length && lines[i].trim().length > 0 && 
-                       !lines[i].startsWith('#') && 
-                       !lines[i].includes('|') && 
-                       !lines[i].trim().match(/^[-*]\s+/) &&
-                       !lines[i].trim().match(/^\d+\.\s+/)) {
-                    
-                    let nextLine = lines[i];
-                    nextLine = nextLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    nextLine = nextLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                    result[result.length - 1] += `${nextLine}<br>`;
-                    i++;
-                }
-                
-                result[result.length - 1] += '</p>';
-                continue;
+            // Check if this is part of a paragraph
+            if (result.length > 0 && result[result.length - 1].endsWith('</p>') === false) {
+                // Add to existing paragraph
+                result[result.length - 1] = result[result.length - 1].replace(/<\/p>$/, '');
+                result[result.length - 1] += `<br>${processedLine}</p>`;
             } else {
-                // Single line paragraph
+                // Start new paragraph
                 result.push(`<p>${processedLine}</p>`);
             }
         } else {
-            // Empty line - add paragraph spacing
-            if (result.length > 0 && !result[result.length - 1].endsWith('<br><br>')) {
-                result.push('<br><br>');
+            // Empty line - add spacing
+            if (result.length > 0) {
+                result.push('<br>');
             }
         }
-        
-        i++;
     }
-    
-    // Join everything together
-    let html = result.join('');
-    
-    // Clean up extra breaks
-    html = html.replace(/(<br><br>)+/g, '<br><br>');
-    html = html.replace(/<\/p><br><br><p>/g, '</p><p>');
-    
-    return html;
 }
 
         function createNewChat() {
@@ -3125,6 +3121,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
