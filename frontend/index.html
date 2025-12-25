@@ -2236,189 +2236,274 @@ To summarize the data flow and purposes clearly, the following table provides an
             renderChatHistory();
             loadChat(currentChatId);
         }
-        // Replace these functions in your HTML JavaScript section
 
-// Update the saveChatHistory function
-async function saveChatHistory() {
-    console.log('[CLOUD] Attempting to save chat history');
-    
-    if (currentUser && currentUser.id) {
-        try {
-            // Get current chat data
-            const chatData = chatHistoryData[currentChatId];
-            if (!chatData) {
-                console.log('[CLOUD] No chat data to save');
+        function saveChatHistory() {
+            console.log('[SAVE] Saving chat history, currentUser:', currentUser);
+
+            if (currentUser) {
+                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+                console.log('[SAVE] Saved to user storage:', userHistoryKey);
+            } else {
+                localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+                console.log('[SAVE] Saved to guest storage');
+            }
+        }
+
+        function renderChatHistory() {
+            chatHistory.innerHTML = '';
+
+            const today = new Date().toDateString();
+            const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+            const todayChats = [];
+            const yesterdayChats = [];
+            const olderChats = [];
+
+            Object.values(chatHistoryData).forEach(chat => {
+                const chatDate = new Date(chat.date).toDateString();
+
+                if (chatDate === today) {
+                    todayChats.push(chat);
+                } else if (chatDate === yesterday) {
+                    yesterdayChats.push(chat);
+                } else {
+                    olderChats.push(chat);
+                }
+            });
+
+            if (todayChats.length > 0) {
+                const todayTitle = document.createElement('div');
+                todayTitle.className = 'history-title';
+                todayTitle.textContent = 'Today';
+                chatHistory.appendChild(todayTitle);
+
+                todayChats.forEach(chat => {
+                    chatHistory.appendChild(createHistoryItem(chat));
+                });
+            }
+
+            if (yesterdayChats.length > 0) {
+                const yesterdayTitle = document.createElement('div');
+                yesterdayTitle.className = 'history-title';
+                yesterdayTitle.textContent = 'Yesterday';
+                chatHistory.appendChild(yesterdayTitle);
+
+                yesterdayChats.forEach(chat => {
+                    chatHistory.appendChild(createHistoryItem(chat));
+                });
+            }
+
+            if (olderChats.length > 0) {
+                const olderTitle = document.createElement('div');
+                olderTitle.className = 'history-title';
+                olderTitle.textContent = 'Previous 7 Days';
+                chatHistory.appendChild(olderTitle);
+
+                olderChats.forEach(chat => {
+                    chatHistory.appendChild(createHistoryItem(chat));
+                });
+            }
+        }
+
+        function createHistoryItem(chat) {
+            const historyItem = document.createElement('div');
+            historyItem.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+            historyItem.dataset.chatId = chat.id;
+
+            const itemContent = document.createElement('div');
+            itemContent.className = 'history-item-content';
+
+            const icon = document.createElement('i');
+            icon.className = 'fas fa-message';
+
+            const title = document.createElement('span');
+            title.className = 'history-item-title';
+            title.textContent = chat.title;
+
+            itemContent.appendChild(icon);
+            itemContent.appendChild(title);
+            historyItem.appendChild(itemContent);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'action-btn';
+            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+            deleteBtn.style.opacity = '0.5';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                deleteChat(chat.id);
+            };
+            historyItem.appendChild(deleteBtn);
+
+            historyItem.addEventListener('click', () => {
+                loadChat(chat.id);
+            });
+
+            return historyItem;
+        }
+
+        function loadChat(chatId) {
+            console.log('[CHAT] Loading chat:', chatId);
+
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+
+            currentChatId = chatId;
+            chatContainer.innerHTML = '';
+
+            const chat = chatHistoryData[chatId];
+            if (chat && chat.messages) {
+                console.log('[CHAT] Loading', chat.messages.length, 'messages');
+                chat.messages.forEach(message => {
+                    addMessageToChat(
+                        message.content,
+                        message.role === 'user',
+                        false,
+                        false,
+                        message.isMedical,
+                        message.drugRecommendation,
+                        message.disclaimer,
+                        false
+                    );
+                });
+            }
+
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+
+            setTimeout(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 100);
+        }
+
+        function deleteChat(chatId) {
+            if (Object.keys(chatHistoryData).length === 1) {
+                alert('You cannot delete your only chat.');
                 return;
             }
-            
-            // Send to cloud
-            const response = await fetch(`${AUTH_URL}/chats/save`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    chat_data: chatData
-                })
-            });
-            
-            const result = await response.json();
-            
-            if (result.success) {
-                console.log('[CLOUD] Chat saved to cloud successfully');
-                // Also save locally as backup
-                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-            } else {
-                console.warn('[CLOUD] Cloud save failed, saving locally:', result.error);
-                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-            }
-        } catch (error) {
-            console.error('[CLOUD] Error saving to cloud, saving locally:', error);
-            const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-            localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-        }
-    } else {
-        // Guest user - save locally
-        console.log('[CLOUD] Guest user, saving locally');
-        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-    }
-}
 
-// Update the loadUserChatHistory function
-async function loadUserChatHistory(userId) {
-    console.log('[CLOUD] Loading chat history for user:', userId);
-    
-    if (userId) {
-        try {
-            // Try to load from cloud first
-            const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
-            const result = await response.json();
-            
-            if (result.success && result.chats && Object.keys(result.chats).length > 0) {
-                // Use cloud data
-                chatHistoryData = result.chats;
-                console.log('[CLOUD] Loaded', Object.keys(chatHistoryData).length, 'chats from cloud');
-                
-                // Update local storage as backup
-                const userHistoryKey = `medAI_chatHistory_${userId}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-            } else {
-                // Fallback to local storage
-                console.log('[CLOUD] No cloud data, loading from local storage');
-                const userHistoryKey = `medAI_chatHistory_${userId}`;
-                const savedHistory = localStorage.getItem(userHistoryKey);
-                
-                if (savedHistory) {
-                    chatHistoryData = JSON.parse(savedHistory);
-                    console.log('[CLOUD] Loaded from local storage');
-                } else {
-                    createInitialChat();
+            if (confirm('Are you sure you want to delete this chat?')) {
+                delete chatHistoryData[chatId];
+                saveChatHistory();
+                renderChatHistory();
+
+                if (chatId === currentChatId) {
+                    const remainingChatIds = Object.keys(chatHistoryData);
+                    if (remainingChatIds.length > 0) {
+                        loadChat(remainingChatIds[0]);
+                    }
                 }
             }
-        } catch (error) {
-            console.error('[CLOUD] Error loading from cloud, using local:', error);
-            const userHistoryKey = `medAI_chatHistory_${userId}`;
-            const savedHistory = localStorage.getItem(userHistoryKey);
-            
-            if (savedHistory) {
-                chatHistoryData = JSON.parse(savedHistory);
-            } else {
-                createInitialChat();
-            }
         }
-    } else {
-        // Guest user
-        loadGuestData();
-    }
-    
-    renderChatHistory();
-    
-    // Load the most recent chat or create new one
-    const chatIds = Object.keys(chatHistoryData);
-    if (chatIds.length > 0) {
-        currentChatId = chatIds[0]; // Most recent (first in sorted list)
-        loadChat(currentChatId);
-    } else {
-        createNewChat();
-    }
-}
 
-// Update the deleteChat function
-async function deleteChat(chatId) {
-    if (Object.keys(chatHistoryData).length === 1) {
-        alert('You cannot delete your only chat.');
-        return;
-    }
-    
-    if (confirm('Are you sure you want to delete this chat from all devices?')) {
-        // Delete from cloud if user is logged in
-        if (currentUser && currentUser.id) {
-            try {
-                const response = await fetch(`${AUTH_URL}/chats/delete`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: currentUser.id,
-                        chat_id: chatId
-                    })
-                });
-                
-                const result = await response.json();
-                if (!result.success) {
-                    console.warn('[CLOUD] Failed to delete from cloud:', result.error);
+        function createNewChat() {
+            currentChatId = generateChatId();
+            chatHistoryData[currentChatId] = {
+                id: currentChatId,
+                title: "New Conversation",
+                date: new Date().toISOString(),
+                messages: [
+                    {
+                        role: "ai",
+                        content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                        timestamp: new Date().toISOString()
+                    }
+                ]
+            };
+
+            saveChatHistory();
+            renderChatHistory();
+            loadChat(currentChatId);
+            statusIndicator.textContent = "New chat created";
+        }
+
+        function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
+            const messageDiv = document.createElement('div');
+            let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            if (isMedical) messageClass += ' medical-message';
+            if (isError) messageClass += ' error-message';
+            messageDiv.className = messageClass;
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
+            avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
+            if (isTyping) {
+                contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+            } else {
+                contentDiv.innerHTML = `<p>${content}</p>`;
+
+                if (drugRecommendation && drugRecommendation !== 'null') {
+                    const drugDiv = document.createElement('div');
+                    drugDiv.className = 'drug-recommendation';
+                    drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${drugRecommendation}`;
+                    contentDiv.appendChild(drugDiv);
                 }
-            } catch (error) {
-                console.error('[CLOUD] Error deleting from cloud:', error);
-            }
-        }
-        
-        // Delete locally
-        delete chatHistoryData[chatId];
-        
-        // Update local storage
-        if (currentUser && currentUser.id) {
-            const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-            localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-        } else {
-            localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-        }
-        
-        renderChatHistory();
-        
-        if (chatId === currentChatId) {
-            const remainingChatIds = Object.keys(chatHistoryData);
-            if (remainingChatIds.length > 0) {
-                loadChat(remainingChatIds[0]);
-            } else {
-                createNewChat();
-            }
-        }
-    }
-}
 
-// Helper function for initial chat
-function createInitialChat() {
-    currentChatId = generateChatId();
-    chatHistoryData[currentChatId] = {
-        id: currentChatId,
-        title: "Welcome to DRUGBOT",
-        date: new Date().toISOString(),
-        messages: [
-            {
-                role: "ai",
-                content: "## 👋 Welcome to DRUGBOT\n\nI'm your AI medical assistant with modern formatting capabilities.\n\n### What I can do:\n- **Medical analysis** with structured responses\n- **Drug information** with dosage tables\n- **Health advice** with clear sections\n- **General knowledge** in organized format\n\n### How to use:\n1. Speak or type your question\n2. I'll respond with well-formatted information\n3. Look for tables, bullet points, and clear headings\n\nTry asking me about a health concern!",
-                timestamp: new Date().toISOString()
-            }
-        ]
-    };
-}
+                if (disclaimer && disclaimer !== 'null') {
+                    const disclaimerDiv = document.createElement('div');
+                    disclaimerDiv.className = 'disclaimer';
+                    disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
+                    contentDiv.appendChild(disclaimerDiv);
+                }
 
-      
+                if (!isUser && !isError) {
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'message-actions';
+                    actionsDiv.innerHTML = `
+                        <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
+                        <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
+                        <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
+                    `;
+                    contentDiv.appendChild(actionsDiv);
+                }
+            }
+
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            if (saveToHistory && !isTyping && !isError) {
+                if (!chatHistoryData[currentChatId]) {
+                    chatHistoryData[currentChatId] = {
+                        id: currentChatId,
+                        title: "New Conversation",
+                        date: new Date().toISOString(),
+                        messages: []
+                    };
+                }
+
+                const messageData = {
+                    role: isUser ? 'user' : 'ai',
+                    content: content,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (isMedical) messageData.isMedical = true;
+                if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
+                if (disclaimer) messageData.disclaimer = disclaimer;
+
+                chatHistoryData[currentChatId].messages.push(messageData);
+                if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
+                    const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+                    chatHistoryData[currentChatId].title = shortMessage;
+                    renderChatHistory();
+                }
+            }
+            
+            return messageDiv;
+        }
 
         // ============================================
         // AI & VOICE FUNCTIONS
@@ -2721,4 +2806,3 @@ function createInitialChat() {
     </script>
 </body>
 </html>
-
