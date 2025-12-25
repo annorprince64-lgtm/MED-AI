@@ -2014,7 +2014,12 @@ To summarize the data flow and purposes clearly, the following table provides an
                     localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
                     
                     updateUserDisplay();
-                    loadUserChatHistory(currentUser.id);
+                    await loadUserChatHistory(currentUser.id);
+                    statusIndicator.textContent = `Welcome back, ${userName.textContent}! Syncing chats...`;
+                    // Trigger sync after login
+        setTimeout(() => {
+            saveChatHistory();
+        }, 1000);
 
                     // Show success feedback
                     loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
@@ -3221,6 +3226,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
