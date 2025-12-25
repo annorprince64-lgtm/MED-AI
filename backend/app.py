@@ -4,6 +4,8 @@ from ai_service import ai_service
 import database
 import os
 import sys
+import json  # Added missing import
+import traceback  # Added for better error logging
 
 # Force UTF-8 encoding for stdout to handle Twi characters
 if sys.platform == 'win32':
@@ -24,7 +26,12 @@ def home():
             "analyze": "/api/analyze (POST)",
             "register": "/api/register (POST)",
             "login": "/api/login (POST)",
-            "update-profile": "/api/update-profile (POST)"  # Added this
+            "update-profile": "/api/update-profile (POST)",
+            "chats": {
+                "save": "/api/chats/save (POST)",
+                "load": "/api/chats/load (GET)",
+                "delete": "/api/chats/delete (POST)"
+            }
         }
     })
 
@@ -87,7 +94,7 @@ def login():
             "error": str(e)
         }), 500
 
-# ADD THIS NEW ENDPOINT - Profile Update
+# Profile Update Endpoint
 @app.route('/api/update-profile', methods=['POST'])
 def update_profile():
     """Update user profile using email to identify user"""
@@ -133,16 +140,16 @@ def save_chat():
     try:
         data = request.get_json()
         
-        if not data or 'user_id' not in data or 'chat_data' not in data:
+        if not data or 'user_id' not in data:
             return jsonify({
                 "success": False,
-                "error": "Missing user_id or chat_data"
+                "error": "Missing user_id"
             }), 400
         
         # Call database function
         result = database.save_chat_to_cloud(
             user_id=data['user_id'],
-            chat_data=data['chat_data']
+            chat_data=data.get('chat_data', {})
         )
         
         return jsonify(result)
@@ -213,26 +220,30 @@ def analyze_text():
     print("--- Incoming Request to /api/analyze ---")
     try:
         data = request.get_json()
-        print(f"Request received with {len(data.get('text', ''))} characters")
-
-        if not data or 'text' not in data:
-            print("Error: Missing 'text' in request body")
+        if not data:
+            print("Error: No JSON data received")
             return jsonify({
-                "error": "Missing 'text' in request body",
-                "translation": "Invalid request",
+                "error": "No data received",
                 "response": "Please provide text to analyze",
                 "is_medical": False
             }), 400
 
-        text = data['text']
+        text = data.get('text', '')
         print(f"Processing text (length: {len(text)})")
+
+        if not text:
+            print("Error: Empty text received")
+            return jsonify({
+                "error": "Empty text provided",
+                "response": "Please provide text to analyze",
+                "is_medical": False
+            }), 400
 
         # Debug: Check if ai_service has analyze_text
         if not hasattr(ai_service, 'analyze_text'):
             print("❌ ERROR: ai_service has no analyze_text method!")
             return jsonify({
                 "error": "AI service configuration error",
-                "translation": "Service error",
                 "response": "The AI service is not properly configured. Please contact support.",
                 "is_medical": False
             }), 500
@@ -244,17 +255,14 @@ def analyze_text():
         return jsonify(result)
 
     except Exception as e:
-        import traceback
-        print(f"An error occurred when processing")
+        print(f"An error occurred when processing: {str(e)}")
         print(traceback.format_exc())
         return jsonify({
             "error": str(e),
-            "translation": "Server error",
             "response": "An error occurred while processing your request",
-            "is_medical": False,
-            "details": str(e)
+            "is_medical": False
         }), 500
-# Add this route right before if __name__ == '__main__'
+
 @app.route('/api/debug/ai', methods=['GET'])
 def debug_ai():
     """Debug endpoint to check AI service"""
@@ -277,13 +285,9 @@ def debug_ai():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
-
-
-
-
-
