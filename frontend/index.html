@@ -2631,45 +2631,94 @@ function initializeApp() {
             return historyItem;
         }
 
-        function loadChat(chatId) {
-            console.log('[CHAT] Loading chat:', chatId);
+      function loadChat(chatId) {
+    console.log('[CHAT] Loading chat:', chatId);
 
-            document.querySelectorAll('.history-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
-            if (activeItem) {
-                activeItem.classList.add('active');
-            }
+    document.querySelectorAll('.history-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+    }
 
-            currentChatId = chatId;
-            chatContainer.innerHTML = '';
+    currentChatId = chatId;
+    chatContainer.innerHTML = '';
 
-            const chat = chatHistoryData[chatId];
-            if (chat && chat.messages) {
-                console.log('[CHAT] Loading', chat.messages.length, 'messages');
-                chat.messages.forEach(message => {
-                    addMessageToChat(
-                        message.content,
-                        message.role === 'user',
-                        false,
-                        false,
-                        message.isMedical,
-                        message.drugRecommendation,
-                        message.disclaimer,
-                        false
-                    );
+    const chat = chatHistoryData[chatId];
+    if (chat && chat.messages) {
+        console.log('[CHAT] Loading', chat.messages.length, 'messages');
+        
+        // Clear and recreate chat container safely
+        chatContainer.innerHTML = '';
+        
+        chat.messages.forEach((message, index) => {
+            try {
+                console.log(`[CHAT] Loading message ${index}:`, {
+                    role: message.role,
+                    contentLength: message.content?.length,
+                    hasDrug: !!message.drugRecommendation,
+                    hasDisclaimer: !!message.disclaimer
                 });
+                
+                // Safely extract message properties with defaults
+                const content = message.content || '';
+                const isUser = message.role === 'user';
+                const isMedical = message.isMedical || false;
+                const drugRecommendation = message.drugRecommendation || null;
+                const disclaimer = message.disclaimer || null;
+                
+                // Use addMessageToChat with all parameters
+                addMessageToChat(
+                    content,
+                    isUser,
+                    false,  // isTyping
+                    false,  // isError
+                    isMedical,
+                    drugRecommendation,
+                    disclaimer,
+                    false   // saveToHistory (already saved)
+                );
+            } catch (messageError) {
+                console.error(`[CHAT] Error loading message ${index}:`, messageError, message);
+                
+                // Add error message instead
+                addMessageToChat(
+                    `Error loading message: ${messageError.message}`,
+                    false,
+                    false,
+                    true,
+                    false,
+                    null,
+                    null,
+                    false
+                );
             }
+        });
+    } else {
+        console.log('[CHAT] No messages found or invalid chat structure');
+        
+        // Add default welcome message
+        addMessageToChat(
+            "Hello! I'm your AI medical assistant. How can I help you today?",
+            false, // isUser
+            false, // isTyping
+            false, // isError
+            false, // isMedical
+            null,  // drugRecommendation
+            null,  // disclaimer
+            false  // saveToHistory
+        );
+    }
 
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('open');
-            }
+    if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+    }
 
-            setTimeout(() => {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            }, 100);
-        }
+    setTimeout(() => {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 100);
+}
 
         function deleteChat(chatId) {
             if (Object.keys(chatHistoryData).length === 1) {
@@ -3342,6 +3391,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
