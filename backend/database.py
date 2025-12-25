@@ -1,7 +1,7 @@
 import sqlite3
 import os
+import json  # Added missing import
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime
 
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'users.db')
 
@@ -113,7 +113,6 @@ def get_user_by_id(user_id):
         print(f"Error getting user: {e}")
         return None
 
-# ADD THIS NEW FUNCTION - Profile Update
 def update_user_profile(original_email, name=None, new_email=None, current_password=None, new_password=None):
     """
     Update user profile information using original email to identify user
@@ -213,64 +212,7 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
     except Exception as e:
         print(f"❌ Database error: {str(e)}")
         return {"success": False, "error": str(e)}
-def update_user_profile(original_email, name=None, new_email=None, current_password=None, new_password=None):
-    """
-    Update user profile - SIMPLE VERSION
-    """
-    try:
-        conn = sqlite3.connect(DATABASE_PATH)
-        cursor = conn.cursor()
-        
-        print(f"Updating profile for: {original_email}")
-        
-        # Get the user
-        cursor.execute('SELECT * FROM users WHERE email = ?', (original_email,))
-        user = cursor.fetchone()
-        
-        if not user:
-            return {"success": False, "error": "User not found"}
-        
-        # If changing password, check current password
-        if new_password:
-            if not current_password:
-                return {"success": False, "error": "Current password required"}
-            
-            if not check_password_hash(user[3], current_password):
-                return {"success": False, "error": "Current password is wrong"}
-            
-            # Update password
-            new_hash = generate_password_hash(new_password)
-            cursor.execute('UPDATE users SET password_hash = ? WHERE email = ?', (new_hash, original_email))
-        
-        # Update name if provided
-        if name:
-            cursor.execute('UPDATE users SET username = ? WHERE email = ?', (name, original_email))
-        
-        # Update email if provided
-        final_email = original_email
-        if new_email and new_email != original_email:
-            cursor.execute('UPDATE users SET email = ? WHERE email = ?', (new_email, original_email))
-            final_email = new_email
-        
-        conn.commit()
-        
-        # Get updated user
-        cursor.execute('SELECT id, username, email FROM users WHERE email = ?', (final_email,))
-        updated = cursor.fetchone()
-        
-        conn.close()
-        
-        return {
-            "success": True,
-            "user": {
-                "id": updated[0],
-                "username": updated[1],
-                "email": updated[2]
-            }
-        }
-        
-    except Exception as e:
-        return {"success": False, "error": str(e)}
+
 def save_user_chat(user_id, chat_data):
     """Save user chat to cloud database"""
     try:
@@ -323,7 +265,6 @@ def get_user_chats(user_id):
         
     except Exception as e:
         return {}
-# Add these new functions to your database.py
 
 def save_chat_to_cloud(user_id, chat_data):
     """Save a complete chat to cloud database"""
@@ -354,7 +295,7 @@ def save_chat_to_cloud(user_id, chat_data):
         # Check if chat already exists
         cursor.execute(
             'SELECT id FROM cloud_chats WHERE user_id = ? AND chat_id = ?',
-            (user_id, chat_data['id'])
+            (user_id, chat_data.get('id', ''))
         )
         
         existing = cursor.fetchone()
@@ -365,15 +306,15 @@ def save_chat_to_cloud(user_id, chat_data):
                 UPDATE cloud_chats 
                 SET title = ?, messages = ?, updated_at = CURRENT_TIMESTAMP
                 WHERE id = ?
-            ''', (chat_data['title'], json.dumps(chat_data['messages']), existing[0]))
-            print(f"✅ Updated chat {chat_data['id']} for user {user_id}")
+            ''', (chat_data.get('title', 'Untitled'), json.dumps(chat_data.get('messages', [])), existing[0]))
+            print(f"✅ Updated chat {chat_data.get('id')} for user {user_id}")
         else:
             # Insert new chat
             cursor.execute('''
                 INSERT INTO cloud_chats (user_id, chat_id, title, messages)
                 VALUES (?, ?, ?, ?)
-            ''', (user_id, chat_data['id'], chat_data['title'], json.dumps(chat_data['messages'])))
-            print(f"✅ Saved new chat {chat_data['id']} for user {user_id}")
+            ''', (user_id, chat_data.get('id', ''), chat_data.get('title', 'Untitled'), json.dumps(chat_data.get('messages', []))))
+            print(f"✅ Saved new chat {chat_data.get('id')} for user {user_id}")
         
         conn.commit()
         conn.close()
@@ -440,9 +381,7 @@ def delete_chat_from_cloud(user_id, chat_id):
         
     except Exception as e:
         print(f"❌ Error deleting chat from cloud: {str(e)}")
-        return {"success": False, "error": str(e)}        
+        return {"success": False, "error": str(e)}
+
 # Initialize database when module is imported
 init_db()
-
-
-
