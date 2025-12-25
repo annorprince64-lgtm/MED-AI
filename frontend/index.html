@@ -2791,7 +2791,7 @@ if (!isUser) {
                 if (drugRecommendation && drugRecommendation !== 'null') {
                     const drugDiv = document.createElement('div');
                     drugDiv.className = 'drug-recommendation';
-                    drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${drugRecommendation}`;
+                    drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong>${renderMarkdown(drugRecommendation)}`;
                     contentDiv.appendChild(drugDiv);
                 }
 
@@ -3152,6 +3152,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
