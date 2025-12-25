@@ -2323,6 +2323,24 @@ function createInitialChat() {
         function generateChatId() {
             return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
+        function createInitialChat() {
+    currentChatId = generateChatId();
+    chatHistoryData = {
+        [currentChatId]: {
+            id: currentChatId,
+            title: "Welcome to DRUGBOT",
+            date: new Date().toISOString(),
+            messages: [
+                {
+                    role: "ai",
+                    content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                    timestamp: new Date().toISOString()
+                }
+            ]
+        }
+    };
+    console.log('[INIT] Created initial chat with ID:', currentChatId);
+}
 
         // ============================================
         // CHAT HISTORY FUNCTIONS
@@ -3181,6 +3199,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
