@@ -254,12 +254,35 @@ def analyze_text():
             "is_medical": False,
             "details": str(e)
         }), 500
-
+# Add this route right before if __name__ == '__main__'
+@app.route('/api/debug/ai', methods=['GET'])
+def debug_ai():
+    """Debug endpoint to check AI service"""
+    try:
+        # Check if ai_service exists
+        has_attr = hasattr(ai_service, 'analyze_text')
+        
+        # Check instance type
+        instance_type = type(ai_service).__name__
+        
+        # Check methods
+        methods = [method for method in dir(ai_service) if not method.startswith('_')]
+        
+        return jsonify({
+            "has_analyze_text": has_attr,
+            "instance_type": instance_type,
+            "methods": methods,
+            "client_exists": ai_service.client is not None,
+            "api_key_exists": bool(ai_service.api_key)
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
 
 
