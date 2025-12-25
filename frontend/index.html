@@ -2191,36 +2191,47 @@ function loadFromLocalStorage(userId) {
         chatHistoryData = {};
     }
 }
-    function validateChatData(chatData) {
-        const validated = {};
-        Object.keys(chatData).forEach(chatId => {
-            const chat = chatData[chatId];
-            validated[chatId] = {
-                id: chatId,
-                title: chat.title || "Untitled Conversation",
-                date: chat.date || new Date().toISOString(),
-                messages: []
-            };
+   function validateChatData(chatData) {
+    const validated = {};
+    console.log('[VALIDATE] Validating chat data:', Object.keys(chatData).length, 'chats');
+    
+    Object.keys(chatData).forEach(chatId => {
+        const chat = chatData[chatId];
+        
+        // Ensure chat has required fields
+        validated[chatId] = {
+            id: chatId,
+            title: chat.title || "Untitled Conversation",
+            date: chat.date || new Date().toISOString(),
+            messages: []
+        };
 
-            if (Array.isArray(chat.messages)) {
-                chat.messages.forEach(msg => {
-                    const validatedMsg = {
-                        role: msg.role === 'user' ? 'user' : 'ai',
-                        content: msg.content || '',
-                        timestamp: msg.timestamp || new Date().toISOString()
-                    };
+        // Handle messages
+        if (Array.isArray(chat.messages)) {
+            chat.messages.forEach(msg => {
+                // Ensure message has required structure
+                const validatedMsg = {
+                    role: msg.role === 'user' ? 'user' : 'ai',
+                    content: msg.content || '',
+                    timestamp: msg.timestamp || new Date().toISOString()
+                };
 
-                    if (msg.isMedical !== undefined) validatedMsg.isMedical = Boolean(msg.isMedical);
-                    if (msg.drugRecommendation) validatedMsg.drugRecommendation = msg.drugRecommendation;
-                    if (msg.disclaimer) validatedMsg.disclaimer = msg.disclaimer;
+                // Copy optional fields if they exist
+                if (msg.isMedical !== undefined) validatedMsg.isMedical = Boolean(msg.isMedical);
+                if (msg.drugRecommendation) validatedMsg.drugRecommendation = msg.drugRecommendation;
+                if (msg.disclaimer) validatedMsg.disclaimer = msg.disclaimer;
 
-                    validated[chatId].messages.push(validatedMsg);
-                });
-            }
-        });
-        return validated;
-    }
-
+                validated[chatId].messages.push(validatedMsg);
+            });
+            console.log(`[VALIDATE] Chat ${chatId}: ${chat.messages.length} messages validated`);
+        } else {
+            console.warn(`[VALIDATE] Chat ${chatId}: messages is not an array or missing`);
+        }
+    });
+    
+    console.log(`[VALIDATE] Validated ${Object.keys(validated).length} chats`);
+    return validated;
+}
     function loadFromLocalStorage(userId) {
         const userHistoryKey = `medAI_chatHistory_${userId}`;
         const savedHistory = localStorage.getItem(userHistoryKey);
@@ -3150,6 +3161,7 @@ function addDebugButton() {
         setupAutoVerify();
     });
 </script>
+
 
 
 
