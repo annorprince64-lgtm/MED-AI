@@ -63,6 +63,38 @@
 .ai-table tr:hover {
     background: rgba(255, 255, 255, 0.03);
 }
+        /* Add these to your CSS section */
+.message-content h2:first-child,
+.message-content h3:first-child {
+    margin-top: 0;
+}
+
+.message-content ul {
+    list-style-type: disc;
+}
+
+.message-content ol {
+    list-style-type: decimal;
+}
+
+.message-content table.ai-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.message-content table.ai-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.message-content table.ai-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
 
 .message-content h2,
 .message-content h3 {
@@ -3120,6 +3152,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
