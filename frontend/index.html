@@ -2531,40 +2531,92 @@ function createInitialChat() {
 function renderMarkdown(text) {
     if (!text) return '';
     
-    let html = text
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
-        .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
-        .replace(/^\* (.*?)$/gm, '<li>$1</li>')
-        .replace(/^- (.*?)$/gm, '<li>$1</li>');
+    let html = text;
     
-    // Wrap consecutive li elements in ul
+    // Convert headers - handle lines that start with ## or ###
+    html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
+    
+    // Convert bold text
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Convert italic text
+    html = html.replace(/\*(?!\*)(.*?)(?<!\*)\*/g, '<em>$1</em>');
+    
+    // Convert bullet points
+    html = html.replace(/^\s*[-*]\s+(.*)$/gm, '<li>$1</li>');
+    
+    // Convert tables properly
+    html = html.replace(/(?:\|.*\|(?:\r?\n|\r)?)+/g, function(match) {
+        const rows = match.trim().split('\n');
+        if (rows.length < 2) return match;
+        
+        let tableHtml = '<table class="ai-table">';
+        
+        rows.forEach((row, rowIndex) => {
+            const cells = row.split('|').filter(cell => cell.trim() !== '');
+            tableHtml += '<tr>';
+            
+            cells.forEach(cell => {
+                const content = cell.trim();
+                if (rowIndex === 0) {
+                    tableHtml += `<th>${content}</th>`;
+                } else {
+                    tableHtml += `<td>${content}</td>`;
+                }
+            });
+            
+            tableHtml += '</tr>';
+        });
+        
+        tableHtml += '</table>';
+        return tableHtml;
+    });
+    
+    // Convert line breaks to <br> for non-table, non-list content
     const lines = html.split('\n');
-    let inList = false;
     let result = [];
+    let inList = false;
+    let inTable = false;
     
-    for (let line of lines) {
-        if (line.startsWith('<li>')) {
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        
+        if (line.includes('<table') || line.includes('</table>')) {
+            // Table handling
+            result.push(line);
+            inTable = line.includes('<table') && !line.includes('</table>');
+        } else if (inTable) {
+            // Inside a table, keep as is
+            result.push(line);
+        } else if (line.startsWith('<li>')) {
+            // List handling
             if (!inList) {
-                result.push('<ul>');
+                result.push('<ul class="ai-list">');
                 inList = true;
             }
             result.push(line);
-        } else {
-            if (inList) {
+            
+            // Check if next line is not a list item
+            const nextLine = lines[i + 1];
+            if (!nextLine || !nextLine.startsWith('<li>')) {
                 result.push('</ul>');
                 inList = false;
             }
+        } else if (line.startsWith('<h2>') || line.startsWith('<h3>') || line.startsWith('<h4>')) {
+            // Headers - don't add line breaks
             result.push(line);
+        } else if (line.trim() === '') {
+            // Empty lines - add paragraph break
+            result.push('<br><br>');
+        } else {
+            // Regular text - add line break
+            result.push(line + '<br>');
         }
     }
     
-    if (inList) {
-        result.push('</ul>');
-    }
+    html = result.join('\n');
     
-    html = result.join('\n').replace(/\n/g, '<br>');
     return html;
 }
         function createNewChat() {
@@ -2971,6 +3023,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
