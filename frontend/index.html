@@ -1170,33 +1170,34 @@
             rows="1"></textarea>
                 
 
-                <!-- Main text input area -->
-                <textarea class="chat-textarea" id="chatTextarea" 
-                    placeholder="Message DRUGBOT... (Shift+Enter for new line)"
-                    rows="1"></textarea>
+            <div class="input-container">
+    <div class="input-wrapper">
+        <!-- Main text input area -->
+        <textarea class="chat-textarea" id="chatTextarea" 
+            placeholder="Message DRUGBOT... (Shift+Enter for new line)"
+            rows="1"></textarea>
 
-                <!-- Voice button inside textarea -->
-                <button class="voice-input-btn" id="voiceInputBtn" title="Voice input">
-                    <i class="fas fa-microphone"></i>
-                </button>
+        <!-- Voice button inside textarea -->
+        <button class="voice-input-btn" id="voiceInputBtn" title="Voice input">
+            <i class="fas fa-microphone"></i>
+        </button>
 
-                <!-- Send button -->
-                <button class="send-btn" id="sendBtn" title="Send message">
-                    <i class="fas fa-paper-plane"></i>
-                </button>
-            </div>
-
-            <!-- Quick suggestions -->
-            <div class="input-suggestions">
-                <button class="suggestion-btn" data-prompt="What are the symptoms of malaria?">Malaria symptoms</button>
-                <button class="suggestion-btn" data-prompt="Recommend OTC pain relief">Pain relief</button>
-                <button class="suggestion-btn" data-prompt="How to treat common cold?">Common cold</button>
-                <button class="suggestion-btn" data-prompt="First aid for burns">First aid burns</button>
-            </div>
-
-            <div class="status-indicator" id="statusIndicator">Ready to chat - Type or speak your message</div>
-        </div>
+        <!-- Send button -->
+        <button class="send-btn" id="sendBtn" title="Send message">
+            <i class="fas fa-paper-plane"></i>
+        </button>
     </div>
+
+    <!-- Quick suggestions -->
+    <div class="input-suggestions">
+        <button class="suggestion-btn" data-prompt="What are the symptoms of malaria?">Malaria symptoms</button>
+        <button class="suggestion-btn" data-prompt="Recommend OTC pain relief">Pain relief</button>
+        <button class="suggestion-btn" data-prompt="How to treat common cold?">Common cold</button>
+        <button class="suggestion-btn" data-prompt="First aid for burns">First aid burns</button>
+    </div>
+
+    <div class="status-indicator" id="statusIndicator">Ready to chat - Type or speak your message</div>
+</div>
 
     <!-- ALL MODALS MUST BE HERE -->
     <!-- Login Modal -->
@@ -2989,6 +2990,7 @@
     </script>
 </body>
 </html>
+
 
 
 
