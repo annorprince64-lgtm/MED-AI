@@ -341,6 +341,13 @@ def get_user_chats_from_cloud(user_id):
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        # Check if table exists
+        cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cloud_chats'")
+        if not cursor.fetchone():
+            print("❌ cloud_chats table doesn't exist")
+            conn.close()
+            return {}
+        
         cursor.execute('''
             SELECT chat_id, title, messages, created_at, updated_at 
             FROM cloud_chats 
@@ -351,28 +358,43 @@ def get_user_chats_from_cloud(user_id):
         chats = {}
         rows = cursor.fetchall()
         
+        print(f"📊 Database query returned {len(rows)} rows for user {user_id}")
+        
         for row in rows:
+            chat_id = row[0]
+            title = row[1]
+            messages_json = row[2]
+            created_at = row[3]
+            updated_at = row[4]
+            
             try:
-                messages = json.loads(row[2])
-            except:
+                # Try to parse messages JSON
+                messages = json.loads(messages_json) if messages_json else []
+                if not isinstance(messages, list):
+                    messages = []
+            except json.JSONDecodeError as e:
+                print(f"❌ Error parsing JSON for chat {chat_id}: {e}")
                 messages = []
             
-            chats[row[0]] = {
-                'id': row[0],
-                'title': row[1],
+            chats[chat_id] = {
+                'id': chat_id,
+                'title': title,
                 'messages': messages,
-                'date': row[3],
-                'updated': row[4]
+                'date': created_at,
+                'updated': updated_at
             }
+            
+            print(f"  ✅ Loaded chat: {chat_id} with {len(messages)} messages")
         
         conn.close()
-        print(f"📥 Loaded {len(chats)} chats from cloud for user {user_id}")
+        print(f"📥 Total loaded {len(chats)} chats from cloud for user {user_id}")
         return chats
         
     except Exception as e:
         print(f"❌ Error loading chats from cloud: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return {}
-
 def delete_chat_from_cloud(user_id, chat_id):
     """Delete a chat from cloud"""
     try:
@@ -395,5 +417,6 @@ def delete_chat_from_cloud(user_id, chat_id):
 
 # Initialize database when module is imported
 init_db()
+
 
 
