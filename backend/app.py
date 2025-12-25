@@ -163,20 +163,88 @@ def analyze_text():
             "is_medical": False,
             "details": str(e)
         }), 500
+# Add these endpoints after your existing endpoints
+
 @app.route('/api/chats/save', methods=['POST'])
 def save_chat():
     """Save chat to cloud database"""
     try:
         data = request.get_json()
-        user_id = data['user_id']
-        chat_data = data['chat_data']
         
-        # Save to database
-        result = database.save_user_chat(user_id, chat_data)
+        if not data or 'user_id' not in data or 'chat_data' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing user_id or chat_data"
+            }), 400
+        
+        # Call database function
+        result = database.save_chat_to_cloud(
+            user_id=data['user_id'],
+            chat_data=data['chat_data']
+        )
+        
         return jsonify(result)
         
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
+        print(f"❌ Error in save_chat: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route('/api/chats/load', methods=['GET'])
+def load_chats():
+    """Load user chats from cloud"""
+    try:
+        user_id = request.args.get('user_id')
+        
+        if not user_id:
+            return jsonify({
+                "success": False,
+                "error": "Missing user_id parameter"
+            }), 400
+        
+        # Get chats from cloud
+        chats = database.get_user_chats_from_cloud(user_id)
+        
+        return jsonify({
+            "success": True,
+            "chats": chats
+        })
+        
+    except Exception as e:
+        print(f"❌ Error in load_chats: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route('/api/chats/delete', methods=['POST'])
+def delete_chat():
+    """Delete chat from cloud"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'user_id' not in data or 'chat_id' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing user_id or chat_id"
+            }), 400
+        
+        # Delete from cloud
+        result = database.delete_chat_from_cloud(
+            user_id=data['user_id'],
+            chat_id=data['chat_id']
+        )
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"❌ Error in delete_chat: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
 
 @app.route('/api/chats/load', methods=['GET'])
 def load_chats():
@@ -198,3 +266,4 @@ if __name__ == '__main__':
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
