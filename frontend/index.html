@@ -2366,7 +2366,227 @@ To summarize the data flow and purposes clearly, the following table provides an
                 });
             }
         }
+// Add this function to render markdown in your frontend
+function renderMarkdown(content) {
+    // Simple markdown to HTML conversion
+    let html = content;
+    
+    // Headings
+    html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    
+    // Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    
+    // Italic
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Lists
+    html = html.replace(/^\* (.*$)/gm, '<li>$1</li>');
+    html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
+    html = html.replace(/<\/ul>\n<ul>/g, '');
+    
+    // Tables (basic)
+    html = html.replace(/\n(\|.*\|)\n(\|.*\|)\n((\|.*\|)\n)+/g, function(match) {
+        const rows = match.trim().split('\n');
+        let tableHtml = '<table class="ai-table">';
+        
+        rows.forEach((row, index) => {
+            const cells = row.split('|').filter(cell => cell.trim() !== '');
+            tableHtml += '<tr>';
+            
+            cells.forEach(cell => {
+                if (index === 0) {
+                    tableHtml += `<th>${cell.trim()}</th>`;
+                } else {
+                    tableHtml += `<td>${cell.trim()}</td>`;
+                }
+            });
+            
+            tableHtml += '</tr>';
+        });
+        
+        tableHtml += '</table>';
+        return tableHtml;
+    });
+    
+    // Line breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    return html;
+}
 
+// Update the addMessageToChat function to use markdown rendering
+function addMessageToChat(content, isUser = false, isTyping = false, isError = false, 
+                         isMedical = false, drugRecommendation = null, disclaimer = null, 
+                         saveToHistory = true, formatType = 'structured') {
+    
+    const messageDiv = document.createElement('div');
+    let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
+    if (isMedical) messageClass += ' medical-message';
+    if (isError) messageClass += ' error-message';
+    messageDiv.className = messageClass;
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
+    avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+
+    if (isTyping) {
+        contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+    } else {
+        // Use markdown rendering for AI responses
+        if (!isUser && formatType === 'structured') {
+            contentDiv.innerHTML = renderMarkdown(content);
+        } else {
+            contentDiv.innerHTML = `<p>${content}</p>`;
+        }
+
+        if (drugRecommendation && drugRecommendation !== 'null') {
+            const drugDiv = document.createElement('div');
+            drugDiv.className = 'drug-recommendation';
+            drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${drugRecommendation}`;
+            contentDiv.appendChild(drugDiv);
+        }
+
+        if (disclaimer && disclaimer !== 'null') {
+            const disclaimerDiv = document.createElement('div');
+            disclaimerDiv.className = 'disclaimer';
+            disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
+            contentDiv.appendChild(disclaimerDiv);
+        }
+
+        if (!isUser && !isError) {
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'message-actions';
+            actionsDiv.innerHTML = `
+                <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
+                <button class="action-btn" onclick="rateResponse(this, 'like')"><i class="fas fa-thumbs-up"></i></button>
+                <button class="action-btn" onclick="rateResponse(this, 'dislike')"><i class="fas fa-thumbs-down"></i></button>
+            `;
+            contentDiv.appendChild(actionsDiv);
+        }
+    }
+
+    messageDiv.appendChild(avatarDiv);
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    if (saveToHistory && !isTyping && !isError) {
+        if (!chatHistoryData[currentChatId]) {
+            chatHistoryData[currentChatId] = {
+                id: currentChatId,
+                title: "New Conversation",
+                date: new Date().toISOString(),
+                messages: []
+            };
+        }
+
+        const messageData = {
+            role: isUser ? 'user' : 'ai',
+            content: content,
+            timestamp: new Date().toISOString()
+        };
+
+        if (isMedical) messageData.isMedical = true;
+        if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
+        if (disclaimer) messageData.disclaimer = disclaimer;
+        if (formatType) messageData.formatType = formatType;
+
+        chatHistoryData[currentChatId].messages.push(messageData);
+        
+        // Update title with first user message
+        if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
+            const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+            chatHistoryData[currentChatId].title = shortMessage;
+            renderChatHistory();
+        }
+        
+        // Save to cloud
+        saveChatHistory();
+    }
+    
+    return messageDiv;
+}
+
+// Update the CSS for better table styling
+// Add this to your CSS
+const css = `
+.ai-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    font-size: 0.9em;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.ai-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 15px;
+}
+
+.ai-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.ai-table tr:nth-child(even) {
+    background: rgba(255,255,255,0.03);
+}
+
+.ai-table tr:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+.message-content h1, 
+.message-content h2, 
+.message-content h3 {
+    margin: 15px 0 10px 0;
+    color: var(--text-color);
+}
+
+.message-content h2 {
+    font-size: 1.3em;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+    padding-bottom: 5px;
+}
+
+.message-content h3 {
+    font-size: 1.1em;
+    color: #667eea;
+}
+
+.message-content ul {
+    margin: 10px 0 10px 20px;
+    list-style-type: disc;
+}
+
+.message-content li {
+    margin: 5px 0;
+    line-height: 1.5;
+}
+
+.message-content strong {
+    color: #667eea;
+    font-weight: 600;
+}
+`;
+
+// Add CSS to head
+const style = document.createElement('style');
+style.textContent = css;
+document.head.appendChild(style);
         function createHistoryItem(chat) {
             const historyItem = document.createElement('div');
             historyItem.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
@@ -2901,6 +3121,7 @@ To summarize the data flow and purposes clearly, the following table provides an
     </script>
 </body>
 </html>
+
 
 
 
