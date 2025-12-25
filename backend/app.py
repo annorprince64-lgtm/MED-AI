@@ -5,14 +5,15 @@ import database
 import os
 import sys
 
-# Force UTF-8 encoding (for Twi and special characters)
+# Force UTF-8 encoding for stdout to handle Twi characters
 if sys.platform == 'win32':
     import io
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 app = Flask(__name__)
-CORS(app)
+# Enable CORS for all origins (you can restrict this in production)
+CORS(app)  # Allow all origins to support file:// access
 
 @app.route('/')
 def home():
@@ -23,131 +24,177 @@ def home():
             "analyze": "/api/analyze (POST)",
             "register": "/api/register (POST)",
             "login": "/api/login (POST)",
-            "update-profile": "/api/update-profile (POST)",
-            "chats": "/api/chats/save , /api/chats/load"
+            "update-profile": "/api/update-profile (POST)"  # Added this
         }
     })
 
-# -----------------------------
-# AUTHENTICATION
-# -----------------------------
+# Authentication Endpoints
 @app.route('/api/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    if not data:
-        return jsonify({"success": False, "error": "No data provided"}), 400
-
-    result = database.create_user(
-        data.get('username'),
-        data.get('email'),
-        data.get('password')
-    )
-    return jsonify(result), (201 if result.get('success') else 400)
-
-
-@app.route('/api/login', methods=['POST'])
-def login():
-    data = request.get_json()
-    if not data:
-        return jsonify({"success": False, "error": "No data provided"}), 400
-
-    result = database.verify_user(
-        data.get('email'),
-        data.get('password')
-    )
-    return jsonify(result), (200 if result.get('success') else 401)
-
-
-@app.route('/api/update-profile', methods=['POST'])
-def update_profile():
-    data = request.get_json()
-    if not data or 'originalEmail' not in data:
-        return jsonify({"success": False, "error": "originalEmail required"}), 400
-
-    result = database.update_user_profile(
-        original_email=data['originalEmail'],
-        name=data.get('name'),
-        new_email=data.get('newEmail'),
-        current_password=data.get('currentPassword'),
-        new_password=data.get('newPassword')
-    )
-    return jsonify(result), (200 if result.get('success') else 400)
-
-
-# -----------------------------
-# AI ANALYSIS (STAGE-AWARE)
-# -----------------------------
-@app.route('/api/analyze', methods=['POST'])
-def analyze_text():
-    """
-    This endpoint supports MULTI-STAGE AI responses.
-    Frontend must read `stage` and act accordingly.
-    """
+    """Register a new user"""
     try:
         data = request.get_json()
-        if not data or 'text' not in data:
+
+        if not data or 'username' not in data or 'email' not in data or 'password' not in data:
             return jsonify({
-                "stage": "analysis",
-                "response": "No input text provided",
-                "questions": None,
-                "is_medical": False
+                "success": False,
+                "error": "Missing required fields (username, email, password)"
             }), 400
 
-        user_text = data['text']
+        result = database.create_user(data['username'], data['email'], data['password'])
 
-        # OPTIONAL CONTEXT SUPPORT
-        # Frontend may send previous conversation summary
-        context = data.get('context')
-        if context:
-            user_text = f"Conversation so far:\n{context}\n\nNew message:\n{user_text}"
-
-        result = ai_service.analyze_text(user_text)
-
-        # DEBUG LOG (remove in production)
-        print("AI RESULT:", result)
-
-        return jsonify(result), 200
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Registration successful!",
+                "user": result['user']
+            }), 201
+        else:
+            return jsonify(result), 400
 
     except Exception as e:
         return jsonify({
-            "stage": "analysis",
-            "response": "Server error occurred",
-            "questions": None,
-            "is_medical": False,
+            "success": False,
             "error": str(e)
         }), 500
 
-
-# -----------------------------
-# CHAT STORAGE (OPTIONAL)
-# -----------------------------
-@app.route('/api/chats/save', methods=['POST'])
-def save_chat():
+@app.route('/api/login', methods=['POST'])
+def login():
+    """Login a user"""
     try:
         data = request.get_json()
-        result = database.save_user_chat(data['user_id'], data['chat_data'])
+
+        if not data or 'email' not in data or 'password' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing email or password"
+            }), 400
+
+        result = database.verify_user(data['email'], data['password'])
+
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Login successful!",
+                "user": result['user']
+            }), 200
+        else:
+            return jsonify(result), 401
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+# ADD THIS NEW ENDPOINT - Profile Update
+@app.route('/api/update-profile', methods=['POST'])
+def update_profile():
+    """Update user profile using email to identify user"""
+    try:
+        data = request.get_json()
+        print(f"📧 Update profile request received for email: {data.get('originalEmail')}")
+
+        if not data or 'originalEmail' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Need to know which user to update (originalEmail required)"
+            }), 400
+
+        # Call database function to update user
+        result = database.update_user_profile(
+            original_email=data['originalEmail'],
+            name=data.get('name'),
+            new_email=data.get('newEmail'),
+            current_password=data.get('currentPassword'),
+            new_password=data.get('newPassword')
+        )
+
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Profile updated successfully!",
+                "user": result['user']
+            }), 200
+        else:
+            return jsonify(result), 400
+
+    except Exception as e:
+        print(f"❌ Error in update_profile: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+# Existing AI Endpoint (unchanged)
+@app.route('/api/analyze', methods=['POST'])
+def analyze_text():
+    print("--- Incoming Request to /api/analyze ---")
+    try:
+        data = request.get_json()
+        print(f"Request received with {len(data.get('text', ''))} characters")
+
+        if not data or 'text' not in data:
+            print("Error: Missing 'text' in request body")
+            return jsonify({
+                "error": "Missing 'text' in request body",
+                "translation": "Invalid request",
+                "response": "Please provide text to analyze",
+                "is_medical": False
+            }), 400
+
+        text = data['text']
+        print(f"Processing text (length: {len(text)})")
+
+        # Use your AIService to process the text
+        result = ai_service.analyze_text(text)
+
+        print(f"Analysis complete, returning result")
         return jsonify(result)
+
+    except Exception as e:
+        import traceback
+        print(f"An error occured when processing")
+        print(traceback.format_exc())
+        return jsonify({
+            "error": str(e),
+            "translation": "Server error",
+            "response": "An error occurred while processing your request",
+            "is_medical": False,
+            "details": str(e)
+        }), 500
+@app.route('/api/chats/save', methods=['POST'])
+def save_chat():
+    """Save chat to cloud database"""
+    try:
+        data = request.get_json()
+        user_id = data['user_id']
+        chat_data = data['chat_data']
+        
+        # Save to database
+        result = database.save_user_chat(user_id, chat_data)
+        return jsonify(result)
+        
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
-
 @app.route('/api/chats/load', methods=['GET'])
 def load_chats():
+    """Load user chats from cloud"""
     try:
         user_id = request.args.get('user_id')
         chats = database.get_user_chats(user_id)
         return jsonify({"success": True, "chats": chats})
+        
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 
-
 @app.route('/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "healthy"})
-
+    return jsonify({"status": "healthy", "service": "MED AI Backend"})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print(f" Backend running on port {port}")
-    print(f"AI configured: {'YES' if ai_service.client else 'NO'}")
+    print(f"Starting Grok AI Backend on port {port}...")
+    print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
