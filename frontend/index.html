@@ -2863,51 +2863,54 @@ document.head.appendChild(style);
             }
         }
 
-        async function processUserInput(input) {
-            if (!input.trim()) return;
+       // Update this function in your JavaScript
+async function processUserInput(input) {
+    if (!input.trim()) return;
 
-            addMessageToChat(input, true);
-            statusIndicator.textContent = "Processing with AI...";
+    addMessageToChat(input, true);
+    statusIndicator.textContent = "Processing with AI...";
 
-            const typingMessage = addMessageToChat("Analyzing your message...", false, true);
+    const typingMessage = addMessageToChat("Analyzing your message...", false, true);
 
-            try {
-                const response = await callBackendAPI(input);
-                typingMessage.remove();
+    try {
+        const response = await callBackendAPI(input);
+        typingMessage.remove();
 
-                addMessageToChat(
-                    response.response,
-                    false,
-                    false,
-                    false,
-                    response.is_medical,
-                    response.drug_recommendation,
-                    response.disclaimer
-                );
+        // Use the new addMessageToChat with formatType
+        addMessageToChat(
+            response.response,
+            false,
+            false,
+            false,
+            response.is_medical,
+            response.drug_recommendation,
+            response.disclaimer,
+            true,
+            response.format_type || 'structured'
+        );
 
-                if (response.translation && response.translation !== "Error processing request") {
-                    const translationDiv = document.createElement('div');
-                    translationDiv.style.marginTop = '10px';
-                    translationDiv.style.fontSize = '0.9rem';
-                    translationDiv.style.opacity = '0.8';
-                    translationDiv.style.fontStyle = 'italic';
-                    translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
-                    chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
-                }
-
-                statusIndicator.textContent = "Response ready";
-                speakResponse(response.response);
-
-            } catch (error) {
-                typingMessage.remove();
-                const errorMessage = `I'm having trouble connecting to the server. Please check your internet connection and try again.\n\nError details: ${error.message}`;
-
-                addMessageToChat(errorMessage, false, false, true);
-                statusIndicator.textContent = "Connection error. Please try again.";
-                console.error('Processing error:', error);
-            }
+        if (response.translation && response.translation !== "Error processing request") {
+            const translationDiv = document.createElement('div');
+            translationDiv.style.marginTop = '10px';
+            translationDiv.style.fontSize = '0.9rem';
+            translationDiv.style.opacity = '0.8';
+            translationDiv.style.fontStyle = 'italic';
+            translationDiv.innerHTML = `🔍 <strong>Translation:</strong> "${response.translation}"`;
+            chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
         }
 
+        statusIndicator.textContent = "Response ready";
+        speakResponse(response.response);
+
+    } catch (error) {
+        typingMessage.remove();
+        const errorMessage = `## Connection Error\n\nI'm having trouble connecting to the server.\n\n**Troubleshooting steps:**\n1. Check your internet connection\n2. Try refreshing the page\n3. Contact support if issue persists\n\nError: ${error.message}`;
+
+        addMessageToChat(errorMessage, false, false, true);
+        statusIndicator.textContent = "Connection error. Please try again.";
+        console.error('Processing error:', error);
+    }
+}
         function speakResponse(text) {
             if (!audioEnabled) return;
 
@@ -3121,6 +3124,7 @@ document.head.appendChild(style);
     </script>
 </body>
 </html>
+
 
 
 
