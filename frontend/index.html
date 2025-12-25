@@ -1611,25 +1611,26 @@ function initializeSpeechRecognition() {
             }
         }
 
-        function toggleListening() {
-            if (!recognition) {
-                alert('Speech recognition not supported in your browser');
-                return;
-            }
+    function toggleListening() {
+    if (!recognition) {
+        alert('Speech recognition not supported in your browser');
+        return;
+    }
 
-            if (isListening) {
-                recognition.stop();
-                resetListeningState();
-            } else {
-                try {
-                    recognition.lang = inputLanguageSelect.value;
-                    recognition.start();
-                } catch (error) {
-                    console.error('Error starting recognition:', error);
-                    statusIndicator.textContent = "Error starting voice recognition";
-                }
-            }
+    if (isListening) {
+        recognition.stop();
+        resetListeningState();
+    } else {
+        try {
+            // Remove the language selector reference
+            recognition.lang = 'en-US'; // Set default language
+            recognition.start();
+        } catch (error) {
+            console.error('Error starting recognition:', error);
+            statusIndicator.textContent = "Error starting voice recognition";
         }
+    }
+}
 
         // Textarea auto-resize
         function autoResizeTextarea() {
@@ -2957,6 +2958,7 @@ function initializeSpeechRecognition() {
     </script>
 </body>
 </html>
+
 
 
 
