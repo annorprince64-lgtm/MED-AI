@@ -2229,27 +2229,108 @@ function initializeSpeechRecognition() {
             };
         }
 
-        async function saveChatHistory() {
-            console.log('[SAVE] Starting save process...');
-            
-            if (currentUser) {
-                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to local storage for user:', currentUser.id);
-                
-                document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
-                renderChatHistory();
-                
-                setTimeout(() => {
-                    attemptCloudSync();
-                }, 100);
-            } else {
-                localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to guest storage');
-                renderChatHistory();
-            }
-        }
+     async function saveChatHistory() {
+    console.log('[SAVE] Starting save process...');
+    
+    if (currentUser) {
+        const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+        console.log('[SAVE] Saved to local storage for user:', currentUser.id);
+        
+        document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
+        renderChatHistory();
+        
+        // Attempt cloud sync immediately
+        await attemptCloudSync();
+    } else {
+        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+        console.log('[SAVE] Saved to guest storage');
+        renderChatHistory();
+    }
+}
 
+async function attemptCloudSync() {
+    if (!currentUser) return;
+    
+    console.log('[CLOUD] Attempting cloud sync...');
+    
+    try {
+        // Send all chats, not just current
+        const syncPayload = {
+            user_id: currentUser.id,
+            chat_data: chatHistoryData
+        };
+        
+        console.log('[CLOUD] Sending payload with', Object.keys(chatHistoryData).length, 'chats');
+        
+        const response = await fetch(`${AUTH_URL}/chats/save`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(syncPayload)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            console.log('[CLOUD] Sync successful');
+            const indicator = document.getElementById('statusIndicator');
+            indicator.textContent = '✓ Synced to cloud';
+            
+            // Store last sync timestamp
+            localStorage.setItem(`medAI_lastSync_${currentUser.id}`, new Date().toISOString());
+            
+            setTimeout(() => {
+                indicator.textContent = 'Ready to chat';
+            }, 3000);
+        } else {
+            console.error('[CLOUD] Server error:', result.error);
+            document.getElementById('statusIndicator').textContent = 'Sync failed - using local storage';
+        }
+        
+    } catch (error) {
+        console.error('[CLOUD] Network error:', error.message);
+        document.getElementById('statusIndicator').textContent = 'Offline mode - using local storage';
+    }
+}
+
+// Update the backend save_chat function to handle multiple chats
+@app.route('/api/chats/save', methods=['POST'])
+def save_chat():
+    """Save chat to cloud database"""
+    try:
+        data = request.get_json()
+        
+        if not data or 'user_id' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Missing user_id"
+            }), 400
+        
+        user_id = data['user_id']
+        chat_data = data.get('chat_data', {})
+        
+        # Save each chat
+        success_count = 0
+        for chat_id, chat in chat_data.items():
+            result = database.save_chat_to_cloud(user_id, {chat_id: chat})
+            if result.get('success'):
+                success_count += 1
+        
+        return jsonify({
+            "success": True,
+            "message": f"Saved {success_count} chats to cloud",
+            "saved_count": success_count
+        })
+        
+    except Exception as e:
+        print(f"❌ Error in save_chat: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
         async function attemptCloudSync() {
             if (!currentUser) return;
             
@@ -3018,6 +3099,7 @@ document.addEventListener('touchstart', (e) => {
     </script>
 </body>
 </html>
+
 
 
 
