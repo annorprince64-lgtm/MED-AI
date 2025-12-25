@@ -2038,42 +2038,69 @@ function initializeSpeechRecognition() {
         }
 
         async function completeRegistration() {
-            if (!pendingUser) return;
+    if (!pendingUser) return;
 
-            try {
-                const response = await fetch(`${AUTH_URL}/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username: pendingUser.name,
-                        email: pendingUser.email,
-                        password: pendingUser.password
-                    })
-                });
+    try {
+        const response = await fetch(`${AUTH_URL}/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                username: pendingUser.name,
+                email: pendingUser.email,
+                password: pendingUser.password
+            })
+        });
 
-                const result = await response.json();
+        const result = await response.json();
 
-                if (result.success) {
-                    currentUser = result.user;
-                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-                    updateUserDisplay();
-                    loadUserChatHistory(currentUser.id);
+        if (result.success) {
+            currentUser = result.user;
+            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+            updateUserDisplay();
+            
+            // Load user chats after registration
+            await loadUserChatHistory(currentUser.id);
 
-                    verificationModal.style.display = 'none';
-                    statusIndicator.textContent = `Welcome to DRUGBOT, ${userName.textContent}!`;
-                    document.getElementById('registerForm').reset();
-                    pendingUser = null;
-                    verificationCode = '';
-                } else {
-                    throw new Error(result.error || 'Registration failed after verification.');
-                }
-            } catch (error) {
-                alert('Registration failed after verification. Please try again.');
+            // Auto-login the user
+            setTimeout(() => {
                 verificationModal.style.display = 'none';
-                registerModal.style.display = 'flex';
-            }
+                statusIndicator.textContent = `Welcome to DRUGBOT, ${userName.textContent}!`;
+                
+                // Show success message
+                addMessageToChat(
+                    `Welcome to DRUGBOT! I'm your AI medical assistant. How can I help you today?`,
+                    false,
+                    false,
+                    false,
+                    false,
+                    null,
+                    null,
+                    true
+                );
+                
+                document.getElementById('registerForm').reset();
+                pendingUser = null;
+                verificationCode = '';
+            }, 1000);
+            
+        } else {
+            throw new Error(result.error || 'Registration failed after verification.');
         }
-
+    } catch (error) {
+        alert('Registration failed after verification. Please try again.');
+        verificationModal.style.display = 'none';
+        registerModal.style.display = 'flex';
+        
+        // Reset verification state
+        const input = document.getElementById('verificationCodeInput');
+        const errorDiv = document.getElementById('verificationError');
+        const successDiv = document.getElementById('verificationSuccess');
+        
+        if (input) input.value = '';
+        if (errorDiv) errorDiv.style.display = 'none';
+        if (successDiv) successDiv.style.display = 'none';
+    }
+}
         // Chat history functions
         async function loadUserChatHistory(userId) {
             if (!userId) {
@@ -2958,6 +2985,7 @@ function initializeSpeechRecognition() {
     </script>
 </body>
 </html>
+
 
 
 
