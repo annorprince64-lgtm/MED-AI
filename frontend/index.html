@@ -2032,6 +2032,203 @@ if (response.ok && result.success) {
                 }, 1000);
             }
         }
+        // Add this function to debug the backend API
+async function testBackendEndpoints() {
+    console.log('🔍 Testing Backend Endpoints...');
+    console.log('AUTH_URL:', AUTH_URL);
+    
+    const endpoints = [
+        { 
+            name: '/chats/save', 
+            method: 'POST',
+            data: { 
+                user_id: "test_user_123",
+                test: "hello",
+                timestamp: new Date().toISOString()
+            }
+        },
+        { 
+            name: '/chats/load', 
+            method: 'GET',
+            url: `${AUTH_URL}/chats/load?user_id=test_user_123`
+        },
+        { 
+            name: '/login', 
+            method: 'POST',
+            data: { 
+                email: "test@example.com",
+                password: "password123"
+            }
+        }
+    ];
+    
+    for (const endpoint of endpoints) {
+        console.log(`\n📡 Testing ${endpoint.name}...`);
+        
+        try {
+            let response;
+            
+            if (endpoint.method === 'GET') {
+                response = await fetch(endpoint.url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+            } else {
+                response = await fetch(`${AUTH_URL}${endpoint.name}`, {
+                    method: endpoint.method,
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(endpoint.data)
+                });
+            }
+            
+            console.log(`Status: ${response.status} ${response.statusText}`);
+            console.log('Headers:', Object.fromEntries(response.headers.entries()));
+            
+            const text = await response.text();
+            console.log('Response length:', text.length);
+            
+            // Try to parse as JSON
+            try {
+                const json = JSON.parse(text);
+                console.log('Parsed JSON:', json);
+                
+                // Check for common error patterns
+                if (json.error) {
+                    console.error('❌ API Error:', json.error);
+                }
+                if (json.message) {
+                    console.log('ℹ️ API Message:', json.message);
+                }
+                if (json.id) {
+                    console.log('📌 Found ID field:', json.id);
+                }
+            } catch (parseError) {
+                console.log('Response is not JSON:', text.substring(0, 200));
+            }
+            
+        } catch (error) {
+            console.error(`❌ ${endpoint.name} failed:`, error.message);
+            
+            // Check for CORS errors
+            if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                console.error('🚨 CORS or Network Issue Detected!');
+                console.log('Check if backend allows requests from your origin');
+                console.log('Expected CORS headers:');
+                console.log('Access-Control-Allow-Origin: * (or your domain)');
+                console.log('Access-Control-Allow-Methods: POST, GET, OPTIONS');
+                console.log('Access-Control-Allow-Headers: Content-Type, Authorization');
+            }
+        }
+    }
+    
+    // Also test with your actual user data if available
+    if (currentUser) {
+        console.log('\n👤 Testing with current user:', currentUser.id);
+        await testUserSpecificEndpoints();
+    }
+}
+
+async function testUserSpecificEndpoints() {
+    try {
+        // Test save with actual user data
+        const testSaveData = {
+            user_id: currentUser.id,
+            chat_data: {
+                "test_chat": {
+                    id: "test_chat",
+                    title: "Test Chat",
+                    date: new Date().toISOString(),
+                    messages: [
+                        { role: "user", content: "Test message", timestamp: new Date().toISOString() }
+                    ]
+                }
+            }
+        };
+        
+        console.log('Saving test data...');
+        const saveResponse = await fetch(`${AUTH_URL}/chats/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(testSaveData)
+        });
+        
+        console.log('Save response:', await saveResponse.text());
+        
+    } catch (error) {
+        console.error('User test failed:', error);
+    }
+}
+
+// Add this to your initializeApp function or call it from console
+function addDebugTools() {
+    // Make debug functions available globally
+    window.debugCloudSync = async function() {
+        if (!currentUser) {
+            console.log('No user logged in');
+            return;
+        }
+        
+        console.log('=== CLOUD SYNC DEBUG ===');
+        console.log('User ID:', currentUser.id);
+        console.log('User object:', currentUser);
+        console.log('Chat count:', Object.keys(chatHistoryData).length);
+        
+        // Test the actual endpoint
+        try {
+            const testPayload = {
+                user_id: currentUser.id,
+                test: "debug test",
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('Testing endpoint with:', testPayload);
+            
+            const response = await fetch(`${AUTH_URL}/chats/save`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(testPayload)
+            });
+            
+            console.log('Response status:', response.status);
+            const text = await response.text();
+            console.log('Response text:', text);
+            
+            try {
+                const json = JSON.parse(text);
+                console.log('Response JSON:', json);
+                
+                // Check for specific error patterns
+                if (text.includes("'id'")) {
+                    console.error('🚨 Found the "id" error in response!');
+                    console.log('The backend is likely returning: ' + text);
+                }
+                
+            } catch (e) {
+                console.log('Response is not valid JSON');
+            }
+            
+        } catch (error) {
+            console.error('Test failed:', error);
+            console.log('Full error:', error);
+        }
+    };
+    
+    window.testBackendAPI = testBackendEndpoints;
+    window.getCurrentUser = () => currentUser;
+    window.getChatHistory = () => chatHistoryData;
+}
+
+// Call this in your initializeApp() function
+function initializeApp() {
+    // ... your existing initialization code ...
+    
+    addDebugTools(); // Add this line
+    
+    // ... rest of your initialization ...
+}
 
         async function registerUser(name, email, password) {
             const registerBtn = document.querySelector('#registerForm .btn-primary');
@@ -3099,6 +3296,7 @@ async function debugCloudSync() {
     </script>
 </body>
 </html>
+
 
 
 
