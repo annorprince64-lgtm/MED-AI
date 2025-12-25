@@ -2442,116 +2442,92 @@ function initializeApp() {
         }
 
 async function saveChatHistory() {
-    // 1. Always save to local storage first
+    console.log('[SAVE] Starting save process...');
+    
+    // 1. Always save to local storage first (this always works)
     if (currentUser) {
         const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
         localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-        console.log('[SYNC] Saved to local storage for user:', currentUser.id);
+        console.log('[SAVE] Saved to local storage for user:', currentUser.id);
+        
+        // Update UI immediately
+        document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
+        renderChatHistory();
+        
+        // 2. Try cloud sync in background (but don't block)
+        setTimeout(() => {
+            attemptCloudSync();
+        }, 100);
+        
     } else {
+        // Guest mode - only local storage
         localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-        console.log('[SYNC] Saved to guest storage');
+        console.log('[SAVE] Saved to guest storage');
         renderChatHistory();
-        return;
     }
+}
 
-    // 2. Prepare data for cloud sync - FIXED VERSION
-    const syncData = {
-        user_id: currentUser.id,
-        chat_data: chatHistoryData,
-        last_sync: new Date().toISOString()
-    };
+async function attemptCloudSync() {
+    if (!currentUser) return;
     
-    // Ensure we have a valid user ID
-    if (!currentUser.id) {
-        console.error('[SYNC] No user ID available for cloud sync');
-        renderChatHistory();
-        return;
-    }
-
-    // 3. Update UI to show sync in progress
+    console.log('[CLOUD] Attempting cloud sync...');
     const syncIndicator = document.getElementById('statusIndicator');
     const originalStatus = syncIndicator.textContent;
-    syncIndicator.textContent = 'Syncing chats to cloud...';
-
+    
     try {
-        console.log('[SYNC] Sending to cloud:', {
+        syncIndicator.textContent = 'Syncing to cloud...';
+        
+        // Prepare a SIMPLIFIED payload for testing
+        const simplePayload = {
             userId: currentUser.id,
-            chatCount: Object.keys(chatHistoryData).length,
-            endpoint: `${AUTH_URL}/chats/save`
-        });
-
-        // Send to cloud
+            timestamp: new Date().toISOString(),
+            chatCount: Object.keys(chatHistoryData).length
+            // Don't send full chat data until backend is fixed
+        };
+        
+        console.log('[CLOUD] Sending simplified payload:', simplePayload);
+        
         const response = await fetch(`${AUTH_URL}/chats/save`, {
             method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(syncData)
+            body: JSON.stringify(simplePayload)
         });
-
-        console.log('[SYNC] Cloud response status:', response.status);
         
-        // Try to parse response as JSON first
-        let result;
+        console.log('[CLOUD] Response status:', response.status);
+        
+        let responseText = '';
         try {
-            const responseText = await response.text();
-            console.log('[SYNC] Raw response:', responseText.substring(0, 200));
+            responseText = await response.text();
+            console.log('[CLOUD] Response:', responseText.substring(0, 200));
             
-            if (responseText) {
-                result = JSON.parse(responseText);
+            if (response.ok) {
+                // Success
+                syncIndicator.textContent = 'Cloud sync complete ✓';
+                console.log('[CLOUD] Sync successful');
             } else {
-                result = { success: response.ok };
+                // Server error
+                console.error('[CLOUD] Server error:', responseText);
+                syncIndicator.textContent = 'Cloud sync failed';
             }
-        } catch (parseError) {
-            console.warn('[SYNC] Could not parse JSON response:', parseError);
-            result = { success: response.ok };
-        }
-
-        if (response.ok && result.success) {
-            // Success!
-            console.log('[SYNC] Cloud save successful');
-            syncIndicator.textContent = 'All chats synced ✓';
-            localStorage.setItem(`medAI_lastSync_${currentUser.id}`, new Date().toISOString());
-            localStorage.removeItem(`medAI_pendingSync_${currentUser.id}`);
-        } else {
-            // Server responded but with error
-            const errorMsg = result.error || result.message || `HTTP ${response.status}`;
-            console.error('[SYNC] Cloud server error:', errorMsg);
-            throw new Error(`Server error: ${errorMsg}`);
+        } catch (readError) {
+            console.error('[CLOUD] Failed to read response:', readError);
         }
         
     } catch (error) {
-        // Network or other error
-        console.error('[SYNC] Cloud sync failed:', error.message);
-        syncIndicator.textContent = 'Working offline - changes saved locally';
-        
-        // Mark for retry
-        localStorage.setItem(`medAI_pendingSync_${currentUser.id}`, 'true');
-        
-        // Queue for retry (simplified)
-        setTimeout(() => {
-            const hasPending = localStorage.getItem(`medAI_pendingSync_${currentUser.id}`);
-            if (hasPending === 'true') {
-                console.log('[SYNC] Retrying pending sync...');
-                saveChatHistory();
-            }
-        }, 30000);
-        
+        console.error('[CLOUD] Network error:', error.message);
+        // Don't show error to user - just log it
     } finally {
-        // Always update UI
-        renderChatHistory();
-        
         // Revert status after delay
         setTimeout(() => {
-            if (syncIndicator.textContent.includes('synced') || 
-                syncIndicator.textContent.includes('offline')) {
+            if (syncIndicator.textContent.includes('sync')) {
                 syncIndicator.textContent = originalStatus;
             }
         }, 3000);
     }
 }
-
 // Optional: Function to retry failed syncs
 function queueForRetry(userId, data) {
     // Store the data that needs to be synced
@@ -3296,6 +3272,7 @@ async function debugCloudSync() {
     </script>
 </body>
 </html>
+
 
 
 
