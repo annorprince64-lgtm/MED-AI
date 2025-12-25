@@ -1714,12 +1714,6 @@
             // Voice button
             voiceInputBtn.addEventListener('click', toggleListening);
 
-            // Language selector
-            inputLanguageSelect.addEventListener('change', function() {
-                if (recognition) {
-                    recognition.lang = this.value;
-                }
-            });
 
             // Suggestion buttons
             document.querySelectorAll('.suggestion-btn').forEach(btn => {
@@ -2969,6 +2963,7 @@
     </script>
 </body>
 </html>
+
 
 
 
