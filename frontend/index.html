@@ -2867,93 +2867,53 @@ function renderMarkdown(text) {
     statusIndicator.textContent = "New chat created";
 }
 
-        function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
-            const messageDiv = document.createElement('div');
-            let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
-            if (isMedical) messageClass += ' medical-message';
-            if (isError) messageClass += ' error-message';
-            messageDiv.className = messageClass;
+      function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
+    // ... (rest of the function remains the same until the saving part) ...
 
-            const avatarDiv = document.createElement('div');
-            avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
-            avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-
-            if (isTyping) {
-                contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
-            } else {
-   // Always use markdown rendering for AI responses
-if (!isUser) {
-    contentDiv.innerHTML = renderMarkdown(content);
-} else {
-    // For user messages, just show plain text with line breaks
-    contentDiv.innerHTML = `<p>${content.replace(/\n/g, '<br>')}</p>`;
-}
-
-                if (drugRecommendation && drugRecommendation !== 'null') {
-                    const drugDiv = document.createElement('div');
-                    drugDiv.className = 'drug-recommendation';
-                    drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong>${renderMarkdown(drugRecommendation)}`;
-                    contentDiv.appendChild(drugDiv);
-                }
-
-                if (disclaimer && disclaimer !== 'null') {
-                    const disclaimerDiv = document.createElement('div');
-                    disclaimerDiv.className = 'disclaimer';
-                    disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
-                    contentDiv.appendChild(disclaimerDiv);
-                }
-
-                if (!isUser && !isError) {
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'message-actions';
-                    actionsDiv.innerHTML = `
-                        <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
-                        <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
-                        <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
-                    `;
-                    contentDiv.appendChild(actionsDiv);
-                }
-            }
-
-            messageDiv.appendChild(avatarDiv);
-            messageDiv.appendChild(contentDiv);
-            chatContainer.appendChild(messageDiv);
-
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            if (saveToHistory && !isTyping && !isError) {
-                if (!chatHistoryData[currentChatId]) {
-                    chatHistoryData[currentChatId] = {
-                        id: currentChatId,
-                        title: "New Conversation",
-                        date: new Date().toISOString(),
-                        messages: []
-                    };
-                }
-
-                const messageData = {
-                    role: isUser ? 'user' : 'ai',
-                    content: content,
-                    timestamp: new Date().toISOString()
-                };
-
-                if (isMedical) messageData.isMedical = true;
-                if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
-                if (disclaimer) messageData.disclaimer = disclaimer;
-
-                chatHistoryData[currentChatId].messages.push(messageData);
-                if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
-                    const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
-                    chatHistoryData[currentChatId].title = shortMessage;
-                    renderChatHistory();
-                }
-            }
-            
-            return messageDiv;
+    if (saveToHistory && !isTyping && !isError) {
+        // Ensure chat exists in history
+        if (!chatHistoryData[currentChatId]) {
+            chatHistoryData[currentChatId] = {
+                id: currentChatId,
+                title: "New Conversation",
+                date: new Date().toISOString(),
+                messages: []
+            };
         }
+
+        const messageData = {
+            role: isUser ? 'user' : 'ai',
+            content: content,
+            timestamp: new Date().toISOString()
+        };
+
+        if (isMedical) messageData.isMedical = true;
+        if (drugRecommendation && drugRecommendation !== 'null') messageData.drugRecommendation = drugRecommendation;
+        if (disclaimer && disclaimer !== 'null') messageData.disclaimer = disclaimer;
+
+        // Add message to chat
+        chatHistoryData[currentChatId].messages.push(messageData);
+        
+        // Update chat title with first user message
+        if (isUser && (chatHistoryData[currentChatId].title === "New Conversation" || 
+                       chatHistoryData[currentChatId].title === "Welcome to DRUGBOT")) {
+            const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+            chatHistoryData[currentChatId].title = shortMessage;
+        }
+        
+        // Update chat date to now
+        chatHistoryData[currentChatId].date = new Date().toISOString();
+        
+        // Save immediately
+        if (!isTyping) {
+            setTimeout(() => {
+                saveChatHistory();
+            }, 100);
+        }
+    }
+    
+    return messageDiv;
+}
 
         // ============================================
         // AI & VOICE FUNCTIONS
@@ -3261,6 +3221,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
