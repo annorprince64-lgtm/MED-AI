@@ -2518,6 +2518,26 @@ function loadFromLocalStorage(userId) {
     // Update UI
     renderChatHistory();
 }
+        // Periodic sync every 30 seconds when user is logged in
+function startPeriodicSync() {
+    setInterval(() => {
+        if (currentUser && Object.keys(chatHistoryData).length > 0) {
+            console.log('[SYNC] Periodic sync triggered');
+            saveChatHistory().then(() => {
+                console.log('[SYNC] Periodic sync completed');
+            }).catch(error => {
+                console.error('[SYNC] Periodic sync failed:', error);
+            });
+        }
+    }, 30000); // 30 seconds
+}
+
+// Call this in initializeApp():
+function initializeApp() {
+    // ... existing code ...
+    
+    startPeriodicSync();
+}
 
         function renderChatHistory() {
             chatHistory.innerHTML = '';
@@ -3226,6 +3246,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
