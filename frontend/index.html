@@ -2599,7 +2599,7 @@ function renderMarkdown(text) {
         }
         
         // Process regular lines
-        processRegularLine();
+        processRegularLine(line, trimmedLine);
         i++;
     }
     
@@ -2673,7 +2673,7 @@ function renderMarkdown(text) {
         tableRows = [];
     }
     
-    function processRegularLine() {
+    function processRegularLine(line, trimmedLine) {
         let processedLine = line;
         
         // Handle headers - MUST COME FIRST
@@ -2726,10 +2726,11 @@ function renderMarkdown(text) {
             processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
             
             // Check if this is part of a paragraph
-            if (result.length > 0 && result[result.length - 1].endsWith('</p>') === false) {
+            if (result.length > 0 && !result[result.length - 1].endsWith('</p>')) {
                 // Add to existing paragraph
-                result[result.length - 1] = result[result.length - 1].replace(/<\/p>$/, '');
-                result[result.length - 1] += `<br>${processedLine}</p>`;
+                const lastIndex = result.length - 1;
+                result[lastIndex] = result[lastIndex].replace(/<\/p>$/, '');
+                result[lastIndex] += `<br>${processedLine}</p>`;
             } else {
                 // Start new paragraph
                 result.push(`<p>${processedLine}</p>`);
@@ -2741,7 +2742,7 @@ function renderMarkdown(text) {
             }
         }
     }
-
+}
         function createNewChat() {
             currentChatId = generateChatId();
             chatHistoryData[currentChatId] = {
@@ -3152,6 +3153,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
