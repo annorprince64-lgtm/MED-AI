@@ -1996,51 +1996,61 @@
         }
     }
 
-    async function registerUser(name, email, password) {
-        const registerBtn = document.querySelector('#registerForm .btn-primary');
-        const originalText = registerBtn.textContent;
+ async function registerUser(name, email, password) {
+    const registerBtn = document.querySelector('#registerForm .btn-primary');
+    const originalText = registerBtn.textContent;
 
+    try {
+        registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+        registerBtn.disabled = true;
+
+        // First, check if email is already registered
         try {
-            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
-            registerBtn.disabled = true;
+            const checkResponse = await fetch(`${AUTH_URL}/debug/database`);
+            console.log('Database debug:', await checkResponse.json());
+        } catch (e) {
+            console.log('Debug endpoint not available');
+        }
 
-            verificationCode = generateVerificationCode();
-            const emailSent = await sendVerificationEmail(email, verificationCode);
+        verificationCode = generateVerificationCode();
+        console.log(`Generated verification code: ${verificationCode}`);
+        
+        const emailSent = await sendVerificationEmail(email, verificationCode);
 
-            if (!emailSent) {
-                throw new Error('Failed to send verification email');
-            }
+        if (!emailSent) {
+            throw new Error('Failed to send verification email. Please check your email address.');
+        }
 
-            pendingUser = { name, email, password };
-            registerModal.style.display = 'none';
-            verificationModal.style.display = 'flex';
+        pendingUser = { name, email, password };
+        registerModal.style.display = 'none';
+        verificationModal.style.display = 'flex';
 
-            const input = document.getElementById('verificationCodeInput');
-            const errorDiv = document.getElementById('verificationError');
-            const successDiv = document.getElementById('verificationSuccess');
+        const input = document.getElementById('verificationCodeInput');
+        const errorDiv = document.getElementById('verificationError');
+        const successDiv = document.getElementById('verificationSuccess');
 
-            input.value = '';
-            input.disabled = false;
-            input.style.borderColor = '';
-            errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
-            input.focus();
+        input.value = '';
+        input.disabled = false;
+        input.style.borderColor = '';
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        input.focus();
 
+        registerBtn.textContent = originalText;
+        registerBtn.disabled = false;
+
+    } catch (error) {
+        registerBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+        registerBtn.style.backgroundColor = '#ef4444';
+
+        setTimeout(() => {
+            alert(error.message || 'Registration failed. Please try again.');
             registerBtn.textContent = originalText;
             registerBtn.disabled = false;
-
-        } catch (error) {
-            registerBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
-            registerBtn.style.backgroundColor = '#ef4444';
-
-            setTimeout(() => {
-                alert(error.message || 'Registration failed. Please try again.');
-                registerBtn.textContent = originalText;
-                registerBtn.disabled = false;
-                registerBtn.style.backgroundColor = '';
-            }, 1000);
-        }
+            registerBtn.style.backgroundColor = '';
+        }, 1000);
     }
+}
 
     async function completeRegistration() {
         if (!pendingUser) return;
@@ -3038,3 +3048,4 @@
         setupAutoVerify();
     });
 </script>
+
