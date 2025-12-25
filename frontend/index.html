@@ -30,7 +30,79 @@
             --border-color: #4b5563;
             --hover-color: #2d2d3a;
         }
+/* Message type styles */
+.error-message .message-content {
+    background: rgba(239, 68, 68, 0.1);
+    border-left: 4px solid #ef4444;
+}
 
+.medical-message .message-content {
+    background: rgba(16, 163, 127, 0.05);
+    border-left: 4px solid var(--primary-color);
+}
+
+/* Markdown formatting styles */
+.message-content h2, .message-content h3 {
+    color: #667eea;
+    margin: 15px 0 10px 0;
+    font-weight: 600;
+}
+
+.message-content h2 {
+    font-size: 1.3em;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+    padding-bottom: 5px;
+}
+
+.message-content h3 {
+    font-size: 1.1em;
+    color: #a78bfa;
+}
+
+.message-content ul, .message-content ol {
+    margin: 10px 0 10px 20px;
+}
+
+.message-content li {
+    margin: 5px 0;
+    line-height: 1.5;
+}
+
+.message-content strong {
+    color: #a78bfa;
+    font-weight: 600;
+}
+
+.message-content em {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.message-content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.message-content th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.message-content td {
+    padding: 8px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message-content tr:last-child td {
+    border-bottom: none;
+}
         body {
             background-color: var(--chat-bg);
             color: var(--text-color);
@@ -2806,3 +2878,4 @@ To summarize the data flow and purposes clearly, the following table provides an
     </script>
 </body>
 </html>
+
