@@ -2431,42 +2431,53 @@ function createInitialChat() {
             loadChat(currentChatId);
         }
 
-      async function saveChatHistory() {
-    console.log('[SAVE] Saving chat history, currentUser:', currentUser);
+     async function saveChatHistory() {
+    console.log('[SAVE] Saving ALL chats, currentUser:', currentUser);
+    console.log('[SAVE] Chat count:', Object.keys(chatHistoryData).length);
 
     if (currentUser) {
+        // Save ALL chats to local storage
         const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
         localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-        console.log('[SAVE] Saved to user storage:', userHistoryKey);
+        console.log('[SAVE] Saved to local storage:', userHistoryKey);
         
-        // Try to save to cloud
+        // Try to save to cloud - send ALL chats
         try {
-            const chatData = chatHistoryData[currentChatId];
-            if (chatData) {
-                const response = await fetch(`${AUTH_URL}/chats/save`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        user_id: currentUser.id,
-                        chat_data: chatData
-                    })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    console.log('[CLOUD] Chat saved to cloud successfully');
-                }
+            console.log('[CLOUD] Attempting to save to cloud for user:', currentUser.id);
+            
+            const response = await fetch(`${AUTH_URL}/chats/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: currentUser.id,
+                    chat_data: chatHistoryData  // Send ALL chats
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const result = await response.json();
+            if (result.success) {
+                console.log('[CLOUD] All chats saved to cloud successfully');
+            } else {
+                console.error('[CLOUD] Cloud save failed:', result.error);
             }
         } catch (error) {
             console.error('[CLOUD] Error saving to cloud:', error);
             // Continue with local storage only
         }
     } else {
+        // Guest mode - save to local storage only
         localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
         console.log('[SAVE] Saved to guest storage');
     }
+    
+    // Update UI
+    renderChatHistory();
 }
 
         function renderChatHistory() {
@@ -3211,6 +3222,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
