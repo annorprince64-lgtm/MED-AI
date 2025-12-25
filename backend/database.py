@@ -323,7 +323,126 @@ def get_user_chats(user_id):
         
     except Exception as e:
         return {}
+# Add these new functions to your database.py
+
+def save_chat_to_cloud(user_id, chat_data):
+    """Save a complete chat to cloud database"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        # Create chats table if not exists
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS cloud_chats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                chat_id TEXT UNIQUE NOT NULL,
+                title TEXT NOT NULL,
+                messages TEXT NOT NULL,  -- JSON string of messages array
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
+            )
+        ''')
+        
+        # Create index for faster queries
+        cursor.execute('''
+            CREATE INDEX IF NOT EXISTS idx_user_chats 
+            ON cloud_chats(user_id, created_at)
+        ''')
+        
+        # Check if chat already exists
+        cursor.execute(
+            'SELECT id FROM cloud_chats WHERE user_id = ? AND chat_id = ?',
+            (user_id, chat_data['id'])
+        )
+        
+        existing = cursor.fetchone()
+        
+        if existing:
+            # Update existing chat
+            cursor.execute('''
+                UPDATE cloud_chats 
+                SET title = ?, messages = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            ''', (chat_data['title'], json.dumps(chat_data['messages']), existing[0]))
+            print(f"✅ Updated chat {chat_data['id']} for user {user_id}")
+        else:
+            # Insert new chat
+            cursor.execute('''
+                INSERT INTO cloud_chats (user_id, chat_id, title, messages)
+                VALUES (?, ?, ?, ?)
+            ''', (user_id, chat_data['id'], chat_data['title'], json.dumps(chat_data['messages'])))
+            print(f"✅ Saved new chat {chat_data['id']} for user {user_id}")
+        
+        conn.commit()
+        conn.close()
+        
+        return {"success": True, "message": "Chat saved to cloud"}
+        
+    except Exception as e:
+        print(f"❌ Error saving chat to cloud: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+def get_user_chats_from_cloud(user_id):
+    """Get all chats for a user from cloud"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            SELECT chat_id, title, messages, created_at, updated_at 
+            FROM cloud_chats 
+            WHERE user_id = ? 
+            ORDER BY updated_at DESC
+        ''', (user_id,))
+        
+        chats = {}
+        rows = cursor.fetchall()
+        
+        for row in rows:
+            try:
+                messages = json.loads(row[2])
+            except:
+                messages = []
+            
+            chats[row[0]] = {
+                'id': row[0],
+                'title': row[1],
+                'messages': messages,
+                'date': row[3],
+                'updated': row[4]
+            }
+        
+        conn.close()
+        print(f"📥 Loaded {len(chats)} chats from cloud for user {user_id}")
+        return chats
+        
+    except Exception as e:
+        print(f"❌ Error loading chats from cloud: {str(e)}")
+        return {}
+
+def delete_chat_from_cloud(user_id, chat_id):
+    """Delete a chat from cloud"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            'DELETE FROM cloud_chats WHERE user_id = ? AND chat_id = ?',
+            (user_id, chat_id)
+        )
+        
+        conn.commit()
+        conn.close()
+        
+        return {"success": True, "message": "Chat deleted from cloud"}
+        
+    except Exception as e:
+        print(f"❌ Error deleting chat from cloud: {str(e)}")
+        return {"success": False, "error": str(e)}        
 # Initialize database when module is imported
 init_db()
+
 
 
