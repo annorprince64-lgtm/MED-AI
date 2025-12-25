@@ -2309,18 +2309,43 @@ To summarize the data flow and purposes clearly, the following table provides an
             loadChat(currentChatId);
         }
 
-        function saveChatHistory() {
-            console.log('[SAVE] Saving chat history, currentUser:', currentUser);
+      async function saveChatHistory() {
+    console.log('[SAVE] Saving chat history, currentUser:', currentUser);
 
-            if (currentUser) {
-                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to user storage:', userHistoryKey);
-            } else {
-                localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to guest storage');
+    if (currentUser) {
+        const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+        console.log('[SAVE] Saved to user storage:', userHistoryKey);
+        
+        // Try to save to cloud
+        try {
+            const chatData = chatHistoryData[currentChatId];
+            if (chatData) {
+                const response = await fetch(`${AUTH_URL}/chats/save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        user_id: currentUser.id,
+                        chat_data: chatData
+                    })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    console.log('[CLOUD] Chat saved to cloud successfully');
+                }
             }
+        } catch (error) {
+            console.error('[CLOUD] Error saving to cloud:', error);
+            // Continue with local storage only
         }
+    } else {
+        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+        console.log('[SAVE] Saved to guest storage');
+    }
+}
 
         function renderChatHistory() {
             chatHistory.innerHTML = '';
@@ -2878,4 +2903,5 @@ To summarize the data flow and purposes clearly, the following table provides an
     </script>
 </body>
 </html>
+
 
