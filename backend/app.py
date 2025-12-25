@@ -6,6 +6,11 @@ import os
 import sys
 import json  # Added missing import
 import traceback  # Added for better error logging
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Force UTF-8 encoding for stdout to handle Twi characters
 if sys.platform == 'win32':
@@ -317,11 +322,22 @@ def debug_ai():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+@app.errorhandler(Exception)
+def handle_exception(e):
+    # Log the error
+    logger.error(f"Unhandled exception: {str(e)}", exc_info=True)
+    
+    # Return a JSON response
+    return jsonify({
+        "success": False,
+        "error": "Internal server error",
+        "message": str(e)
+    }), 500
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
 
