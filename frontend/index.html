@@ -2466,21 +2466,26 @@ async function attemptCloudSync() {
     if (!currentUser) return;
     
     console.log('[CLOUD] Attempting cloud sync...');
-    const syncIndicator = document.getElementById('statusIndicator');
-    const originalStatus = syncIndicator.textContent;
+    console.log('[CLOUD] User ID:', currentUser.id);
+    console.log('[CLOUD] Chat count:', Object.keys(chatHistoryData).length);
+    
+    // Store timestamp for this sync attempt
+    const syncTimestamp = new Date().toISOString();
+    localStorage.setItem(`medAI_lastSyncAttempt_${currentUser.id}`, syncTimestamp);
     
     try {
-        syncIndicator.textContent = 'Syncing to cloud...';
-        
-        // Prepare a SIMPLIFIED payload for testing
-        const simplePayload = {
-            userId: currentUser.id,
-            timestamp: new Date().toISOString(),
-            chatCount: Object.keys(chatHistoryData).length
-            // Don't send full chat data until backend is fixed
+        // Prepare data for sync - limit size
+        const syncPayload = {
+            user_id: currentUser.id,
+            timestamp: syncTimestamp,
+            chat_summary: {
+                count: Object.keys(chatHistoryData).length,
+                latest_chat: currentChatId,
+                chat_ids: Object.keys(chatHistoryData)
+            }
         };
         
-        console.log('[CLOUD] Sending simplified payload:', simplePayload);
+        console.log('[CLOUD] Sending payload:', syncPayload);
         
         const response = await fetch(`${AUTH_URL}/chats/save`, {
             method: 'POST',
@@ -2488,39 +2493,46 @@ async function attemptCloudSync() {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
             },
-            body: JSON.stringify(simplePayload)
+            body: JSON.stringify(syncPayload)
         });
         
-        console.log('[CLOUD] Response status:', response.status);
+        const responseText = await response.text();
+        console.log('[CLOUD] Response:', responseText.substring(0, 200));
         
-        let responseText = '';
-        try {
-            responseText = await response.text();
-            console.log('[CLOUD] Response:', responseText.substring(0, 200));
-            
-            if (response.ok) {
-                // Success
-                syncIndicator.textContent = 'Cloud sync complete ✓';
-                console.log('[CLOUD] Sync successful');
-            } else {
-                // Server error
-                console.error('[CLOUD] Server error:', responseText);
-                syncIndicator.textContent = 'Cloud sync failed';
+        if (response.ok) {
+            // Parse response if it's JSON
+            let result;
+            try {
+                result = JSON.parse(responseText);
+            } catch {
+                result = { success: true };
             }
-        } catch (readError) {
-            console.error('[CLOUD] Failed to read response:', readError);
+            
+            if (result.success) {
+                console.log('[CLOUD] Sync successful');
+                localStorage.setItem(`medAI_lastSuccessfulSync_${currentUser.id}`, syncTimestamp);
+                
+                // Remove pending flag
+                localStorage.removeItem(`medAI_pendingSync_${currentUser.id}`);
+                
+                // Show success indicator briefly
+                const indicator = document.getElementById('statusIndicator');
+                const originalText = indicator.textContent;
+                indicator.textContent = '✓ Synced to cloud';
+                
+                setTimeout(() => {
+                    if (indicator.textContent.includes('✓ Synced')) {
+                        indicator.textContent = originalText;
+                    }
+                }, 3000);
+            }
+        } else {
+            console.error('[CLOUD] Server error:', response.status, responseText);
         }
         
     } catch (error) {
         console.error('[CLOUD] Network error:', error.message);
-        // Don't show error to user - just log it
-    } finally {
-        // Revert status after delay
-        setTimeout(() => {
-            if (syncIndicator.textContent.includes('sync')) {
-                syncIndicator.textContent = originalStatus;
-            }
-        }, 3000);
+        // Don't show error to user to avoid annoyance
     }
 }
 // Optional: Function to retry failed syncs
@@ -3267,6 +3279,7 @@ async function debugCloudSync() {
     </script>
 </body>
 </html>
+
 
 
 
