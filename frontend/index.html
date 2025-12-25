@@ -2436,10 +2436,11 @@ function initializeApp() {
             };
         }
 
+// Fixed the saveChatHistory function
 async function saveChatHistory() {
     console.log('[SAVE] Starting save process...');
     
-    // 1. Always save to local storage first (this always works)
+    // Always save to local storage first
     if (currentUser) {
         const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
         localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
@@ -2449,19 +2450,113 @@ async function saveChatHistory() {
         document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
         renderChatHistory();
         
-        // 2. Try cloud sync in background (but don't block)
+        // Try cloud sync in background
         setTimeout(() => {
             attemptCloudSync();
         }, 100);
-        
     } else {
-        // Guest mode - only local storage
         localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
         console.log('[SAVE] Saved to guest storage');
         renderChatHistory();
     }
 }
 
+// Fixed the attemptCloudSync function
+async function attemptCloudSync() {
+    if (!currentUser) return;
+    
+    console.log('[CLOUD] Attempting cloud sync...');
+    
+    try {
+        // Prepare the chat data for the current chat only
+        const currentChat = chatHistoryData[currentChatId];
+        if (!currentChat) return;
+        
+        const syncPayload = {
+            user_id: currentUser.id,
+            chat_data: {
+                [currentChatId]: currentChat
+            }
+        };
+        
+        console.log('[CLOUD] Sending payload for chat:', currentChatId);
+        
+        const response = await fetch(`${AUTH_URL}/chats/save`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(syncPayload)
+        });
+        
+        const result = await response.json();
+        
+        if (response.ok && result.success) {
+            console.log('[CLOUD] Sync successful');
+            // Show success indicator briefly
+            const indicator = document.getElementById('statusIndicator');
+            const originalText = indicator.textContent;
+            indicator.textContent = '✓ Synced to cloud';
+            
+            setTimeout(() => {
+                if (indicator.textContent.includes('✓ Synced')) {
+                    indicator.textContent = originalText;
+                }
+            }, 3000);
+        } else {
+            console.error('[CLOUD] Server error:', result.error);
+        }
+        
+    } catch (error) {
+        console.error('[CLOUD] Network error:', error.message);
+    }
+}
+
+// Fixed the loadUserChatHistory function
+async function loadUserChatHistory(userId) {
+    if (!userId) {
+        loadGuestData();
+        return;
+    }
+
+    chatHistoryData = {};
+
+    try {
+        const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
+        if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.chats) {
+                chatHistoryData = validateChatData(result.chats);
+                const userHistoryKey = `medAI_chatHistory_${userId}`;
+                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+            } else {
+                loadFromLocalStorage(userId);
+            }
+        } else {
+            loadFromLocalStorage(userId);
+        }
+    } catch (error) {
+        loadFromLocalStorage(userId);
+    }
+
+    if (Object.keys(chatHistoryData).length === 0) {
+        createInitialChat();
+    }
+
+    const chatIds = Object.keys(chatHistoryData);
+    if (chatIds.length > 0) {
+        const sortedChats = chatIds.sort((a, b) => {
+            const dateA = chatHistoryData[a].date ? new Date(chatHistoryData[a].date) : new Date(0);
+            const dateB = chatHistoryData[b].date ? new Date(chatHistoryData[b].date) : new Date(0);
+            return dateB - dateA;
+        });
+        currentChatId = sortedChats[0];
+    }
+
+    renderChatHistory();
+    loadChat(currentChatId);
+}
 async function attemptCloudSync() {
     if (!currentUser) return;
     
@@ -3279,6 +3374,7 @@ async function debugCloudSync() {
     </script>
 </body>
 </html>
+
 
 
 
