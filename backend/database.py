@@ -59,12 +59,15 @@ def create_user(username, email, password):
             'user': {
                 'id': user_id,
                 'username': username,
-                'email': email
+                'email': email,
+                'name': username  # Add name field for frontend compatibility
             }
         }
     except sqlite3.IntegrityError as e:
+        print(f"❌ Database integrity error: {e}")
         return {'success': False, 'error': 'Registration failed - user already exists'}
     except Exception as e:
+        print(f"❌ Error in create_user: {e}")
         return {'success': False, 'error': str(e)}
 
 def verify_user(email, password):
@@ -392,4 +395,5 @@ def delete_chat_from_cloud(user_id, chat_id):
 
 # Initialize database when module is imported
 init_db()
+
 
