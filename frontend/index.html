@@ -35,6 +35,18 @@
     align-items: center;
     justify-content: center;
 }
+        @media (max-width: 768px) {
+    .ai-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .ai-table th,
+    .ai-table td {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+}
 
 .sidebar-toggle:hover {
     background: rgba(255, 255, 255, 0.2);
@@ -3199,6 +3211,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
