@@ -2529,93 +2529,187 @@ function createInitialChat() {
 function renderMarkdown(text) {
     if (!text) return '';
     
-    let html = text;
-    
-    // Convert headers - handle lines that start with ## or ###
-    html = html.replace(/^### (.*?)$/gm, '<h3>$1</h3>');
-    html = html.replace(/^## (.*?)$/gm, '<h2>$1</h2>');
-    
-    // Convert bold text
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    
-    // Convert italic text
-    html = html.replace(/\*(?!\*)(.*?)(?<!\*)\*/g, '<em>$1</em>');
-    
-    // Convert bullet points
-    html = html.replace(/^\s*[-*]\s+(.*)$/gm, '<li>$1</li>');
-    
-    // Convert tables properly
-    html = html.replace(/(?:\|.*\|(?:\r?\n|\r)?)+/g, function(match) {
-        const rows = match.trim().split('\n');
-        if (rows.length < 2) return match;
-        
-        let tableHtml = '<table class="ai-table">';
-        
-        rows.forEach((row, rowIndex) => {
-            const cells = row.split('|').filter(cell => cell.trim() !== '');
-            tableHtml += '<tr>';
-            
-            cells.forEach(cell => {
-                const content = cell.trim();
-                if (rowIndex === 0) {
-                    tableHtml += `<th>${content}</th>`;
-                } else {
-                    tableHtml += `<td>${content}</td>`;
-                }
-            });
-            
-            tableHtml += '</tr>';
-        });
-        
-        tableHtml += '</table>';
-        return tableHtml;
-    });
-    
-    // Convert line breaks to <br> for non-table, non-list content
-    const lines = html.split('\n');
+    // Step 1: Parse tables first (since they have specific formatting)
+    const lines = text.split('\n');
     let result = [];
-    let inList = false;
-    let inTable = false;
+    let i = 0;
     
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-        
-        if (line.includes('<table') || line.includes('</table>')) {
-            // Table handling
-            result.push(line);
-            inTable = line.includes('<table') && !line.includes('</table>');
-        } else if (inTable) {
-            // Inside a table, keep as is
-            result.push(line);
-        } else if (line.startsWith('<li>')) {
-            // List handling
-            if (!inList) {
-                result.push('<ul class="ai-list">');
-                inList = true;
-            }
-            result.push(line);
+    while (i < lines.length) {
+        // Check if this is a table row (contains | and not empty)
+        if (lines[i].includes('|') && lines[i].trim().length > 0) {
+            // Found a table - collect all table rows
+            const tableRows = [];
+            let headerSeparatorFound = false;
             
-            // Check if next line is not a list item
-            const nextLine = lines[i + 1];
-            if (!nextLine || !nextLine.startsWith('<li>')) {
-                result.push('</ul>');
-                inList = false;
+            while (i < lines.length && lines[i].includes('|') && lines[i].trim().length > 0) {
+                tableRows.push(lines[i]);
+                
+                // Check if this is a header separator (contains only dashes and pipes)
+                if (/^[\s\|:-]+$/.test(lines[i])) {
+                    headerSeparatorFound = true;
+                }
+                
+                i++;
             }
-        } else if (line.startsWith('<h2>') || line.startsWith('<h3>') || line.startsWith('<h4>')) {
-            // Headers - don't add line breaks
-            result.push(line);
-        } else if (line.trim() === '') {
-            // Empty lines - add paragraph break
-            result.push('<br><br>');
-        } else {
-            // Regular text - add line break
-            result.push(line + '<br>');
+            
+            // Process the table
+            if (tableRows.length >= 2) {
+                let tableHtml = '<table class="ai-table">';
+                
+                for (let rowIndex = 0; rowIndex < tableRows.length; rowIndex++) {
+                    const row = tableRows[rowIndex];
+                    
+                    // Skip header separator row
+                    if (/^[\s\|:-]+$/.test(row)) {
+                        continue;
+                    }
+                    
+                    // Split by pipe and clean up
+                    const cells = row.split('|').map(cell => cell.trim()).filter(cell => cell !== '');
+                    
+                    if (cells.length > 0) {
+                        tableHtml += '<tr>';
+                        
+                        for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+                            const cellContent = cells[cellIndex];
+                            let processedCell = cellContent;
+                            
+                            // Apply inline formatting
+                            processedCell = processedCell.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                            processedCell = processedCell.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                            
+                            if (rowIndex === 0 && !headerSeparatorFound) {
+                                // First row is header if no separator found
+                                tableHtml += `<th>${processedCell}</th>`;
+                            } else if (rowIndex === 1 && headerSeparatorFound) {
+                                // Second row is header if separator was found
+                                tableHtml += `<th>${processedCell}</th>`;
+                            } else if (rowIndex === 0 && headerSeparatorFound) {
+                                // Skip processing the separator row
+                                continue;
+                            } else {
+                                tableHtml += `<td>${processedCell}</td>`;
+                            }
+                        }
+                        
+                        tableHtml += '</tr>';
+                    }
+                }
+                
+                tableHtml += '</table>';
+                result.push(tableHtml);
+            } else {
+                // Not enough rows for a proper table, add as plain text
+                result.push(tableRows.join('<br>'));
+            }
+            
+            continue;
         }
+        
+        // Step 2: Handle headers
+        if (lines[i].startsWith('### ')) {
+            result.push(`<h3>${lines[i].substring(4).trim()}</h3>`);
+            i++;
+            continue;
+        }
+        
+        if (lines[i].startsWith('## ')) {
+            result.push(`<h2>${lines[i].substring(3).trim()}</h2>`);
+            i++;
+            continue;
+        }
+        
+        // Step 3: Handle bullet points
+        if (lines[i].trim().match(/^[-*]\s+/)) {
+            const listItems = [];
+            
+            while (i < lines.length && lines[i].trim().match(/^[-*]\s+/)) {
+                let item = lines[i].trim().substring(2).trim();
+                // Apply inline formatting
+                item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                listItems.push(`<li>${item}</li>`);
+                i++;
+            }
+            
+            result.push(`<ul>${listItems.join('')}</ul>`);
+            continue;
+        }
+        
+        // Step 4: Handle numbered lists
+        if (lines[i].trim().match(/^\d+\.\s+/)) {
+            const listItems = [];
+            
+            while (i < lines.length && lines[i].trim().match(/^\d+\.\s+/)) {
+                let item = lines[i].trim().replace(/^\d+\.\s+/, '').trim();
+                // Apply inline formatting
+                item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                listItems.push(`<li>${item}</li>`);
+                i++;
+            }
+            
+            result.push(`<ol>${listItems.join('')}</ol>`);
+            continue;
+        }
+        
+        // Step 5: Handle regular text with inline formatting
+        if (lines[i].trim().length > 0) {
+            let processedLine = lines[i];
+            
+            // Apply inline formatting
+            processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
+            
+            // Check if next line is also regular text to combine paragraphs
+            if (i + 1 < lines.length && lines[i + 1].trim().length > 0 && 
+                !lines[i + 1].startsWith('#') && 
+                !lines[i + 1].includes('|') && 
+                !lines[i + 1].trim().match(/^[-*]\s+/) &&
+                !lines[i + 1].trim().match(/^\d+\.\s+/)) {
+                
+                // Combine with next line
+                result.push(`<p>${processedLine}<br>`);
+                i++;
+                
+                while (i < lines.length && lines[i].trim().length > 0 && 
+                       !lines[i].startsWith('#') && 
+                       !lines[i].includes('|') && 
+                       !lines[i].trim().match(/^[-*]\s+/) &&
+                       !lines[i].trim().match(/^\d+\.\s+/)) {
+                    
+                    let nextLine = lines[i];
+                    nextLine = nextLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    nextLine = nextLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    result[result.length - 1] += `${nextLine}<br>`;
+                    i++;
+                }
+                
+                result[result.length - 1] += '</p>';
+                continue;
+            } else {
+                // Single line paragraph
+                result.push(`<p>${processedLine}</p>`);
+            }
+        } else {
+            // Empty line - add paragraph spacing
+            if (result.length > 0 && !result[result.length - 1].endsWith('<br><br>')) {
+                result.push('<br><br>');
+            }
+        }
+        
+        i++;
     }
     
-    html = result.join('\n');
+    // Join everything together
+    let html = result.join('');
+    
+    // Clean up extra breaks
+    html = html.replace(/(<br><br>)+/g, '<br><br>');
+    html = html.replace(/<\/p><br><br><p>/g, '</p><p>');
     
     return html;
+}
 }
         function createNewChat() {
             currentChatId = generateChatId();
@@ -3027,6 +3121,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
