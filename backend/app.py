@@ -246,24 +246,12 @@ def delete_chat():
             "error": str(e)
         }), 500
 
-@app.route('/api/chats/load', methods=['GET'])
-def load_chats():
-    """Load user chats from cloud"""
-    try:
-        user_id = request.args.get('user_id')
-        chats = database.get_user_chats(user_id)
-        return jsonify({"success": True, "chats": chats})
-        
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
 
-@app.route('/health', methods=['GET'])
-def health_check():
-    return jsonify({"status": "healthy", "service": "MED AI Backend"})
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     print(f"Starting Grok AI Backend on port {port}...")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
+
 
