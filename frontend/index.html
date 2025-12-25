@@ -2016,7 +2016,8 @@ if (response.ok && result.success) {
                         document.getElementById('loginForm').reset();
                     }, 1000);
 
-                } else {
+                }
+            else {
                     throw new Error(result.error || "Invalid email or password");
                 }
             } catch (error) {
@@ -3098,6 +3099,7 @@ async function debugCloudSync() {
     </script>
 </body>
 </html>
+
 
 
 
