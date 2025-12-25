@@ -17,46 +17,48 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
+
         .sidebar-toggle {
-    display: none;
-    position: absolute;
-    top: 12px;
-    left: 12px;
-    background: none;
-    border: none;
-    color: var(--text-color);
-    font-size: 1.2rem;
-    cursor: pointer;
-    z-index: 20;
-    width: 40px;
-    height: 40px;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.1);
-    align-items: center;
-    justify-content: center;
-}
+            display: none;
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            z-index: 20;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            align-items: center;
+            justify-content: center;
+        }
+
         @media (max-width: 768px) {
-    .ai-table {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .ai-table th,
-    .ai-table td {
-        padding: 8px 10px;
-        font-size: 12px;
-    }
-}
+            .ai-table {
+                display: block;
+                overflow-x: auto;
+            }
 
-.sidebar-toggle:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
+            .ai-table th,
+            .ai-table td {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+        }
 
-@media (max-width: 768px) {
-    .sidebar-toggle {
-        display: flex;
-    }
-}
+        .sidebar-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar-toggle {
+                display: flex;
+            }
+        }
 
         :root {
             --primary-color: #10a37f;
@@ -70,113 +72,117 @@
             --border-color: #4b5563;
             --hover-color: #2d2d3a;
         }
- /* Add these styles to your existing CSS */
-.ai-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 15px 0;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-}
 
-.ai-table th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    font-weight: 600;
-    padding: 12px 15px;
-    text-align: left;
-    font-size: 14px;
-}
+        /* Add these styles to your existing CSS */
+        .ai-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.ai-table td {
-    padding: 10px 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    font-size: 14px;
-}
+        .ai-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            padding: 12px 15px;
+            text-align: left;
+            font-size: 14px;
+        }
 
-.ai-table tr:last-child td {
-    border-bottom: none;
-}
+        .ai-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 14px;
+        }
 
-.ai-table tr:hover {
-    background: rgba(255, 255, 255, 0.03);
-}
+        .ai-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .ai-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
         /* Add these to your CSS section */
-.message-content h2:first-child,
-.message-content h3:first-child {
-    margin-top: 0;
-}
+        .message-content h2:first-child,
+        .message-content h3:first-child {
+            margin-top: 0;
+        }
 
-.message-content ul {
-    list-style-type: disc;
-}
+        .message-content ul {
+            list-style-type: disc;
+        }
 
-.message-content ol {
-    list-style-type: decimal;
-}
+        .message-content ol {
+            list-style-type: decimal;
+        }
 
-.message-content table.ai-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 15px 0;
-}
+        .message-content table.ai-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
 
-.message-content table.ai-table th {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    font-weight: 600;
-    padding: 12px 15px;
-    text-align: left;
-}
+        .message-content table.ai-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            padding: 12px 15px;
+            text-align: left;
+        }
 
-.message-content table.ai-table td {
-    padding: 10px 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
+        .message-content table.ai-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-.message-content h2,
-.message-content h3 {
-    margin: 20px 0 10px 0;
-    color: #667eea;
-    font-weight: 600;
-}
+        .message-content h2,
+        .message-content h3 {
+            margin: 20px 0 10px 0;
+            color: #667eea;
+            font-weight: 600;
+        }
 
-.message-content h2 {
-    font-size: 1.3em;
-    border-bottom: 1px solid rgba(102, 126, 234, 0.3);
-    padding-bottom: 5px;
-}
+        .message-content h2 {
+            font-size: 1.3em;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 5px;
+        }
 
-.message-content h3 {
-    font-size: 1.1em;
-    color: #a78bfa;
-}
+        .message-content h3 {
+            font-size: 1.1em;
+            color: #a78bfa;
+        }
 
-.message-content ul,
-.message-content ol {
-    margin: 10px 0 10px 20px;
-}
+        .message-content ul,
+        .message-content ol {
+            margin: 10px 0 10px 20px;
+        }
 
-.message-content li {
-    margin: 5px 0;
-    line-height: 1.5;
-}
+        .message-content li {
+            margin: 5px 0;
+            line-height: 1.5;
+        }
+
         .message-content p {
-    margin-bottom: 12px;
-    line-height: 1.6;
-}
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
 
-.message-content strong {
-    color: #a78bfa;
-    font-weight: 600;
-}
+        .message-content strong {
+            color: #a78bfa;
+            font-weight: 600;
+        }
 
-.message-content em {
-    color: #94a3b8;
-    font-style: italic;
-}
+        .message-content em {
+            color: #94a3b8;
+            font-style: italic;
+        }
+
         body {
             background-color: var(--chat-bg);
             color: var(--text-color);
@@ -449,8 +455,15 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .message.user-message {
@@ -616,9 +629,17 @@
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
         }
 
         /* Keyboard button on right */
@@ -665,8 +686,15 @@
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translate(-50%, 20px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
+            from {
+                opacity: 0;
+                transform: translate(-50%, 20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, 0);
+            }
         }
 
         .keyboard-header {
@@ -1140,12 +1168,27 @@
             animation: typing 1.4s infinite ease-in-out;
         }
 
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
 
         @keyframes typing {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.8);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
     </style>
 </head>
@@ -1233,8 +1276,10 @@
                     <i class="fas fa-robot"></i>
                 </div>
                 <div class="message-content">
-                    <p>Hello! I'm <strong>DRUGBOT</strong>, your AI medical assistant. I can understand Twi and English speech. I can help with medical questions, general knowledge, translations, and more.</p>
-                    <p>Click the microphone button below to start speaking, or use the keyboard icon to type your message.</p>
+                    <p>Hello! I'm <strong>DRUGBOT</strong>, your AI medical assistant. I can understand Twi and English
+                        speech. I can help with medical questions, general knowledge, translations, and more.</p>
+                    <p>Click the microphone button below to start speaking, or use the keyboard icon to type your
+                        message.</p>
                 </div>
             </div>
         </div>
@@ -1246,18 +1291,18 @@
                 <button class="language-btn" id="languageBtn" title="Language settings">
                     <i class="fas fa-globe"></i>
                 </button>
-                
+
                 <!-- Voice button in middle (biggest) -->
                 <button class="voice-btn" id="voiceBtn" title="Start voice input">
                     <i class="fas fa-microphone"></i>
                 </button>
-                
+
                 <!-- Keyboard button on right -->
                 <button class="keyboard-btn" id="keyboardBtn" title="Switch to keyboard">
                     <i class="fas fa-keyboard"></i>
                 </button>
             </div>
-            
+
             <!-- Keyboard panel (hidden by default) -->
             <div class="keyboard-panel" id="keyboardPanel">
                 <div class="keyboard-header">
@@ -1267,7 +1312,8 @@
                     </button>
                 </div>
                 <div class="keyboard-input-area">
-                    <textarea class="keyboard-text-input" id="keyboardTextInput" placeholder="Type your message here..."></textarea>
+                    <textarea class="keyboard-text-input" id="keyboardTextInput"
+                        placeholder="Type your message here..."></textarea>
                     <button class="keyboard-send-btn" id="keyboardSendBtn">
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -1288,7 +1334,7 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="status-indicator" id="statusIndicator">Ready to chat - Click the microphone to speak</div>
         </div>
     </div>
@@ -1312,7 +1358,8 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="loginPassword">Password</label>
-                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password"
+                            required>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">
                         <i class="fas fa-sign-in-alt"></i>
@@ -1341,19 +1388,23 @@
                 <form id="registerForm">
                     <div class="form-group">
                         <label class="form-label" for="registerName">Full Name</label>
-                        <input type="text" class="form-input" id="registerName" placeholder="Enter your full name" required>
+                        <input type="text" class="form-input" id="registerName" placeholder="Enter your full name"
+                            required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="registerEmail">Email Address</label>
-                        <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email" required>
+                        <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email"
+                            required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="registerPassword">Password</label>
-                        <input type="password" class="form-input" id="registerPassword" placeholder="Create a password" required>
+                        <input type="password" class="form-input" id="registerPassword" placeholder="Create a password"
+                            required>
                     </div>
                     <div class="form-group">
                         <label class="form-label" for="registerConfirmPassword">Confirm Password</label>
-                        <input type="password" class="form-input" id="registerConfirmPassword" placeholder="Confirm your password" required>
+                        <input type="password" class="form-input" id="registerConfirmPassword"
+                            placeholder="Confirm your password" required>
                     </div>
                     <button type="submit" class="btn btn-primary btn-block">
                         <i class="fas fa-user-plus"></i>
@@ -1389,7 +1440,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="currentPassword">Current Password</label>
-                    <input type="password" class="form-input" id="currentPassword" placeholder="Enter current password">
+                    <input type="password" class="form-input" id="currentPassword"
+                        placeholder="Enter current password">
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="newPassword">New Password</label>
@@ -1397,7 +1449,8 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label" for="confirmNewPassword">Confirm New Password</label>
-                    <input type="password" class="form-input" id="confirmNewPassword" placeholder="Confirm new password">
+                    <input type="password" class="form-input" id="confirmNewPassword"
+                        placeholder="Confirm new password">
                 </div>
                 <button class="btn btn-primary btn-block" id="updateProfileBtn">
                     <i class="fas fa-save"></i>
@@ -1421,65 +1474,19 @@
             <div class="modal-body">
                 <div class="policy-section">
                     <h3>Information We Collect</h3>
-                    <p>We collect information you provide directly to us, such as when you create an account, use our services, or contact us for support. This may include:</p>
+                    <p>DRUGBOT is designed to prioritize your privacy. We collect the minimal amount of information
+                        necessary to provide, secure, and improve your AI medical assistance experience.</p>
                     <ul class="policy-list">
-                        <li>Personal identification information (name, email address)</li>
-                        <li>Medical queries and conversation history</li>
-                        <li>Usage data and preferences</li>
-                        <li>Device and browser information</li>
+                        <li>Chat content and conversation history</li>
+                        <li>Account information (if you create an account)</li>
+                        <li>Technical data for security and performance</li>
+                        <li>Usage data to improve our services</li>
                     </ul>
                 </div>
 
                 <div class="policy-section">
                     <h3>How We Use Your Information</h3>
-                    <p>We use the information we collect to provide, maintain, and improve our services, to develop new ones, and to protect DRUGBOT and our users. Specifically:
-                        Excellent. Thank you for the clear information. This allows me to refine the privacy policy text to be highly specific, transparent, and compliant.
-
-Here is the professional "Information We Collect" section, updated with your details and structured for clarity and user trust.
-
----
-
-### **Information We Collect**
-
-DRUGBOT is designed to prioritize your privacy. We collect the minimal amount of information necessary to provide, secure, and improve your AI medical assistance experience. The information we gather falls into the following categories, based on how you interact with our service.
-
-#### **1. Information You Provide Voluntarily**
-You directly control most of the information we collect by choosing what to share with the assistant.
-*   **Chat Content**: All text and voice input you provide during your conversation with DRUGBOT. This includes questions, descriptions of symptoms, medical history details, and any other information you choose to share to receive a response.
-*   **Account Information**: You can use DRUGBOT immediately without an account. If you choose to create an account to sync your chat history across devices, we collect your name and email address.
-*   **Contact Information**: If you contact our support team via email or the contact form, we collect your email address and the contents of your message.
-*   **Verification Data**: If you choose to verify your account or subscribe, we use your email address solely to send a one-time verification code via our trusted email service provider, EmailJS.
-
-#### **2. Information Collected for Core Service Operation**
-Certain information is generated automatically to make the service function securely and reliably.
-*   **Technical & Log Data**: This includes your device's IP address, browser type and version, operating system, and the dates/times of your access. This data is essential for security, preventing abuse, and diagnosing technical issues.
-*   **Usage Data**: We collect anonymized, high-level data about feature usage (e.g., frequency of voice vs. text input, language selection) to understand how DRUGBOT is used and guide future improvements. This is not linked to your identity or chat content.
-*   **Local Storage Data**: To enhance your experience, we store certain data locally on your device using your browser's local storage. This includes your active chat history, your preference for text or voice input, and selected language. **You can clear this data at any time by clearing your browser's site data.**
-
-#### **3. Sensitive Health & Biometric Information**
-By its nature, DRUGBOT facilitates conversations about health, which involves sensitive data. We handle this information with the utmost care.
-*   **Health Information**: Information you share about physical or mental health conditions, symptoms, medications, treatments, or medical history is classified as "Special Category Data" under regulations like the GDPR. We process this data solely to provide the AI-powered medical information service you request.
-*   **Audio/Biometric Data (Local Processing)**: When you use the voice input feature, your speech is **processed directly on your device** to convert it to text. The audio recording is **not transmitted to or stored on our servers**. Only the resulting text from the conversion is sent to our AI service to generate a response.
-
-#### **4. Information Processed by Our Service Providers**
-We engage reputable third-party service providers to perform specific functions. They access only the information necessary for their task and are contractually forbidden from using it for any other purpose.
-*   **AI Processing (Grok API)**: The text of your queries is sent to our AI service provider to generate a response. Our contract with them ensures this data is used only for this purpose.
-*   **Email Delivery (EmailJS)**: Your email address is shared with EmailJS solely for the purpose of sending account verification or subscription emails.
-*   **Analytics (Future Implementation)**: We currently do not use analytics services like Google Analytics. **If implemented in the future, this section will be updated prior to activation, and you will be provided with a clear option to opt-out.**
-
-To summarize the data flow and purposes clearly, the following table provides an overview:
-
-| Category of Information | Specific Data Points | Primary Purpose & Legal Basis |
-| :--- | :--- | :--- |
-| **Voluntary Input** | Chat messages, symptom details, account email. | **Purpose:** To provide the core AI medical response. <br> **Basis:** Your consent through use. |
-| **Sensitive Health Data** | Medical conditions, medications, treatments. | **Purpose:** To generate a context-aware, informed response. <br> **Basis:** Explicit consent for the healthcare service. |
-| **Service Operation Data** | IP Address, device type, browser, local chat history. | **Purpose:** Security, functionality, and personalization (via local storage). <br> **Basis:** Legitimate interest in a secure, functional service. |
-| **Third-Party Processed Data** | Query text (to AI API), email address (to EmailJS). | **Purpose:** Core service delivery and user verification. <br> **Basis:** Contractual necessity with strict data processing agreements. |
-
-**Important Legal Disclaimer**: This drafted section is based on standard best practices for transparency. Because DRUGBOT handles sensitive health information, it is **strongly recommended** that you consult with a legal professional to ensure full compliance with applicable data protection laws such as the **GDPR** (General Data Protection Regulation), **HIPAA** (Health Insurance Portability and Accountability Act, if applicable in the U.S.), or your local regulations before final publication.
-
-
-                    </p>
+                    <p>We use the information we collect to provide, maintain, and improve our services:</p>
                     <ul class="policy-list">
                         <li>To provide personalized medical assistance</li>
                         <li>To improve AI algorithms and response accuracy</li>
@@ -1491,12 +1498,27 @@ To summarize the data flow and purposes clearly, the following table provides an
 
                 <div class="policy-section">
                     <h3>Data Security</h3>
-                    <p>We implement industry-standard security measures to protect your personal information. All data is encrypted in transit and at rest. Your medical conversations are treated with strict confidentiality.</p>
+                    <p>We implement industry-standard security measures to protect your personal information. All data
+                        is encrypted in transit and at rest. Your medical conversations are treated with strict
+                        confidentiality.</p>
                 </div>
 
                 <div class="policy-section">
                     <h3>Your Rights</h3>
-                    <p>You have the right to access, correct, or delete your personal information. You can manage your data through your account settings or by contacting us directly.</p>
+                    <p>You have the right to access, correct, or delete your personal information. You can manage your
+                        data through your account settings or by contacting us directly.</p>
+                </div>
+
+                <div class="policy-section">
+                    <h3>Data Retention</h3>
+                    <p>We retain your chat history for as long as your account is active. You can delete individual
+                        chats or your entire account at any time through the settings menu.</p>
+                </div>
+
+                <div class="policy-section">
+                    <h3>Third-Party Services</h3>
+                    <p>We use trusted third-party services for AI processing and email delivery. These services are
+                        contractually bound to protect your data and only process it for the purposes we specify.</p>
                 </div>
             </div>
         </div>
@@ -1560,11 +1582,13 @@ To summarize the data flow and purposes clearly, the following table provides an
                     </div>
                 </div>
 
-                <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px;">
+                <div
+                    style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px;">
                     <h4 style="color: var(--text-color); margin-bottom: 10px; font-size: 16px;">Response Time</h4>
                     <p style="color: var(--text-light); font-size: 14px; line-height: 1.6;">
                         <i class="fas fa-clock" style="margin-right: 8px;"></i>
-                        We typically respond to all inquiries within 24 hours. For emergency medical issues, please contact local healthcare providers immediately.
+                        We typically respond to all inquiries within 24 hours. For emergency medical issues, please
+                        contact local healthcare providers immediately.
                     </p>
                 </div>
             </div>
@@ -1585,7 +1609,9 @@ To summarize the data flow and purposes clearly, the following table provides an
             <div class="modal-body">
                 <div class="policy-section">
                     <h3>Our Mission</h3>
-                    <p>DRUGBOT is an advanced AI-powered medical assistant designed to make healthcare information accessible, understandable, and actionable for everyone. Our mission is to bridge the gap between medical knowledge and everyday health decisions.</p>
+                    <p>DRUGBOT is an advanced AI-powered medical assistant designed to make healthcare information
+                        accessible, understandable, and actionable for everyone. Our mission is to bridge the gap
+                        between medical knowledge and everyday health decisions.</p>
                 </div>
 
                 <div class="policy-section">
@@ -1602,11 +1628,14 @@ To summarize the data flow and purposes clearly, the following table provides an
 
                 <div class="policy-section">
                     <h3>Important Disclaimer</h3>
-                    <p>DRUGBOT is an AI assistant designed to provide medical information and suggestions. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult with qualified healthcare providers for medical concerns.</p>
+                    <p>DRUGBOT is an AI assistant designed to provide medical information and suggestions. It is not a
+                        substitute for professional medical advice, diagnosis, or treatment. Always consult with
+                        qualified healthcare providers for medical concerns.</p>
                 </div>
 
-                <div style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border-left: 4px solid #667eea;">
-                    <h4 style="color: var(--text-color); margin-bottom: 10px;">Developed With passion</h4>
+                <div
+                    style="text-align: center; margin-top: 30px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 12px; border-left: 4px solid #667eea;">
+                    <h4 style="color: var(--text-color); margin-bottom: 10px;">Developed With Passion</h4>
                     <p style="color: var(--text-light);">
                         By Annor Prince and Collins Yeboah<br>
                         <span style="font-size: 13px;">Dedicated to improving healthcare accessibility</span>
@@ -1630,20 +1659,22 @@ To summarize the data flow and purposes clearly, the following table provides an
             <div class="modal-body">
                 <div style="text-align: center; margin-bottom: 30px;">
                     <p style="color: var(--text-light); margin-bottom: 20px;">
-                        We've sent a 6-digit verification code to your email address. Please enter it below to complete your registration.
+                        We've sent a 6-digit verification code to your email address. Please enter it below to complete
+                        your registration.
                     </p>
-                    
-                    <input type="text" id="verificationCodeInput" class="form-input" 
-                           placeholder="Enter 6-digit code" maxlength="6" 
-                           style="text-align: center; font-size: 24px; letter-spacing: 10px; padding: 15px; width: 200px;">
+
+                    <input type="text" id="verificationCodeInput" class="form-input" placeholder="Enter 6-digit code"
+                        maxlength="6" style="text-align: center; font-size: 24px; letter-spacing: 10px; padding: 15px; width: 200px;">
                 </div>
 
-                <div id="verificationError" style="display: none; text-align: center; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 10px; border-left: 4px solid #ef4444; margin: 15px 0;">
+                <div id="verificationError"
+                    style="display: none; text-align: center; padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 10px; border-left: 4px solid #ef4444; margin: 15px 0;">
                     <i class="fas fa-exclamation-circle" style="margin-right: 8px;"></i>
                     Invalid verification code. Please try again.
                 </div>
 
-                <div id="verificationSuccess" style="display: none; text-align: center; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border-left: 4px solid #10b981; margin: 15px 0;">
+                <div id="verificationSuccess"
+                    style="display: none; text-align: center; padding: 15px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; border-left: 4px solid #10b981; margin: 15px 0;">
                     <i class="fas fa-check-circle" style="margin-right: 8px;"></i>
                     Email verified successfully! Welcome to DRUGBOT.
                 </div>
@@ -1663,7 +1694,7 @@ To summarize the data flow and purposes clearly, the following table provides an
         const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
         const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
 
-        // DOM Elements - Updated for new input system
+        // DOM Elements
         const sidebar = document.getElementById('sidebar');
         const sidebarToggle = document.getElementById('sidebarToggle');
         const newChatBtn = document.getElementById('newChatBtn');
@@ -1675,30 +1706,12 @@ To summarize the data flow and purposes clearly, the following table provides an
         const settingsMenu = document.getElementById('settingsMenu');
         const userProfile = document.getElementById('userProfile');
         const userName = document.getElementById('userName');
-        
-        // New input system elements
-        const languageBtn = document.getElementById('languageBtn');
         const voiceBtn = document.getElementById('voiceBtn');
         const keyboardBtn = document.getElementById('keyboardBtn');
         const keyboardPanel = document.getElementById('keyboardPanel');
         const closeKeyboard = document.getElementById('closeKeyboard');
         const keyboardTextInput = document.getElementById('keyboardTextInput');
         const keyboardSendBtn = document.getElementById('keyboardSendBtn');
-        const keyboardLanguageSelect = document.getElementById('keyboardLanguageSelect');
-        const outputLanguageSelect = document.getElementById('outputLanguageSelect');
-
-        // Modal elements
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        const profileModal = document.getElementById('profileModal');
-        const privacyModal = document.getElementById('privacyModal');
-        const contactModal = document.getElementById('contactModal');
-        const aboutModal = document.getElementById('aboutModal');
-        const verificationModal = document.getElementById('verificationModal');
-
-        // Email Verification State
-        let verificationCode = '';
-        let pendingUser = null;
 
         // Application State
         let currentUser = null;
@@ -1707,6 +1720,8 @@ To summarize the data flow and purposes clearly, the following table provides an
         let isListening = false;
         let recognition;
         let audioEnabled = true;
+        let verificationCode = '';
+        let pendingUser = null;
 
         // Initialize speech recognition
         function initializeSpeechRecognition() {
@@ -1774,7 +1789,8 @@ To summarize the data flow and purposes clearly, the following table provides an
                 resetListeningState();
             } else {
                 try {
-                    recognition.lang = keyboardLanguageSelect.value;
+                    const langSelect = document.getElementById('keyboardLanguageSelect');
+                    recognition.lang = langSelect ? langSelect.value : 'en-US';
                     recognition.start();
                 } catch (error) {
                     console.error('Error starting recognition:', error);
@@ -1839,21 +1855,22 @@ To summarize the data flow and purposes clearly, the following table provides an
 
             // Setup event listeners for new input system
             setupInputEventListeners();
+            startPeriodicSync();
         }
 
         function setupInputEventListeners() {
             // Voice button
             voiceBtn.addEventListener('click', toggleListening);
-            
+
             // Keyboard button
             keyboardBtn.addEventListener('click', showKeyboardPanel);
-            
+
             // Close keyboard panel
             closeKeyboard.addEventListener('click', hideKeyboardPanel);
-            
+
             // Send button in keyboard panel
             keyboardSendBtn.addEventListener('click', sendKeyboardMessage);
-            
+
             // Enter key in keyboard panel
             keyboardTextInput.addEventListener('keypress', function (e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -1861,38 +1878,56 @@ To summarize the data flow and purposes clearly, the following table provides an
                     sendKeyboardMessage();
                 }
             });
-            
-            // Language selection
-            keyboardLanguageSelect.addEventListener('change', function () {
-                if (recognition) {
-                    recognition.lang = this.value;
-                }
-            });
         }
 
-        // ==================== PASTE ALL ORIGINAL JAVASCRIPT FUNCTIONS BELOW ====================
-        // Password hashing function
-        function hashPassword(password) {
-            return btoa(unescape(encodeURIComponent(password)));
+        // Utility functions
+        function generateChatId() {
+            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
 
-        // Validate password
-        function validatePassword(inputPassword, storedPassword) {
-            return hashPassword(inputPassword) === storedPassword;
+        function updateUserDisplay() {
+            if (!currentUser) {
+                userName.textContent = 'Guest User';
+                return;
+            }
+
+            const nameProperty = currentUser.name || currentUser.username || currentUser.fullName || 'User';
+            const nameParts = nameProperty.toString().trim().split(' ');
+            const surname = nameParts[nameParts.length - 1];
+            userName.textContent = surname || 'User';
         }
 
-        // ============================================
-        // EMAIL VERIFICATION FUNCTIONS
-        // ============================================
+        // Toggle audio responses
+        function toggleAudioResponses() {
+            audioEnabled = !audioEnabled;
+            const btn = document.getElementById('audioToggleBtn');
+            const icon = document.getElementById('audioToggleIcon');
+
+            if (audioEnabled) {
+                btn.classList.remove('audio-disabled');
+                icon.className = 'fas fa-volume-up';
+                statusIndicator.textContent = 'Audio responses enabled';
+            } else {
+                btn.classList.add('audio-disabled');
+                icon.className = 'fas fa-volume-mute';
+                statusIndicator.textContent = 'Audio responses disabled';
+            }
+
+            localStorage.setItem('medAI_audioEnabled', audioEnabled);
+            setTimeout(() => {
+                statusIndicator.textContent = 'Ready to chat';
+            }, 2000);
+        }
+
+        // Email verification functions
         async function sendVerificationEmail(email, code) {
-            console.log(`[EMAIL] Sending verification email to: ${email} with code: ${code}`);
             return new Promise((resolve) => {
                 emailjs.send('service_zjhyid5', 'template_vha29yp', {
                     to_email: email,
                     verification_code: code,
                 }).then(
                     function (response) {
-                        console.log('[EMAIL] Email sent successfully:', response.status, response.text);
+                        console.log('[EMAIL] Email sent successfully');
                         resolve(true);
                     },
                     function (error) {
@@ -1940,95 +1975,35 @@ To summarize the data flow and purposes clearly, the following table provides an
             });
         }
 
-        // Toggle audio responses
-        function toggleAudioResponses() {
-            audioEnabled = !audioEnabled;
-            const btn = document.getElementById('audioToggleBtn');
-            const icon = document.getElementById('audioToggleIcon');
-
-            if (audioEnabled) {
-                btn.classList.remove('audio-disabled');
-                icon.className = 'fas fa-volume-up';
-                statusIndicator.textContent = 'Audio responses enabled';
-            } else {
-                btn.classList.add('audio-disabled');
-                icon.className = 'fas fa-volume-mute';
-                statusIndicator.textContent = 'Audio responses disabled';
-            }
-
-            localStorage.setItem('medAI_audioEnabled', audioEnabled);
-            setTimeout(() => {
-                statusIndicator.textContent = 'Ready to chat';
-            }, 2000);
-        }
-
-        // ============================================
-        // AUTHENTICATION FUNCTIONS
-        // ============================================
-        function updateUserDisplay() {
-            if (!currentUser) {
-                userName.textContent = 'Guest User';
-                return;
-            }
-
-            console.log('[USER] Current user object:', currentUser);
-            console.log('[USER] Available properties:', Object.keys(currentUser));
-
-            const nameProperty = currentUser.name || currentUser.username || currentUser.fullName || 'User';
-            console.log('[USER] Using name property:', nameProperty);
-
-            const nameParts = nameProperty.toString().trim().split(' ');
-            const surname = nameParts[nameParts.length - 1];
-            userName.textContent = surname || 'User';
-            
-            console.log('[USER] Display name set to:', userName.textContent);
-        }
-
+        // Authentication functions
         async function loginUser(email, password) {
-            console.log('[AUTH] Login attempt for:', email);
-            
             const loginBtn = document.querySelector('#loginForm .btn-primary');
             const originalText = loginBtn.textContent;
-            
+
             try {
-                // Show loading state
                 loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
                 loginBtn.disabled = true;
 
                 const response = await fetch(`${AUTH_URL}/login`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        email: email,
-                        password: password
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, password: password })
                 });
 
                 const result = await response.json();
-                
+
                 if (response.ok && result.success) {
-                    console.log('[AUTH] Login successful');
                     currentUser = result.user;
                     localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-                    
                     updateUserDisplay();
                     await loadUserChatHistory(currentUser.id);
-                    statusIndicator.textContent = `Welcome back, ${userName.textContent}! Syncing chats...`;
-                    // Trigger sync after login
-        setTimeout(() => {
-            saveChatHistory();
-        }, 1000);
 
-                    // Show success feedback
                     loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
                     loginBtn.style.backgroundColor = '#10a37f';
-                    
+
                     setTimeout(() => {
                         loginModal.style.display = 'none';
                         statusIndicator.textContent = `Welcome back, ${userName.textContent}!`;
-                        // Reset button
                         loginBtn.textContent = originalText;
                         loginBtn.disabled = false;
                         loginBtn.style.backgroundColor = '';
@@ -2039,12 +2014,9 @@ To summarize the data flow and purposes clearly, the following table provides an
                     throw new Error(result.error || "Invalid email or password");
                 }
             } catch (error) {
-                console.error('[AUTH] Login error:', error);
-                
-                // Show error feedback
                 loginBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
                 loginBtn.style.backgroundColor = '#ef4444';
-                
+
                 setTimeout(() => {
                     alert(error.message || "Login failed. Please check your connection and try again.");
                     loginBtn.textContent = originalText;
@@ -2055,58 +2027,42 @@ To summarize the data flow and purposes clearly, the following table provides an
         }
 
         async function registerUser(name, email, password) {
-            console.log('[AUTH] Registration attempt for:', email);
-
             const registerBtn = document.querySelector('#registerForm .btn-primary');
             const originalText = registerBtn.textContent;
 
             try {
-                // Show loading state
                 registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
                 registerBtn.disabled = true;
 
-                // Generate verification code
                 verificationCode = generateVerificationCode();
-                console.log('[AUTH] Generated verification code:', verificationCode);
-
-                // Send verification email
                 const emailSent = await sendVerificationEmail(email, verificationCode);
-                
+
                 if (!emailSent) {
                     throw new Error('Failed to send verification email');
                 }
 
-                // Store pending user data
                 pendingUser = { name, email, password };
-
-                // Show verification modal
                 registerModal.style.display = 'none';
                 verificationModal.style.display = 'flex';
-                
-                // Reset verification input
+
                 const input = document.getElementById('verificationCodeInput');
                 const errorDiv = document.getElementById('verificationError');
                 const successDiv = document.getElementById('verificationSuccess');
-                
+
                 input.value = '';
                 input.disabled = false;
                 input.style.borderColor = '';
                 errorDiv.style.display = 'none';
                 successDiv.style.display = 'none';
-                
                 input.focus();
 
-                // Reset register button
                 registerBtn.textContent = originalText;
                 registerBtn.disabled = false;
 
             } catch (error) {
-                console.error('[AUTH] Registration error:', error);
-                
-                // Show error feedback
                 registerBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
                 registerBtn.style.backgroundColor = '#ef4444';
-                
+
                 setTimeout(() => {
                     alert(error.message || 'Registration failed. Please try again.');
                     registerBtn.textContent = originalText;
@@ -2119,14 +2075,10 @@ To summarize the data flow and purposes clearly, the following table provides an
         async function completeRegistration() {
             if (!pendingUser) return;
 
-            console.log('[REGISTRATION] Completing registration for:', pendingUser.email);
-
             try {
                 const response = await fetch(`${AUTH_URL}/register`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         username: pendingUser.name,
                         email: pendingUser.email,
@@ -2137,16 +2089,13 @@ To summarize the data flow and purposes clearly, the following table provides an
                 const result = await response.json();
 
                 if (result.success) {
-                    console.log('[AUTH] Registration successful');
                     currentUser = result.user;
                     localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-
                     updateUserDisplay();
                     loadUserChatHistory(currentUser.id);
 
                     verificationModal.style.display = 'none';
                     statusIndicator.textContent = `Welcome to DRUGBOT, ${userName.textContent}!`;
-
                     document.getElementById('registerForm').reset();
                     pendingUser = null;
                     verificationCode = '';
@@ -2154,449 +2103,174 @@ To summarize the data flow and purposes clearly, the following table provides an
                     throw new Error(result.error || 'Registration failed after verification.');
                 }
             } catch (error) {
-                console.error('[AUTH] Final registration error:', error);
                 alert('Registration failed after verification. Please try again.');
                 verificationModal.style.display = 'none';
                 registerModal.style.display = 'flex';
             }
         }
 
-        async function updateUserProfile(name, email, currentPassword, newPassword) {
-            if (!currentUser) {
-                alert("Please login first");
+        // Chat history functions
+        async function loadUserChatHistory(userId) {
+            if (!userId) {
+                loadGuestData();
                 return;
             }
 
-            const updateBtn = document.getElementById('updateProfileBtn');
-            const originalText = updateBtn.textContent;
+            chatHistoryData = {};
 
             try {
-                // Show loading state
-                updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-                updateBtn.disabled = true;
-
-                // Validate the update request
-                const validationError = validateProfileUpdate(name, email, currentPassword, newPassword);
-                if (validationError) {
-                    throw new Error(validationError);
-                }
-
-                // Prepare update data - ALWAYS send originalEmail to identify user
-                const updateData = {
-                    originalEmail: currentUser.email,  // ⭐ THIS IDENTIFIES THE USER ⭐
-                };
-                
-                // Add name if changed
-                const currentName = currentUser.name || currentUser.username;
-                if (name !== currentName) {
-                    updateData.name = name;
-                }
-                
-                // Add email if changed (send as newEmail)
-                if (email !== currentUser.email) {
-                    updateData.newEmail = email;
-                }
-
-                // Add password fields if changing password
-                if (newPassword) {
-                    if (!currentPassword) {
-                        throw new Error("Please provide your current password to change your password");
+                const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success && result.chats) {
+                        chatHistoryData = validateChatData(result.chats);
+                        const userHistoryKey = `medAI_chatHistory_${userId}`;
+                        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+                    } else {
+                        loadFromLocalStorage(userId);
                     }
-                    updateData.currentPassword = currentPassword;
-                    updateData.newPassword = newPassword;
-                }
-
-                // If nothing to update, show message
-                if (Object.keys(updateData).length === 1) { // Only has originalEmail
-                    throw new Error("No changes detected");
-                }
-
-                console.log('[PROFILE] Sending update data:', updateData);
-
-                const response = await fetch(`${AUTH_URL}/update-profile`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(updateData)
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    console.log('[PROFILE] Update successful');
-                    currentUser = result.user;
-                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-
-                    updateUserDisplay();
-
-                    // Show success feedback
-                    updateBtn.innerHTML = '<i class="fas fa-check"></i> Updated!';
-                    updateBtn.style.backgroundColor = '#10a37f';
-                    
-                    setTimeout(() => {
-                        profileModal.style.display = 'none';
-                        statusIndicator.textContent = "Profile updated successfully";
-                        
-                        // Reset button and form
-                        updateBtn.textContent = originalText;
-                        updateBtn.disabled = false;
-                        updateBtn.style.backgroundColor = '';
-                        document.getElementById('currentPassword').value = '';
-                        document.getElementById('newPassword').value = '';
-                        document.getElementById('confirmNewPassword').value = '';
-                    }, 1000);
-
                 } else {
-                    throw new Error(result.error || "Profile update failed");
+                    loadFromLocalStorage(userId);
                 }
             } catch (error) {
-                console.error('[PROFILE] Update error:', error);
-                
-                // Show error feedback
-                updateBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
-                updateBtn.style.backgroundColor = '#ef4444';
-                
-                setTimeout(() => {
-                    alert(error.message || "Profile update failed. Please try again.");
-                    updateBtn.textContent = originalText;
-                    updateBtn.disabled = false;
-                    updateBtn.style.backgroundColor = '';
-                }, 1000);
-            }
-        }
-
-        function validateProfileUpdate(name, email, currentPassword, newPassword) {
-            // Basic validation
-            if (!name.trim()) {
-                return "Name is required";
-            }
-            
-            if (!email.trim()) {
-                return "Email is required";
-            }
-            
-            // Email format validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                return "Please enter a valid email address";
-            }
-            
-            // Password validation (only if trying to change password)
-            if (newPassword) {
-                if (!currentPassword) {
-                    return "Current password is required to change your password";
-                }
-                
-                if (newPassword.length < 6) {
-                    return "New password must be at least 6 characters long";
-                }
-            }
-            
-            return null; // No errors
-        }
-
-        function logoutUser() {
-            console.log('[AUTH] Logging out user:', currentUser?.email);
-
-            if (confirm("Are you sure you want to logout? Your chat history will be saved.")) {
-                if (currentUser) {
-                    saveChatHistory();
-                }
-
-                currentUser = null;
-                localStorage.removeItem('medAI_currentUser');
-
-                loadGuestData();
-                updateUserDisplay();
-                statusIndicator.textContent = "You have been logged out";
-
-                setTimeout(() => {
-                    loginModal.style.display = 'flex';
-                }, 500);
-            }
-        }
-
-        // ============================================
-        // INITIALIZATION & CORE FUNCTIONS
-        // ============================================
-        function generateChatId() {
-            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-        function createInitialChat() {
-    currentChatId = generateChatId();
-    chatHistoryData = {
-        [currentChatId]: {
-            id: currentChatId,
-            title: "Welcome to DRUGBOT",
-            date: new Date().toISOString(),
-            messages: [
-                {
-                    role: "ai",
-                    content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                    timestamp: new Date().toISOString()
-                }
-            ]
-        }
-    };
-    console.log('[INIT] Created initial chat with ID:', currentChatId);
-}
-
-        // ============================================
-        // CHAT HISTORY FUNCTIONS
-        // ============================================
-    async function loadUserChatHistory(userId) {
-    console.log('[USER] Loading chat history for user:', userId);
-    
-    if (!userId) {
-        console.log('[USER] No user ID, loading guest data');
-        loadGuestData();
-        return;
-    }
-    
-    // Default to empty chat history
-    chatHistoryData = {};
-    
-    try {
-        // Try to load from cloud first
-        console.log('[CLOUD] Attempting to load from cloud...');
-        const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
-        
-        if (response.ok) {
-            const result = await response.json();
-            
-            if (result.success && result.chats) {
-                // Validate and clean chat data
-                chatHistoryData = validateChatData(result.chats);
-                console.log('[CLOUD] Successfully loaded and validated:', Object.keys(chatHistoryData).length, 'chats');
-                
-                // Save cloud data to local storage as backup
-                const userHistoryKey = `medAI_chatHistory_${userId}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-                console.log('[CLOUD] Cloud data saved to local storage');
-            } else {
-                console.log('[CLOUD] No chats found in cloud or invalid response:', result);
                 loadFromLocalStorage(userId);
             }
-        } else {
-            console.error('[CLOUD] HTTP error:', response.status);
-            loadFromLocalStorage(userId);
-        }
-    } catch (error) {
-        console.error('[CLOUD] Network error, loading from local storage:', error);
-        loadFromLocalStorage(userId);
-    }
-    
-    // If no chats exist, create initial chat
-    if (Object.keys(chatHistoryData).length === 0) {
-        console.log('[USER] No existing history, creating initial chat');
-        createInitialChat();
-    }
-    
-    // Set current chat to the most recent one
-    const chatIds = Object.keys(chatHistoryData);
-    if (chatIds.length > 0) {
-        // Sort by date to get most recent
-        const sortedChats = chatIds.sort((a, b) => {
-            const dateA = chatHistoryData[a].date ? new Date(chatHistoryData[a].date) : new Date(0);
-            const dateB = chatHistoryData[b].date ? new Date(chatHistoryData[b].date) : new Date(0);
-            return dateB - dateA;
-        });
-        currentChatId = sortedChats[0];
-    }
-    
-    renderChatHistory();
-    loadChat(currentChatId);
-}
 
-function validateChatData(chatData) {
-    console.log('[VALIDATE] Cleaning chat data...');
-    const validated = {};
-    
-    Object.keys(chatData).forEach(chatId => {
-        const chat = chatData[chatId];
-        
-        // Ensure basic structure
-        validated[chatId] = {
-            id: chatId,
-            title: chat.title || "Untitled Conversation",
-            date: chat.date || new Date().toISOString(),
-            messages: []
-        };
-        
-        // Validate messages array
-        if (Array.isArray(chat.messages)) {
-            chat.messages.forEach(msg => {
-                // Ensure each message has required fields
-                const validatedMsg = {
-                    role: msg.role === 'user' ? 'user' : 'ai',
-                    content: msg.content || '',
-                    timestamp: msg.timestamp || new Date().toISOString()
-                };
-                
-                // Add optional fields if they exist
-                if (msg.isMedical !== undefined) validatedMsg.isMedical = Boolean(msg.isMedical);
-                if (msg.drugRecommendation) validatedMsg.drugRecommendation = msg.drugRecommendation;
-                if (msg.disclaimer) validatedMsg.disclaimer = msg.disclaimer;
-                
-                validated[chatId].messages.push(validatedMsg);
-            });
-        } else {
-            console.warn(`[VALIDATE] Chat ${chatId} has invalid messages format`);
-        }
-    });
-    
-    return validated;
-}
- function debugChatData() {
-    console.log('=== CHAT DATA DEBUG ===');
-    console.log('Current Chat ID:', currentChatId);
-    console.log('Total Chats:', Object.keys(chatHistoryData).length);
-    
-    Object.keys(chatHistoryData).forEach(chatId => {
-        const chat = chatHistoryData[chatId];
-        console.log(`\nChat: ${chatId}`);
-        console.log('Title:', chat.title);
-        console.log('Date:', chat.date);
-        console.log('Message Count:', chat.messages?.length || 0);
-        
-        if (chat.messages && Array.isArray(chat.messages)) {
-            chat.messages.forEach((msg, i) => {
-                console.log(`  Message ${i}:`, {
-                    role: msg.role,
-                    contentPreview: msg.content?.substring(0, 50),
-                    hasDrug: !!msg.drugRecommendation,
-                    hasDisclaimer: !!msg.disclaimer
+            if (Object.keys(chatHistoryData).length === 0) {
+                createInitialChat();
+            }
+
+            const chatIds = Object.keys(chatHistoryData);
+            if (chatIds.length > 0) {
+                const sortedChats = chatIds.sort((a, b) => {
+                    const dateA = chatHistoryData[a].date ? new Date(chatHistoryData[a].date) : new Date(0);
+                    const dateB = chatHistoryData[b].date ? new Date(chatHistoryData[b].date) : new Date(0);
+                    return dateB - dateA;
                 });
-            });
-        } else {
-            console.log('  WARNING: messages is not an array:', chat.messages);
-        }
-    });
-    console.log('=======================');
-}
-
-// Call this from browser console: debugChatData()       
-
-function loadFromLocalStorage(userId) {
-    const userHistoryKey = `medAI_chatHistory_${userId}`;
-    const savedHistory = localStorage.getItem(userHistoryKey);
-    
-    if (savedHistory) {
-        try {
-            chatHistoryData = JSON.parse(savedHistory);
-            console.log('[LOCAL] Loaded from local storage:', Object.keys(chatHistoryData).length, 'chats');
-        } catch (e) {
-            console.error('[LOCAL] Failed to parse local storage:', e);
-            chatHistoryData = {};
-        }
-    } else {
-        console.log('[LOCAL] No local storage data found');
-        chatHistoryData = {};
-    }
-}
-        function loadGuestData() {
-            console.log('[GUEST] Loading guest data');
-            const savedHistory = localStorage.getItem('medAI_guestHistory');
-
-            if (savedHistory) {
-                chatHistoryData = JSON.parse(savedHistory);
-                console.log('[GUEST] Loaded guest chat history');
-            } else {
-                console.log('[GUEST] Creating initial guest chat');
-                chatHistoryData = {
-                    [currentChatId]: {
-                        id: currentChatId,
-                        title: "DRUGBOT Assistant",
-                        date: new Date().toISOString(),
-                        messages: [
-                            {
-                                role: "ai",
-                                content: "Hello! I'm your AI medical assistant. I can understand Twi and English speech. I can help with medical questions, general knowledge, translations, and more. Select your language and either type your message or use the voice button to speak to me.",
-                                timestamp: new Date().toISOString()
-                            }
-                        ]
-                    }
-                };
-                saveChatHistory();
+                currentChatId = sortedChats[0];
             }
 
             renderChatHistory();
             loadChat(currentChatId);
         }
 
-     async function saveChatHistory() {
-    console.log('[SAVE] Saving ALL chats, currentUser:', currentUser);
-    console.log('[SAVE] Chat count:', Object.keys(chatHistoryData).length);
+        function validateChatData(chatData) {
+            const validated = {};
+            Object.keys(chatData).forEach(chatId => {
+                const chat = chatData[chatId];
+                validated[chatId] = {
+                    id: chatId,
+                    title: chat.title || "Untitled Conversation",
+                    date: chat.date || new Date().toISOString(),
+                    messages: []
+                };
 
-    if (currentUser) {
-        // Save ALL chats to local storage
-        const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-        console.log('[SAVE] Saved to local storage:', userHistoryKey);
-        
-        // Try to save to cloud - send ALL chats
-        try {
-            console.log('[CLOUD] Attempting to save to cloud for user:', currentUser.id);
-            
-            const response = await fetch(`${AUTH_URL}/chats/save`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    chat_data: chatHistoryData  // Send ALL chats
-                })
+                if (Array.isArray(chat.messages)) {
+                    chat.messages.forEach(msg => {
+                        const validatedMsg = {
+                            role: msg.role === 'user' ? 'user' : 'ai',
+                            content: msg.content || '',
+                            timestamp: msg.timestamp || new Date().toISOString()
+                        };
+
+                        if (msg.isMedical !== undefined) validatedMsg.isMedical = Boolean(msg.isMedical);
+                        if (msg.drugRecommendation) validatedMsg.drugRecommendation = msg.drugRecommendation;
+                        if (msg.disclaimer) validatedMsg.disclaimer = msg.disclaimer;
+
+                        validated[chatId].messages.push(validatedMsg);
+                    });
+                }
             });
-            
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-            
-            const result = await response.json();
-            if (result.success) {
-                console.log('[CLOUD] All chats saved to cloud successfully');
+            return validated;
+        }
+
+        function loadFromLocalStorage(userId) {
+            const userHistoryKey = `medAI_chatHistory_${userId}`;
+            const savedHistory = localStorage.getItem(userHistoryKey);
+            if (savedHistory) {
+                try {
+                    chatHistoryData = JSON.parse(savedHistory);
+                } catch (e) {
+                    chatHistoryData = {};
+                }
             } else {
-                console.error('[CLOUD] Cloud save failed:', result.error);
+                chatHistoryData = {};
             }
-        } catch (error) {
-            console.error('[CLOUD] Error saving to cloud:', error);
-            // Continue with local storage only
         }
-    } else {
-        // Guest mode - save to local storage only
-        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-        console.log('[SAVE] Saved to guest storage');
-    }
-    
-    // Update UI
-    renderChatHistory();
-}
-        // Periodic sync every 30 seconds when user is logged in
-function startPeriodicSync() {
-    setInterval(() => {
-        if (currentUser && Object.keys(chatHistoryData).length > 0) {
-            console.log('[SYNC] Periodic sync triggered');
-            saveChatHistory().then(() => {
-                console.log('[SYNC] Periodic sync completed');
-            }).catch(error => {
-                console.error('[SYNC] Periodic sync failed:', error);
-            });
-        }
-    }, 30000); // 30 seconds
-}
 
-// Call this in initializeApp():
-function initializeApp() {
-    // ... existing code ...
-    
-    startPeriodicSync();
-}
+        function loadGuestData() {
+            const savedHistory = localStorage.getItem('medAI_guestHistory');
+            if (savedHistory) {
+                chatHistoryData = JSON.parse(savedHistory);
+            } else {
+                chatHistoryData = {
+                    [currentChatId]: {
+                        id: currentChatId,
+                        title: "DRUGBOT Assistant",
+                        date: new Date().toISOString(),
+                        messages: [{
+                            role: "ai",
+                            content: "Hello! I'm your AI medical assistant. I can understand Twi and English speech. I can help with medical questions, general knowledge, translations, and more. Select your language and either type your message or use the voice button to speak to me.",
+                            timestamp: new Date().toISOString()
+                        }]
+                    }
+                };
+                saveChatHistory();
+            }
+            renderChatHistory();
+            loadChat(currentChatId);
+        }
+
+        function createInitialChat() {
+            currentChatId = generateChatId();
+            chatHistoryData = {
+                [currentChatId]: {
+                    id: currentChatId,
+                    title: "Welcome to DRUGBOT",
+                    date: new Date().toISOString(),
+                    messages: [{
+                        role: "ai",
+                        content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                        timestamp: new Date().toISOString()
+                    }]
+                }
+            };
+        }
+
+        async function saveChatHistory() {
+            if (currentUser) {
+                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+
+                try {
+                    const response = await fetch(`${AUTH_URL}/chats/save`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: currentUser.id,
+                            chat_data: chatHistoryData
+                        })
+                    });
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                } catch (error) {
+                    console.error('Error saving to cloud:', error);
+                }
+            } else {
+                localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+            }
+            renderChatHistory();
+        }
+
+        function startPeriodicSync() {
+            setInterval(() => {
+                if (currentUser && Object.keys(chatHistoryData).length > 0) {
+                    saveChatHistory();
+                }
+            }, 30000);
+        }
 
         function renderChatHistory() {
             chatHistory.innerHTML = '';
-
             const today = new Date().toDateString();
             const yesterday = new Date(Date.now() - 86400000).toDateString();
 
@@ -2606,14 +2280,9 @@ function initializeApp() {
 
             Object.values(chatHistoryData).forEach(chat => {
                 const chatDate = new Date(chat.date).toDateString();
-
-                if (chatDate === today) {
-                    todayChats.push(chat);
-                } else if (chatDate === yesterday) {
-                    yesterdayChats.push(chat);
-                } else {
-                    olderChats.push(chat);
-                }
+                if (chatDate === today) todayChats.push(chat);
+                else if (chatDate === yesterday) yesterdayChats.push(chat);
+                else olderChats.push(chat);
             });
 
             if (todayChats.length > 0) {
@@ -2621,10 +2290,7 @@ function initializeApp() {
                 todayTitle.className = 'history-title';
                 todayTitle.textContent = 'Today';
                 chatHistory.appendChild(todayTitle);
-
-                todayChats.forEach(chat => {
-                    chatHistory.appendChild(createHistoryItem(chat));
-                });
+                todayChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
             }
 
             if (yesterdayChats.length > 0) {
@@ -2632,10 +2298,7 @@ function initializeApp() {
                 yesterdayTitle.className = 'history-title';
                 yesterdayTitle.textContent = 'Yesterday';
                 chatHistory.appendChild(yesterdayTitle);
-
-                yesterdayChats.forEach(chat => {
-                    chatHistory.appendChild(createHistoryItem(chat));
-                });
+                yesterdayChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
             }
 
             if (olderChats.length > 0) {
@@ -2643,10 +2306,7 @@ function initializeApp() {
                 olderTitle.className = 'history-title';
                 olderTitle.textContent = 'Previous 7 Days';
                 chatHistory.appendChild(olderTitle);
-
-                olderChats.forEach(chat => {
-                    chatHistory.appendChild(createHistoryItem(chat));
-                });
+                olderChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
             }
         }
 
@@ -2679,101 +2339,61 @@ function initializeApp() {
             };
             historyItem.appendChild(deleteBtn);
 
-            historyItem.addEventListener('click', () => {
-                loadChat(chat.id);
-            });
-
+            historyItem.addEventListener('click', () => loadChat(chat.id));
             return historyItem;
         }
 
-      function loadChat(chatId) {
-    console.log('[CHAT] Loading chat:', chatId);
+        function loadChat(chatId) {
+            document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
+            const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
+            if (activeItem) activeItem.classList.add('active');
 
-    document.querySelectorAll('.history-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
-    if (activeItem) {
-        activeItem.classList.add('active');
-    }
+            currentChatId = chatId;
+            chatContainer.innerHTML = '';
 
-    currentChatId = chatId;
-    chatContainer.innerHTML = '';
-
-    const chat = chatHistoryData[chatId];
-    if (chat && chat.messages) {
-        console.log('[CHAT] Loading', chat.messages.length, 'messages');
-        
-        // Clear and recreate chat container safely
-        chatContainer.innerHTML = '';
-        
-        chat.messages.forEach((message, index) => {
-            try {
-                console.log(`[CHAT] Loading message ${index}:`, {
-                    role: message.role,
-                    contentLength: message.content?.length,
-                    hasDrug: !!message.drugRecommendation,
-                    hasDisclaimer: !!message.disclaimer
+            const chat = chatHistoryData[chatId];
+            if (chat && chat.messages) {
+                chat.messages.forEach((message) => {
+                    try {
+                        addMessageToChat(
+                            message.content || '',
+                            message.role === 'user',
+                            false,
+                            false,
+                            message.isMedical || false,
+                            message.drugRecommendation || null,
+                            message.disclaimer || null,
+                            false
+                        );
+                    } catch (error) {
+                        addMessageToChat(
+                            `Error loading message: ${error.message}`,
+                            false,
+                            false,
+                            true,
+                            false,
+                            null,
+                            null,
+                            false
+                        );
+                    }
                 });
-                
-                // Safely extract message properties with defaults
-                const content = message.content || '';
-                const isUser = message.role === 'user';
-                const isMedical = message.isMedical || false;
-                const drugRecommendation = message.drugRecommendation || null;
-                const disclaimer = message.disclaimer || null;
-                
-                // Use addMessageToChat with all parameters
+            } else {
                 addMessageToChat(
-                    content,
-                    isUser,
-                    false,  // isTyping
-                    false,  // isError
-                    isMedical,
-                    drugRecommendation,
-                    disclaimer,
-                    false   // saveToHistory (already saved)
-                );
-            } catch (messageError) {
-                console.error(`[CHAT] Error loading message ${index}:`, messageError, message);
-                
-                // Add error message instead
-                addMessageToChat(
-                    `Error loading message: ${messageError.message}`,
+                    "Hello! I'm your AI medical assistant. How can I help you today?",
                     false,
                     false,
-                    true,
+                    false,
                     false,
                     null,
                     null,
                     false
                 );
             }
-        });
-    } else {
-        console.log('[CHAT] No messages found or invalid chat structure');
-        
-        // Add default welcome message
-        addMessageToChat(
-            "Hello! I'm your AI medical assistant. How can I help you today?",
-            false, // isUser
-            false, // isTyping
-            false, // isError
-            false, // isMedical
-            null,  // drugRecommendation
-            null,  // disclaimer
-            false  // saveToHistory
-        );
-    }
 
-    if (window.innerWidth <= 768) {
-        sidebar.classList.remove('open');
-    }
-
-    setTimeout(() => {
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }, 100);
-}
+            if (window.innerWidth <= 768) sidebar.classList.remove('open');
+            setTimeout(() => chatContainer.scrollTop = chatContainer.scrollHeight, 100);
+        }
 
         function deleteChat(chatId) {
             if (Object.keys(chatHistoryData).length === 1) {
@@ -2788,463 +2408,349 @@ function initializeApp() {
 
                 if (chatId === currentChatId) {
                     const remainingChatIds = Object.keys(chatHistoryData);
-                    if (remainingChatIds.length > 0) {
-                        loadChat(remainingChatIds[0]);
-                    }
+                    if (remainingChatIds.length > 0) loadChat(remainingChatIds[0]);
                 }
             }
         }
-function renderMarkdown(text) {
-    if (!text) return '';
-    
-    // Split into lines for processing
-    const lines = text.split('\n');
-    let result = [];
-    let i = 0;
-    let inTable = false;
-    let tableRows = [];
-    
-    while (i < lines.length) {
-        const line = lines[i];
-        const trimmedLine = line.trim();
-        
-        // Handle tables
-        if (trimmedLine.includes('|') && !inTable) {
-            inTable = true;
-            tableRows = [line];
-            i++;
-            continue;
-        }
-        
-        if (inTable) {
-            if (trimmedLine.includes('|')) {
-                tableRows.push(line);
-                i++;
-                continue;
-            } else {
-                // End of table found, process it
-                processTable();
-                inTable = false;
-                // Don't increment i, process this line normally
-                continue;
-            }
-        }
-        
-        // Process regular lines
-        processRegularLine(line, trimmedLine);
-        i++;
-    }
-    
-    // Process any remaining table at the end
-    if (inTable && tableRows.length > 0) {
-        processTable();
-    }
-    
-    // Join results
-    let html = result.join('');
-    
-    // Clean up
-    html = html.replace(/<br>\s*<br>/g, '<br><br>');
-    
-    return html;
-    
-    // Helper functions
-    function processTable() {
-        if (tableRows.length < 2) {
-            // Not a valid table, add as plain text
-            result.push(tableRows.join('<br>') + '<br>');
-            tableRows = [];
-            return;
-        }
-        
-        let tableHtml = '<table class="ai-table"><tbody>';
-        let isFirstRow = true;
-        let hasHeaderSeparator = false;
-        
-        // Check if second row is a separator
-        if (tableRows.length > 1 && /^[\s\|:-]+$/.test(tableRows[1].trim())) {
-            hasHeaderSeparator = true;
-        }
-        
-        for (let rowIndex = 0; rowIndex < tableRows.length; rowIndex++) {
-            const row = tableRows[rowIndex];
-            
-            // Skip separator rows
-            if (/^[\s\|:-]+$/.test(row.trim())) {
-                continue;
-            }
-            
-            const cells = row.split('|')
-                .map(cell => cell.trim())
-                .filter(cell => cell !== '');
-            
-            if (cells.length === 0) continue;
-            
-            tableHtml += '<tr>';
-            
-            for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
-                let cellContent = cells[cellIndex];
-                
-                // Apply basic formatting
-                cellContent = cellContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                cellContent = cellContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                
-                if ((rowIndex === 0 && !hasHeaderSeparator) || 
-                    (rowIndex === 1 && hasHeaderSeparator)) {
-                    tableHtml += `<th>${cellContent}</th>`;
-                } else {
-                    tableHtml += `<td>${cellContent}</td>`;
-                }
-            }
-            
-            tableHtml += '</tr>';
-        }
-        
-        tableHtml += '</tbody></table>';
-        result.push(tableHtml);
-        tableRows = [];
-    }
-    
-    function processRegularLine(line, trimmedLine) {
-        let processedLine = line;
-        
-        // Handle headers - MUST COME FIRST
-        if (trimmedLine.startsWith('### ')) {
-            result.push(`<h3>${trimmedLine.substring(4)}</h3>`);
-            return;
-        }
-        
-        if (trimmedLine.startsWith('## ')) {
-            result.push(`<h2>${trimmedLine.substring(3)}</h2>`);
-            return;
-        }
-        
-        // Handle lists
-        if (trimmedLine.match(/^[-*]\s+/)) {
-            let listHtml = '<ul>';
-            while (i < lines.length && lines[i].trim().match(/^[-*]\s+/)) {
-                let item = lines[i].trim().substring(2).trim();
-                item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                listHtml += `<li>${item}</li>`;
-                i++;
-            }
-            listHtml += '</ul>';
-            result.push(listHtml);
-            i--; // Adjust since we incremented in the loop
-            return;
-        }
-        
-        // Handle numbered lists
-        if (trimmedLine.match(/^\d+\.\s+/)) {
-            let listHtml = '<ol>';
-            while (i < lines.length && lines[i].trim().match(/^\d+\.\s+/)) {
-                let item = lines[i].trim().replace(/^\d+\.\s+/, '').trim();
-                item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                listHtml += `<li>${item}</li>`;
-                i++;
-            }
-            listHtml += '</ol>';
-            result.push(listHtml);
-            i--; // Adjust since we incremented in the loop
-            return;
-        }
-        
-        // Handle regular text
-        if (trimmedLine.length > 0) {
-            // Apply inline formatting
-            processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
-            
-            // Check if this is part of a paragraph
-            if (result.length > 0 && !result[result.length - 1].endsWith('</p>')) {
-                // Add to existing paragraph
-                const lastIndex = result.length - 1;
-                result[lastIndex] = result[lastIndex].replace(/<\/p>$/, '');
-                result[lastIndex] += `<br>${processedLine}</p>`;
-            } else {
-                // Start new paragraph
-                result.push(`<p>${processedLine}</p>`);
-            }
-        } else {
-            // Empty line - add spacing
-            if (result.length > 0) {
-                result.push('<br>');
-            }
-        }
-    }
-}
-       function createNewChat() {
-    currentChatId = generateChatId();
-    chatHistoryData[currentChatId] = {
-        id: currentChatId,
-        title: "New Conversation",
-        date: new Date().toISOString(),
-        messages: [
-            {
-                role: "ai",
-                content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                timestamp: new Date().toISOString()
-            }
-        ]
-    };
 
-    saveChatHistory(); // This will now save to both local and cloud
-    renderChatHistory();
-    loadChat(currentChatId);
-    statusIndicator.textContent = "New chat created";
-}
-
-  function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
-    console.log('[MESSAGE] Adding message:', { 
-        content: content?.substring(0, 50) + (content?.length > 50 ? '...' : ''), 
-        isUser, 
-        isTyping, 
-        isError,
-        saveToHistory 
-    });
-    
-    // Validate required parameters
-    if (!content && !isTyping) {
-        console.error('[MESSAGE] Error: No content provided for message');
-        content = "Message content unavailable";
-        isError = true;
-    }
-    
-    if (typeof content !== 'string') {
-        console.error('[MESSAGE] Error: Content is not a string:', typeof content);
-        content = String(content || '');
-    }
-    
-    const messageDiv = document.createElement('div');
-    let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
-    if (isMedical) messageClass += ' medical-message';
-    if (isError) messageClass += ' error-message';
-    messageDiv.className = messageClass;
-
-    const avatarDiv = document.createElement('div');
-    avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
-    avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-
-    const contentDiv = document.createElement('div');
-    contentDiv.className = 'message-content';
-
-    if (isTyping) {
-        contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
-    } else {
-        // Always use markdown rendering for AI responses
-        if (!isUser && !isError) {
-            contentDiv.innerHTML = renderMarkdown(content);
-        } else {
-            // For user messages or errors, show plain text with line breaks
-            contentDiv.innerHTML = `<p>${(content || '').toString().replace(/\n/g, '<br>')}</p>`;
-        }
-
-        // Safely add drug recommendation if present and valid
-        if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'undefined') {
-            try {
-                const drugDiv = document.createElement('div');
-                drugDiv.className = 'drug-recommendation';
-                const recText = typeof drugRecommendation === 'string' ? drugRecommendation : JSON.stringify(drugRecommendation);
-                drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${renderMarkdown(recText)}`;
-                contentDiv.appendChild(drugDiv);
-            } catch (drugError) {
-                console.error('[MESSAGE] Error adding drug recommendation:', drugError);
-            }
-        }
-
-        // Safely add disclaimer if present and valid
-        if (disclaimer && disclaimer !== 'null' && disclaimer !== 'undefined') {
-            try {
-                const disclaimerDiv = document.createElement('div');
-                disclaimerDiv.className = 'disclaimer';
-                const disclaimerText = typeof disclaimer === 'string' ? disclaimer : JSON.stringify(disclaimer);
-                disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimerText}`;
-                contentDiv.appendChild(disclaimerDiv);
-            } catch (disclaimerError) {
-                console.error('[MESSAGE] Error adding disclaimer:', disclaimerError);
-            }
-        }
-
-        if (!isUser && !isError) {
-            const actionsDiv = document.createElement('div');
-            actionsDiv.className = 'message-actions';
-            actionsDiv.innerHTML = `
-                <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
-                <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
-                <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
-            `;
-            contentDiv.appendChild(actionsDiv);
-        }
-    }
-
-    messageDiv.appendChild(avatarDiv);
-    messageDiv.appendChild(contentDiv);
-    chatContainer.appendChild(messageDiv);
-
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-
-    if (saveToHistory && !isTyping && !isError) {
-        // Ensure chat exists in history
-        if (!chatHistoryData[currentChatId]) {
+        function createNewChat() {
+            currentChatId = generateChatId();
             chatHistoryData[currentChatId] = {
                 id: currentChatId,
                 title: "New Conversation",
                 date: new Date().toISOString(),
-                messages: []
+                messages: [{
+                    role: "ai",
+                    content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                    timestamp: new Date().toISOString()
+                }]
             };
+
+            saveChatHistory();
+            renderChatHistory();
+            loadChat(currentChatId);
+            statusIndicator.textContent = "New chat created";
         }
 
-        // Safely create message data object
-        const messageData = {
-            role: isUser ? 'user' : 'ai',
-            content: content || '',
-            timestamp: new Date().toISOString()
-        };
+        // Markdown rendering
+        function renderMarkdown(text) {
+            if (!text) return '';
 
-        // Safely add optional fields
-        if (isMedical !== undefined) messageData.isMedical = Boolean(isMedical);
-        if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'undefined') {
-            messageData.drugRecommendation = drugRecommendation;
-        }
-        if (disclaimer && disclaimer !== 'null' && disclaimer !== 'undefined') {
-            messageData.disclaimer = disclaimer;
+            const lines = text.split('\n');
+            let result = [];
+            let inTable = false;
+            let tableRows = [];
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i];
+                const trimmedLine = line.trim();
+
+                if (trimmedLine.includes('|') && !inTable) {
+                    inTable = true;
+                    tableRows = [line];
+                    continue;
+                }
+
+                if (inTable) {
+                    if (trimmedLine.includes('|')) {
+                        tableRows.push(line);
+                    } else {
+                        processTable();
+                        inTable = false;
+                        i--;
+                    }
+                    continue;
+                }
+
+                processRegularLine(line, trimmedLine);
+            }
+
+            if (inTable && tableRows.length > 0) processTable();
+
+            return result.join('');
+
+            function processTable() {
+                if (tableRows.length < 2) {
+                    result.push(tableRows.join('<br>') + '<br>');
+                    tableRows = [];
+                    return;
+                }
+
+                let tableHtml = '<table class="ai-table"><tbody>';
+                let hasHeaderSeparator = tableRows.length > 1 && /^[\s\|:-]+$/.test(tableRows[1].trim());
+
+                for (let rowIndex = 0; rowIndex < tableRows.length; rowIndex++) {
+                    const row = tableRows[rowIndex];
+                    if (/^[\s\|:-]+$/.test(row.trim())) continue;
+
+                    const cells = row.split('|')
+                        .map(cell => cell.trim())
+                        .filter(cell => cell !== '');
+
+                    if (cells.length === 0) continue;
+
+                    tableHtml += '<tr>';
+                    for (let cell of cells) {
+                        let cellContent = cell
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+                        if ((rowIndex === 0 && !hasHeaderSeparator) ||
+                            (rowIndex === 1 && hasHeaderSeparator)) {
+                            tableHtml += `<th>${cellContent}</th>`;
+                        } else {
+                            tableHtml += `<td>${cellContent}</td>`;
+                        }
+                    }
+                    tableHtml += '</tr>';
+                }
+                tableHtml += '</tbody></table>';
+                result.push(tableHtml);
+                tableRows = [];
+            }
+
+            function processRegularLine(line, trimmedLine) {
+                if (trimmedLine.startsWith('### ')) {
+                    result.push(`<h3>${trimmedLine.substring(4)}</h3>`);
+                    return;
+                }
+
+                if (trimmedLine.startsWith('## ')) {
+                    result.push(`<h2>${trimmedLine.substring(3)}</h2>`);
+                    return;
+                }
+
+                if (trimmedLine.match(/^[-*]\s+/)) {
+                    let listHtml = '<ul>';
+                    while (i < lines.length && lines[i].trim().match(/^[-*]\s+/)) {
+                        let item = lines[i].trim().substring(2).trim()
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em>$1</em>');
+                        listHtml += `<li>${item}</li>`;
+                        i++;
+                    }
+                    listHtml += '</ul>';
+                    result.push(listHtml);
+                    i--;
+                    return;
+                }
+
+                if (trimmedLine.match(/^\d+\.\s+/)) {
+                    let listHtml = '<ol>';
+                    while (i < lines.length && lines[i].trim().match(/^\d+\.\s+/)) {
+                        let item = lines[i].trim().replace(/^\d+\.\s+/, '').trim()
+                            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em>$1</em>');
+                        listHtml += `<li>${item}</li>`;
+                        i++;
+                    }
+                    listHtml += '</ol>';
+                    result.push(listHtml);
+                    i--;
+                    return;
+                }
+
+                if (trimmedLine.length > 0) {
+                    let processedLine = line
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>');
+
+                    if (result.length > 0 && !result[result.length - 1].endsWith('</p>')) {
+                        const lastIndex = result.length - 1;
+                        result[lastIndex] = result[lastIndex].replace(/<\/p>$/, '');
+                        result[lastIndex] += `<br>${processedLine}</p>`;
+                    } else {
+                        result.push(`<p>${processedLine}</p>`);
+                    }
+                } else if (result.length > 0) {
+                    result.push('<br>');
+                }
+            }
         }
 
-        // Add message to chat
-        if (Array.isArray(chatHistoryData[currentChatId].messages)) {
-            chatHistoryData[currentChatId].messages.push(messageData);
-        } else {
-            console.error('[MESSAGE] Chat messages is not an array, resetting');
-            chatHistoryData[currentChatId].messages = [messageData];
+        function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
+            if (!content && !isTyping) {
+                content = "Message content unavailable";
+                isError = true;
+            }
+
+            if (typeof content !== 'string') content = String(content || '');
+
+            const messageDiv = document.createElement('div');
+            let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            if (isMedical) messageClass += ' medical-message';
+            if (isError) messageClass += ' error-message';
+            messageDiv.className = messageClass;
+
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
+            avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
+            if (isTyping) {
+                contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+            } else {
+                if (!isUser && !isError) {
+                    contentDiv.innerHTML = renderMarkdown(content);
+                } else {
+                    contentDiv.innerHTML = `<p>${(content || '').toString().replace(/\n/g, '<br>')}</p>`;
+                }
+
+                if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'undefined') {
+                    try {
+                        const drugDiv = document.createElement('div');
+                        drugDiv.className = 'drug-recommendation';
+                        drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${renderMarkdown(drugRecommendation)}`;
+                        contentDiv.appendChild(drugDiv);
+                    } catch (error) {
+                        console.error('Error adding drug recommendation:', error);
+                    }
+                }
+
+                if (disclaimer && disclaimer !== 'null' && disclaimer !== 'undefined') {
+                    try {
+                        const disclaimerDiv = document.createElement('div');
+                        disclaimerDiv.className = 'disclaimer';
+                        disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
+                        contentDiv.appendChild(disclaimerDiv);
+                    } catch (error) {
+                        console.error('Error adding disclaimer:', error);
+                    }
+                }
+
+                if (!isUser && !isError) {
+                    const actionsDiv = document.createElement('div');
+                    actionsDiv.className = 'message-actions';
+                    actionsDiv.innerHTML = `
+                        <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
+                        <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
+                        <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
+                    `;
+                    contentDiv.appendChild(actionsDiv);
+                }
+            }
+
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            if (saveToHistory && !isTyping && !isError) {
+                if (!chatHistoryData[currentChatId]) {
+                    chatHistoryData[currentChatId] = {
+                        id: currentChatId,
+                        title: "New Conversation",
+                        date: new Date().toISOString(),
+                        messages: []
+                    };
+                }
+
+                const messageData = {
+                    role: isUser ? 'user' : 'ai',
+                    content: content || '',
+                    timestamp: new Date().toISOString()
+                };
+
+                if (isMedical !== undefined) messageData.isMedical = Boolean(isMedical);
+                if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
+                if (disclaimer) messageData.disclaimer = disclaimer;
+
+                if (Array.isArray(chatHistoryData[currentChatId].messages)) {
+                    chatHistoryData[currentChatId].messages.push(messageData);
+                } else {
+                    chatHistoryData[currentChatId].messages = [messageData];
+                }
+
+                if (isUser && (chatHistoryData[currentChatId].title === "New Conversation" ||
+                    chatHistoryData[currentChatId].title === "Welcome to DRUGBOT")) {
+                    const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+                    chatHistoryData[currentChatId].title = shortMessage;
+                }
+
+                chatHistoryData[currentChatId].date = new Date().toISOString();
+
+                if (!isTyping) {
+                    setTimeout(() => saveChatHistory(), 100);
+                }
+            }
+
+            return messageDiv;
         }
-        
-        // Update chat title with first user message
-        if (isUser && (chatHistoryData[currentChatId].title === "New Conversation" || 
-                       chatHistoryData[currentChatId].title === "Welcome to DRUGBOT")) {
-            const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
-            chatHistoryData[currentChatId].title = shortMessage;
-        }
-        
-        // Update chat date to now
-        chatHistoryData[currentChatId].date = new Date().toISOString();
-        
-        // Save immediately
-        if (!isTyping) {
-            setTimeout(() => {
-                saveChatHistory();
-            }, 100);
-        }
-    }
-    
-    return messageDiv;
-}
-        // ============================================
-        // AI & VOICE FUNCTIONS
-        // ============================================
+
+        // AI API call
         async function callBackendAPI(userMessage) {
             try {
-                console.log('🌐 [DEBUG] Sending to:', BACKEND_URL);
-                
                 const response = await fetch(BACKEND_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        text: userMessage
-                    })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: userMessage })
                 });
 
-                console.log('📥 [DEBUG] Response status:', response.status);
-                
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
                 const responseText = await response.text();
-                console.log('📄 [DEBUG] Raw response:', responseText);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                    console.log('✅ [DEBUG] Parsed JSON:', data);
-                } catch (parseError) {
-                    console.error('❌ [DEBUG] JSON parse error:', parseError);
-                    throw new Error('Invalid JSON from server: ' + responseText);
-                }
-
-                return data;
-
+                return JSON.parse(responseText);
             } catch (error) {
-                console.error('❌ [DEBUG] API call failed:', error);
+                console.error('API call failed:', error);
                 throw error;
             }
         }
 
-       async function processUserInput(input) {
-    if (!input.trim()) return;
+        async function processUserInput(input) {
+            if (!input.trim()) return;
 
-    addMessageToChat(input, true);
-    statusIndicator.textContent = "Processing with AI...";
+            addMessageToChat(input, true);
+            statusIndicator.textContent = "Processing with AI...";
+            const typingMessage = addMessageToChat("Analyzing your message...", false, true);
 
-    const typingMessage = addMessageToChat("Analyzing your message...", false, true);
+            try {
+                const response = await callBackendAPI(input);
+                typingMessage.remove();
 
-    try {
-        const response = await callBackendAPI(input);
-        typingMessage.remove();
+                addMessageToChat(
+                    response.response,
+                    false,
+                    false,
+                    false,
+                    response.is_medical,
+                    response.drug_recommendation,
+                    response.disclaimer
+                );
 
-        addMessageToChat(
-            response.response,
-            false,
-            false,
-            false,
-            response.is_medical,
-            response.drug_recommendation,
-            response.disclaimer
-        );
+                if (response.translation && response.translation !== "Error processing request") {
+                    const translationDiv = document.createElement('div');
+                    translationDiv.style.marginTop = '10px';
+                    translationDiv.style.fontSize = '0.9rem';
+                    translationDiv.style.opacity = '0.8';
+                    translationDiv.style.fontStyle = 'italic';
+                    translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
+                    chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
+                }
 
-        if (response.translation && response.translation !== "Error processing request") {
-            const translationDiv = document.createElement('div');
-            translationDiv.style.marginTop = '10px';
-            translationDiv.style.fontSize = '0.9rem';
-            translationDiv.style.opacity = '0.8';
-            translationDiv.style.fontStyle = 'italic';
-            translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
-            chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
+                statusIndicator.textContent = "Response ready";
+                speakResponse(response.response);
+                setTimeout(() => saveChatHistory(), 500);
+
+            } catch (error) {
+                typingMessage.remove();
+                const errorMessage = `I'm having trouble connecting to the server. Please check your internet connection and try again.\n\nError details: ${error.message}`;
+                addMessageToChat(errorMessage, false, false, true);
+                statusIndicator.textContent = "Connection error. Please try again.";
+            }
         }
 
-        statusIndicator.textContent = "Response ready";
-        speakResponse(response.response);
-
-        // Force save after each message exchange
-        setTimeout(() => {
-            saveChatHistory();
-        }, 500);
-
-    } catch (error) {
-        typingMessage.remove();
-        const errorMessage = `I'm having trouble connecting to the server. Please check your internet connection and try again.\n\nError details: ${error.message}`;
-
-        addMessageToChat(errorMessage, false, false, true);
-        statusIndicator.textContent = "Connection error. Please try again.";
-        console.error('Processing error:', error);
-    }
-}
-
         function speakResponse(text) {
-            if (!audioEnabled) return;
+            if (!audioEnabled || !('speechSynthesis' in window)) return;
 
-            if ('speechSynthesis' in window) {
-                speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US';
-                utterance.rate = 0.9;
-                utterance.pitch = 1;
-                utterance.volume = 0.8;
-                speechSynthesis.speak(utterance);
-            }
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.9;
+            utterance.pitch = 1;
+            utterance.volume = 0.8;
+            speechSynthesis.speak(utterance);
         }
 
         function copyToClipboard(button) {
@@ -3252,38 +2758,37 @@ function renderMarkdown(text) {
             navigator.clipboard.writeText(messageContent).then(() => {
                 const originalHTML = button.innerHTML;
                 button.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                }, 2000);
+                setTimeout(() => button.innerHTML = originalHTML, 2000);
             });
         }
 
-        // ============================================
-        // EVENT LISTENERS
-        // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the application
-            initializeApp();
-            
-            // Setup auto verification
-            setupAutoVerify();
-            
-            // Original event listeners
-            sidebarToggle.addEventListener('click', () => {
-                sidebar.classList.toggle('open');
-            });
+        function logoutUser() {
+            if (confirm("Are you sure you want to logout? Your chat history will be saved.")) {
+                if (currentUser) saveChatHistory();
+                currentUser = null;
+                localStorage.removeItem('medAI_currentUser');
+                loadGuestData();
+                updateUserDisplay();
+                statusIndicator.textContent = "You have been logged out";
+                setTimeout(() => loginModal.style.display = 'flex', 500);
+            }
+        }
 
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            initializeApp();
+            setupAutoVerify();
+
+            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
             newChatBtn.addEventListener('click', createNewChat);
 
             clearChatBtn.addEventListener('click', () => {
                 if (confirm("Are you sure you want to clear this conversation?")) {
-                    chatHistoryData[currentChatId].messages = [
-                        {
-                            role: "ai",
-                            content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                            timestamp: new Date().toISOString()
-                        }
-                    ];
+                    chatHistoryData[currentChatId].messages = [{
+                        role: "ai",
+                        content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                        timestamp: new Date().toISOString()
+                    }];
                     saveChatHistory();
                     loadChat(currentChatId);
                     statusIndicator.textContent = "Conversation cleared";
@@ -3292,16 +2797,14 @@ function renderMarkdown(text) {
 
             document.getElementById('audioToggleBtn').addEventListener('click', toggleAudioResponses);
 
-            settingsBtn.addEventListener('click', () => {
-                settingsMenu.classList.toggle('show');
-            });
-
+            settingsBtn.addEventListener('click', () => settingsMenu.classList.toggle('show'));
             document.addEventListener('click', (e) => {
                 if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
                     settingsMenu.classList.remove('show');
                 }
             });
 
+            // Modal and form event listeners
             document.getElementById('profileSettings').addEventListener('click', () => {
                 if (currentUser) {
                     document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
@@ -3313,26 +2816,14 @@ function renderMarkdown(text) {
                 settingsMenu.classList.remove('show');
             });
 
-            document.getElementById('privacyPolicy').addEventListener('click', () => {
-                privacyModal.style.display = 'flex';
-                settingsMenu.classList.remove('show');
+            ['privacyPolicy', 'contactUs', 'aboutUs'].forEach(id => {
+                document.getElementById(id).addEventListener('click', () => {
+                    document.getElementById(id.replace('Policy', 'Modal').replace('Us', 'Modal')).style.display = 'flex';
+                    settingsMenu.classList.remove('show');
+                });
             });
 
-            document.getElementById('contactUs').addEventListener('click', () => {
-                contactModal.style.display = 'flex';
-                settingsMenu.classList.remove('show');
-            });
-
-            document.getElementById('aboutUs').addEventListener('click', () => {
-                aboutModal.style.display = 'flex';
-                settingsMenu.classList.remove('show');
-            });
-
-            document.getElementById('logoutBtn').addEventListener('click', () => {
-                logoutUser();
-                settingsMenu.classList.remove('show');
-            });
-
+            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
             userProfile.addEventListener('click', () => {
                 if (currentUser) {
                     document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
@@ -3344,30 +2835,17 @@ function renderMarkdown(text) {
             });
 
             // Modal close buttons
-            document.getElementById('closeLoginModal').addEventListener('click', () => {
-                loginModal.style.display = 'none';
-            });
-            document.getElementById('closeRegisterModal').addEventListener('click', () => {
-                registerModal.style.display = 'none';
-            });
-            document.getElementById('closeProfileModal').addEventListener('click', () => {
-                profileModal.style.display = 'none';
-            });
-            document.getElementById('closePrivacyModal').addEventListener('click', () => {
-                privacyModal.style.display = 'none';
-            });
-            document.getElementById('closeContactModal').addEventListener('click', () => {
-                contactModal.style.display = 'none';
-            });
-            document.getElementById('closeAboutModal').addEventListener('click', () => {
-                aboutModal.style.display = 'none';
-            });
-            document.getElementById('closeVerificationModal').addEventListener('click', () => {
-                verificationModal.style.display = 'none';
-                registerModal.style.display = 'flex';
-                pendingUser = null;
-                verificationCode = '';
-            });
+            ['closeLoginModal', 'closeRegisterModal', 'closeProfileModal', 'closePrivacyModal',
+                'closeContactModal', 'closeAboutModal', 'closeVerificationModal'].forEach(id => {
+                    document.getElementById(id).addEventListener('click', () => {
+                        document.getElementById(id.replace('close', '').replace('Modal', 'Modal')).style.display = 'none';
+                        if (id === 'closeVerificationModal') {
+                            registerModal.style.display = 'flex';
+                            pendingUser = null;
+                            verificationCode = '';
+                        }
+                    });
+                });
 
             // Modal links
             document.getElementById('showRegister').addEventListener('click', (e) => {
@@ -3410,74 +2888,17 @@ function renderMarkdown(text) {
                 registerUser(name, email, password);
             });
 
-            document.getElementById('updateProfileBtn').addEventListener('click', () => {
-                const name = document.getElementById('profileName').value;
-                const email = document.getElementById('profileEmail').value;
-                const currentPassword = document.getElementById('currentPassword').value;
-                const newPassword = document.getElementById('newPassword').value;
-                const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-
-                if (newPassword && newPassword !== confirmNewPassword) {
-                    alert("New passwords do not match");
-                    return;
-                }
-
-                updateUserProfile(name, email, currentPassword, newPassword);
-            });
-
             // Close modals when clicking outside
             window.addEventListener('click', (e) => {
-                if (e.target === loginModal) loginModal.style.display = 'none';
-                if (e.target === registerModal) registerModal.style.display = 'none';
-                if (e.target === profileModal) profileModal.style.display = 'none';
-                if (e.target === privacyModal) privacyModal.style.display = 'none';
-                if (e.target === contactModal) contactModal.style.display = 'none';
-                if (e.target === aboutModal) aboutModal.style.display = 'none';
-                if (e.target === verificationModal) {
-                    verificationModal.style.display = 'none';
-                    registerModal.style.display = 'flex';
-                    pendingUser = null;
+                if (e.target.classList.contains('modal')) {
+                    e.target.style.display = 'none';
+                    if (e.target.id === 'verificationModal') {
+                        registerModal.style.display = 'flex';
+                        pendingUser = null;
+                    }
                 }
             });
-
-            console.log(`Frontend configured to connect to: ${BACKEND_URL}`);
-            console.log('Make sure your Flask backend is running on the specified URL');
         });
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
