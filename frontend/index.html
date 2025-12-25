@@ -2892,8 +2892,94 @@ function renderMarkdown(text) {
     statusIndicator.textContent = "New chat created";
 }
 
-      function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
-    // ... (rest of the function remains the same until the saving part) ...
+  function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
+    console.log('[MESSAGE] Adding message:', { 
+        content: content?.substring(0, 50) + (content?.length > 50 ? '...' : ''), 
+        isUser, 
+        isTyping, 
+        isError,
+        saveToHistory 
+    });
+    
+    // Validate required parameters
+    if (!content && !isTyping) {
+        console.error('[MESSAGE] Error: No content provided for message');
+        content = "Message content unavailable";
+        isError = true;
+    }
+    
+    if (typeof content !== 'string') {
+        console.error('[MESSAGE] Error: Content is not a string:', typeof content);
+        content = String(content || '');
+    }
+    
+    const messageDiv = document.createElement('div');
+    let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
+    if (isMedical) messageClass += ' medical-message';
+    if (isError) messageClass += ' error-message';
+    messageDiv.className = messageClass;
+
+    const avatarDiv = document.createElement('div');
+    avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
+    avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+
+    if (isTyping) {
+        contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+    } else {
+        // Always use markdown rendering for AI responses
+        if (!isUser && !isError) {
+            contentDiv.innerHTML = renderMarkdown(content);
+        } else {
+            // For user messages or errors, show plain text with line breaks
+            contentDiv.innerHTML = `<p>${(content || '').toString().replace(/\n/g, '<br>')}</p>`;
+        }
+
+        // Safely add drug recommendation if present and valid
+        if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'undefined') {
+            try {
+                const drugDiv = document.createElement('div');
+                drugDiv.className = 'drug-recommendation';
+                const recText = typeof drugRecommendation === 'string' ? drugRecommendation : JSON.stringify(drugRecommendation);
+                drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${renderMarkdown(recText)}`;
+                contentDiv.appendChild(drugDiv);
+            } catch (drugError) {
+                console.error('[MESSAGE] Error adding drug recommendation:', drugError);
+            }
+        }
+
+        // Safely add disclaimer if present and valid
+        if (disclaimer && disclaimer !== 'null' && disclaimer !== 'undefined') {
+            try {
+                const disclaimerDiv = document.createElement('div');
+                disclaimerDiv.className = 'disclaimer';
+                const disclaimerText = typeof disclaimer === 'string' ? disclaimer : JSON.stringify(disclaimer);
+                disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimerText}`;
+                contentDiv.appendChild(disclaimerDiv);
+            } catch (disclaimerError) {
+                console.error('[MESSAGE] Error adding disclaimer:', disclaimerError);
+            }
+        }
+
+        if (!isUser && !isError) {
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'message-actions';
+            actionsDiv.innerHTML = `
+                <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
+                <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
+                <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
+            `;
+            contentDiv.appendChild(actionsDiv);
+        }
+    }
+
+    messageDiv.appendChild(avatarDiv);
+    messageDiv.appendChild(contentDiv);
+    chatContainer.appendChild(messageDiv);
+
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
     if (saveToHistory && !isTyping && !isError) {
         // Ensure chat exists in history
@@ -2906,18 +2992,29 @@ function renderMarkdown(text) {
             };
         }
 
+        // Safely create message data object
         const messageData = {
             role: isUser ? 'user' : 'ai',
-            content: content,
+            content: content || '',
             timestamp: new Date().toISOString()
         };
 
-        if (isMedical) messageData.isMedical = true;
-        if (drugRecommendation && drugRecommendation !== 'null') messageData.drugRecommendation = drugRecommendation;
-        if (disclaimer && disclaimer !== 'null') messageData.disclaimer = disclaimer;
+        // Safely add optional fields
+        if (isMedical !== undefined) messageData.isMedical = Boolean(isMedical);
+        if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'undefined') {
+            messageData.drugRecommendation = drugRecommendation;
+        }
+        if (disclaimer && disclaimer !== 'null' && disclaimer !== 'undefined') {
+            messageData.disclaimer = disclaimer;
+        }
 
         // Add message to chat
-        chatHistoryData[currentChatId].messages.push(messageData);
+        if (Array.isArray(chatHistoryData[currentChatId].messages)) {
+            chatHistoryData[currentChatId].messages.push(messageData);
+        } else {
+            console.error('[MESSAGE] Chat messages is not an array, resetting');
+            chatHistoryData[currentChatId].messages = [messageData];
+        }
         
         // Update chat title with first user message
         if (isUser && (chatHistoryData[currentChatId].title === "New Conversation" || 
@@ -2939,7 +3036,6 @@ function renderMarkdown(text) {
     
     return messageDiv;
 }
-
         // ============================================
         // AI & VOICE FUNCTIONS
         // ============================================
@@ -3246,6 +3342,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
