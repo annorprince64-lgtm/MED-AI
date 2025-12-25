@@ -2528,7 +2528,45 @@ function createInitialChat() {
                 }
             }
         }
-
+function renderMarkdown(text) {
+    if (!text) return '';
+    
+    let html = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/^### (.*?)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.*?)$/gm, '<h2>$1</h2>')
+        .replace(/^\* (.*?)$/gm, '<li>$1</li>')
+        .replace(/^- (.*?)$/gm, '<li>$1</li>');
+    
+    // Wrap consecutive li elements in ul
+    const lines = html.split('\n');
+    let inList = false;
+    let result = [];
+    
+    for (let line of lines) {
+        if (line.startsWith('<li>')) {
+            if (!inList) {
+                result.push('<ul>');
+                inList = true;
+            }
+            result.push(line);
+        } else {
+            if (inList) {
+                result.push('</ul>');
+                inList = false;
+            }
+            result.push(line);
+        }
+    }
+    
+    if (inList) {
+        result.push('</ul>');
+    }
+    
+    html = result.join('\n').replace(/\n/g, '<br>');
+    return html;
+}
         function createNewChat() {
             currentChatId = generateChatId();
             chatHistoryData[currentChatId] = {
@@ -2933,6 +2971,7 @@ function createInitialChat() {
     </script>
 </body>
 </html>
+
 
 
 
