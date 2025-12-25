@@ -30,6 +30,18 @@ def create_user(username, email, password):
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        # Check if email already exists
+        cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
+        if cursor.fetchone():
+            conn.close()
+            return {'success': False, 'error': 'Email already registered'}
+        
+        # Check if username already exists
+        cursor.execute('SELECT id FROM users WHERE username = ?', (username,))
+        if cursor.fetchone():
+            conn.close()
+            return {'success': False, 'error': 'Username already exists'}
+        
         # Hash the password
         password_hash = generate_password_hash(password)
         
@@ -51,12 +63,7 @@ def create_user(username, email, password):
             }
         }
     except sqlite3.IntegrityError as e:
-        if 'username' in str(e):
-            return {'success': False, 'error': 'Username already exists'}
-        elif 'email' in str(e):
-            return {'success': False, 'error': 'Email already exists'}
-        else:
-            return {'success': False, 'error': 'User creation failed'}
+        return {'success': False, 'error': 'Registration failed - user already exists'}
     except Exception as e:
         return {'success': False, 'error': str(e)}
 
@@ -385,3 +392,4 @@ def delete_chat_from_cloud(user_id, chat_id):
 
 # Initialize database when module is imported
 init_db()
+
