@@ -2349,7 +2349,26 @@ function queueForRetry(userId, data) {
                 }
             }, 30000);
         }
-
+async function checkCloudSyncStatus() {
+    if (!currentUser) return;
+    
+    try {
+        const response = await fetch(`${AUTH_URL}/chats/status?user_id=${currentUser.id}`);
+        if (response.ok) {
+            const result = await response.json();
+            if (result.lastSync) {
+                const localSync = localStorage.getItem(`medAI_lastSync_${currentUser.id}`);
+                // Compare timestamps to see if local data is newer
+                if (!localSync || new Date(localSync) < new Date(result.lastSync)) {
+                    console.log('[SYNC] Cloud has newer data, triggering load...');
+                    loadUserChatHistory(currentUser.id); // This will fetch from cloud
+                }
+            }
+        }
+    } catch (error) {
+        console.log('[SYNC] Cloud status check failed, using local data.');
+    }
+}
         function renderChatHistory() {
             chatHistory.innerHTML = '';
             const today = new Date().toDateString();
@@ -3007,5 +3026,6 @@ function queueForRetry(userId, data) {
     </script>
 </body>
 </html>
+
 
 
