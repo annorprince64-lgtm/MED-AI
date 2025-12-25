@@ -2357,50 +2357,84 @@ function createInitialChat() {
         // ============================================
         // CHAT HISTORY FUNCTIONS
         // ============================================
-       async function loadUserChatHistory(userId) {
+     async function loadUserChatHistory(userId) {
     console.log('[USER] Loading chat history for user:', userId);
     
-    if (userId) {
-        try {
-            // Try to load from cloud first
-            const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
+    if (!userId) {
+        console.log('[USER] No user ID, loading guest data');
+        loadGuestData();
+        return;
+    }
+    
+    // Default to empty chat history
+    chatHistoryData = {};
+    
+    try {
+        // Try to load from cloud first
+        console.log('[CLOUD] Attempting to load from cloud...');
+        const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
+        
+        if (response.ok) {
             const result = await response.json();
             
-            if (result.success && result.chats && Object.keys(result.chats).length > 0) {
+            if (result.success && result.chats) {
                 chatHistoryData = result.chats;
-                console.log('[CLOUD] Loaded from cloud:', Object.keys(chatHistoryData).length, 'chats');
-            } else {
-                // Fallback to local storage
-                const userHistoryKey = `medAI_chatHistory_${userId}`;
-                const savedHistory = localStorage.getItem(userHistoryKey);
+                console.log('[CLOUD] Successfully loaded from cloud:', Object.keys(chatHistoryData).length, 'chats');
                 
-                if (savedHistory) {
-                    chatHistoryData = JSON.parse(savedHistory);
-                    console.log('[USER] Loaded from local storage');
-                } else {
-                    console.log('[USER] No existing history, creating initial chat');
-                    createInitialChat();
-                }
-            }
-        } catch (error) {
-            console.error('[CLOUD] Error loading from cloud, using local:', error);
-            const userHistoryKey = `medAI_chatHistory_${userId}`;
-            const savedHistory = localStorage.getItem(userHistoryKey);
-            
-            if (savedHistory) {
-                chatHistoryData = JSON.parse(savedHistory);
+                // Save cloud data to local storage as backup
+                const userHistoryKey = `medAI_chatHistory_${userId}`;
+                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+                console.log('[CLOUD] Cloud data saved to local storage');
             } else {
-                createInitialChat();
+                console.log('[CLOUD] No chats found in cloud or invalid response:', result);
+                loadFromLocalStorage(userId);
             }
+        } else {
+            console.error('[CLOUD] HTTP error:', response.status);
+            loadFromLocalStorage(userId);
         }
-    } else {
-        loadGuestData();
+    } catch (error) {
+        console.error('[CLOUD] Network error, loading from local storage:', error);
+        loadFromLocalStorage(userId);
     }
-
+    
+    // If no chats exist, create initial chat
+    if (Object.keys(chatHistoryData).length === 0) {
+        console.log('[USER] No existing history, creating initial chat');
+        createInitialChat();
+    }
+    
+    // Set current chat to the most recent one
+    const chatIds = Object.keys(chatHistoryData);
+    if (chatIds.length > 0) {
+        // Sort by date to get most recent
+        const sortedChats = chatIds.sort((a, b) => {
+            return new Date(chatHistoryData[b].date) - new Date(chatHistoryData[a].date);
+        });
+        currentChatId = sortedChats[0];
+    }
+    
     renderChatHistory();
     loadChat(currentChatId);
 }
 
+function loadFromLocalStorage(userId) {
+    const userHistoryKey = `medAI_chatHistory_${userId}`;
+    const savedHistory = localStorage.getItem(userHistoryKey);
+    
+    if (savedHistory) {
+        try {
+            chatHistoryData = JSON.parse(savedHistory);
+            console.log('[LOCAL] Loaded from local storage:', Object.keys(chatHistoryData).length, 'chats');
+        } catch (e) {
+            console.error('[LOCAL] Failed to parse local storage:', e);
+            chatHistoryData = {};
+        }
+    } else {
+        console.log('[LOCAL] No local storage data found');
+        chatHistoryData = {};
+    }
+}
         function loadGuestData() {
             console.log('[GUEST] Loading guest data');
             const savedHistory = localStorage.getItem('medAI_guestHistory');
@@ -3222,6 +3256,7 @@ if (!isUser) {
     </script>
 </body>
 </html>
+
 
 
 
