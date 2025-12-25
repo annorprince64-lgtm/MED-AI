@@ -2422,6 +2422,35 @@ function createInitialChat() {
     renderChatHistory();
     loadChat(currentChatId);
 }
+ function debugChatData() {
+    console.log('=== CHAT DATA DEBUG ===');
+    console.log('Current Chat ID:', currentChatId);
+    console.log('Total Chats:', Object.keys(chatHistoryData).length);
+    
+    Object.keys(chatHistoryData).forEach(chatId => {
+        const chat = chatHistoryData[chatId];
+        console.log(`\nChat: ${chatId}`);
+        console.log('Title:', chat.title);
+        console.log('Date:', chat.date);
+        console.log('Message Count:', chat.messages?.length || 0);
+        
+        if (chat.messages && Array.isArray(chat.messages)) {
+            chat.messages.forEach((msg, i) => {
+                console.log(`  Message ${i}:`, {
+                    role: msg.role,
+                    contentPreview: msg.content?.substring(0, 50),
+                    hasDrug: !!msg.drugRecommendation,
+                    hasDisclaimer: !!msg.disclaimer
+                });
+            });
+        } else {
+            console.log('  WARNING: messages is not an array:', chat.messages);
+        }
+    });
+    console.log('=======================');
+}
+
+// Call this from browser console: debugChatData()       
 
 function loadFromLocalStorage(userId) {
     const userHistoryKey = `medAI_chatHistory_${userId}`;
@@ -3391,6 +3420,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
