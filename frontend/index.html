@@ -1522,1598 +1522,1519 @@
         })();
     </script>
 
-    <script>
-        // Backend API Configuration
-        const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
-        const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
+   <script>
+    // Backend API Configuration
+    const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api/analyze';
+    const AUTH_URL = 'https://med-ai-48yi.onrender.com/api';
 
-        // DOM Elements for new input system
-        const chatTextarea = document.getElementById('chatTextarea');
-        const sendBtn = document.getElementById('sendBtn');
-        const voiceInputBtn = document.getElementById('voiceInputBtn');
-        const profileModal = document.getElementById('profileModal');
-        const closeProfileModal = document.getElementById('closeProfileModal');
-        const updateProfileBtn = document.getElementById('updateProfileBtn');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const newChatBtn = document.getElementById('newChatBtn');
-        const chatContainer = document.getElementById('chatContainer');
-        const chatHistory = document.getElementById('chatHistory');
-        const clearChatBtn = document.getElementById('clearChatBtn');
-        const statusIndicator = document.getElementById('statusIndicator');
-        const settingsBtn = document.getElementById('settingsBtn');
-        const settingsMenu = document.getElementById('settingsMenu');
-        const userProfile = document.getElementById('userProfile');
-        const userName = document.getElementById('userName');
-        const loginModal = document.getElementById('loginModal');
-        const registerModal = document.getElementById('registerModal');
-        const privacyModal = document.getElementById('privacyModal');
-        const contactModal = document.getElementById('contactModal');
-        const aboutModal = document.getElementById('aboutModal');
-        const verificationModal = document.getElementById('verificationModal');
+    // DOM Elements for new input system
+    const chatTextarea = document.getElementById('chatTextarea');
+    const sendBtn = document.getElementById('sendBtn');
+    const voiceInputBtn = document.getElementById('voiceInputBtn');
+    const profileModal = document.getElementById('profileModal');
+    const closeProfileModal = document.getElementById('closeProfileModal');
+    const updateProfileBtn = document.getElementById('updateProfileBtn');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const chatContainer = document.getElementById('chatContainer');
+    const chatHistory = document.getElementById('chatHistory');
+    const clearChatBtn = document.getElementById('clearChatBtn');
+    const statusIndicator = document.getElementById('statusIndicator');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsMenu = document.getElementById('settingsMenu');
+    const userProfile = document.getElementById('userProfile');
+    const userName = document.getElementById('userName');
+    const loginModal = document.getElementById('loginModal');
+    const registerModal = document.getElementById('registerModal');
+    const privacyModal = document.getElementById('privacyModal');
+    const contactModal = document.getElementById('contactModal');
+    const aboutModal = document.getElementById('aboutModal');
+    const verificationModal = document.getElementById('verificationModal');
 
-        // Application State
-        let currentUser = null;
-        let currentChatId = generateChatId();
-        let chatHistoryData = {};
-        let isListening = false;
-        let recognition;
-        let audioEnabled = false;
-        let verificationCode = '';
-        let pendingUser = null;
+    // Application State
+    let currentUser = null;
+    let currentChatId = generateChatId();
+    let chatHistoryData = {};
+    let isListening = false;
+    let recognition;
+    let audioEnabled = false;
+    let verificationCode = '';
+    let pendingUser = null;
 
-   // Initialize speech recognition
-function initializeSpeechRecognition() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (SpeechRecognition) {
-        recognition = new SpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = false;
-        // Set English as default language (remove language selector reference)
-        recognition.lang = 'en-US';
+    // Initialize speech recognition
+    function initializeSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
 
-        recognition.onstart = function () {
-            isListening = true;
-            voiceInputBtn.classList.add('listening');
-            statusIndicator.textContent = "Listening... Speak now";
-            chatTextarea.disabled = true;
-        };
+            recognition.onstart = function () {
+                isListening = true;
+                voiceInputBtn.classList.add('listening');
+                statusIndicator.textContent = "Listening... Speak now";
+                chatTextarea.disabled = true;
+            };
 
-        recognition.onresult = function (event) {
-            const transcript = event.results[0][0].transcript.trim();
-            if (transcript) {
-                chatTextarea.value = transcript;
-                statusIndicator.textContent = `Heard: "${transcript}"`;
-                autoResizeTextarea();
-            }
-        };
+            recognition.onresult = function (event) {
+                const transcript = event.results[0][0].transcript.trim();
+                if (transcript) {
+                    chatTextarea.value = transcript;
+                    statusIndicator.textContent = `Heard: "${transcript}"`;
+                    autoResizeTextarea();
+                }
+            };
 
-        recognition.onerror = function (event) {
-            console.error('Speech recognition error', event.error);
-            let errorMsg = `Error: ${event.error}`;
-            statusIndicator.textContent = errorMsg;
-            resetListeningState();
-        };
+            recognition.onerror = function (event) {
+                console.error('Speech recognition error', event.error);
+                let errorMsg = `Error: ${event.error}`;
+                statusIndicator.textContent = errorMsg;
+                resetListeningState();
+            };
 
-        recognition.onend = function () {
-            resetListeningState();
-        };
-    } else {
-        statusIndicator.textContent = "Speech recognition not supported in this browser";
-    }
-}
-
-        function resetListeningState() {
-            isListening = false;
-            voiceInputBtn.classList.remove('listening');
-            chatTextarea.disabled = false;
-            if (statusIndicator.textContent.startsWith("Listening")) {
-                statusIndicator.textContent = "Ready to chat - Type or speak your message";
-            }
+            recognition.onend = function () {
+                resetListeningState();
+            };
+        } else {
+            statusIndicator.textContent = "Speech recognition not supported in this browser";
         }
+    }
+
+    function resetListeningState() {
+        isListening = false;
+        voiceInputBtn.classList.remove('listening');
+        chatTextarea.disabled = false;
+        if (statusIndicator.textContent.startsWith("Listening")) {
+            statusIndicator.textContent = "Ready to chat - Type or speak your message";
+        }
+    }
 
     function toggleListening() {
-    if (!recognition) {
-        alert('Speech recognition not supported in your browser');
-        return;
-    }
-
-    if (isListening) {
-        recognition.stop();
-        resetListeningState();
-    } else {
-        try {
-            // Remove the language selector reference
-            recognition.lang = 'en-US'; // Set default language
-            recognition.start();
-        } catch (error) {
-            console.error('Error starting recognition:', error);
-            statusIndicator.textContent = "Error starting voice recognition";
-        }
-    }
-}
-
-        // Textarea auto-resize
-        function autoResizeTextarea() {
-            chatTextarea.style.height = 'auto';
-            const newHeight = Math.min(chatTextarea.scrollHeight, 200);
-            chatTextarea.style.height = newHeight + 'px';
+        if (!recognition) {
+            alert('Speech recognition not supported in your browser');
+            return;
         }
 
-        // Send message function
-        function sendMessage() {
-            const text = chatTextarea.value.trim();
-            if (text) {
-                processUserInput(text);
-                chatTextarea.value = '';
-                autoResizeTextarea();
-                sendBtn.disabled = true;
-            }
-        }
-
-        // Initialize the app
-        function initializeApp() {
-            // Load audio preference
-            const savedAudio = localStorage.getItem('medAI_audioEnabled');
-            if (savedAudio !== null) {
-                audioEnabled = savedAudio === 'true';
-                const btn = document.getElementById('audioToggleBtn');
-                const icon = document.getElementById('audioToggleIcon');
-                if (!audioEnabled) {
-                    btn.classList.add('audio-disabled');
-                    icon.className = 'fas fa-volume-mute';
-                }
-            }
-
-            // Initialize speech recognition
-            initializeSpeechRecognition();
-
-            // Check if user is already logged in
-            const savedUser = localStorage.getItem('medAI_currentUser');
-            if (savedUser) {
-                try {
-                    currentUser = JSON.parse(savedUser);
-                    updateUserDisplay();
-                    loadUserChatHistory(currentUser.id);
-                } catch (e) {
-                    console.error('Error loading user:', e);
-                    loadGuestData();
-                }
-            } else {
-                loadGuestData();
-            }
-
-            // Setup event listeners for new input system
-            setupEventListeners();
-            startPeriodicSync();
-        }
-
-        function setupEventListeners() {
-            // Textarea input events
-            chatTextarea.addEventListener('input', function() {
-                autoResizeTextarea();
-                sendBtn.disabled = !this.value.trim();
-            });
-
-            chatTextarea.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (this.value.trim()) {
-                        sendMessage();
-                    }
-                }
-            });
-
-            // Send button
-            sendBtn.addEventListener('click', sendMessage);
-
-            // Voice button
-            voiceInputBtn.addEventListener('click', toggleListening);
-
-
-            // Suggestion buttons
-            document.querySelectorAll('.suggestion-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const prompt = this.getAttribute('data-prompt');
-                    chatTextarea.value = prompt;
-                    autoResizeTextarea();
-                    sendBtn.disabled = false;
-                    chatTextarea.focus();
-                });
-            });
-
-            // Profile modal close button
-            closeProfileModal.addEventListener('click', function() {
-                profileModal.style.display = 'none';
-                clearProfileMessages();
-            });
-
-            // Profile update button
-            updateProfileBtn.addEventListener('click', updateUserProfile);
-        }
-
-        // Profile update function
-        async function updateUserProfile() {
-            const name = document.getElementById('profileName').value.trim();
-            const email = document.getElementById('profileEmail').value.trim();
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmNewPassword = document.getElementById('confirmNewPassword').value;
-
-            const errorDiv = document.getElementById('profileError');
-            const successDiv = document.getElementById('profileSuccess');
-
-            // Clear previous messages
-            errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
-
-            // Validation
-            if (!name) {
-                showProfileError('Name is required');
-                return;
-            }
-
-            if (!email) {
-                showProfileError('Email is required');
-                return;
-            }
-
-            // If password change is attempted
-            if (newPassword || confirmNewPassword) {
-                if (!currentPassword) {
-                    showProfileError('Current password is required to change password');
-                    return;
-                }
-
-                if (newPassword.length < 6) {
-                    showProfileError('New password must be at least 6 characters');
-                    return;
-                }
-
-                if (newPassword !== confirmNewPassword) {
-                    showProfileError('New passwords do not match');
-                    return;
-                }
-            }
-
+        if (isListening) {
+            recognition.stop();
+            resetListeningState();
+        } else {
             try {
-                updateProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-                updateProfileBtn.disabled = true;
-
-                const response = await fetch(`${AUTH_URL}/update-profile`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        originalEmail: currentUser.email,
-                        name: name,
-                        newEmail: email,
-                        currentPassword: currentPassword || null,
-                        newPassword: newPassword || null
-                    })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Update current user
-                    currentUser = result.user;
-                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-                    updateUserDisplay();
-
-                    // Show success
-                    showProfileSuccess('Profile updated successfully!');
-
-                    // Clear password fields
-                    document.getElementById('currentPassword').value = '';
-                    document.getElementById('newPassword').value = '';
-                    document.getElementById('confirmNewPassword').value = '';
-
-                    // Update button state
-                    updateProfileBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
-                    updateProfileBtn.disabled = false;
-
-                } else {
-                    throw new Error(result.error || 'Update failed');
-                }
+                recognition.lang = 'en-US';
+                recognition.start();
             } catch (error) {
-                showProfileError(error.message);
-                updateProfileBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
-                updateProfileBtn.disabled = false;
+                console.error('Error starting recognition:', error);
+                statusIndicator.textContent = "Error starting voice recognition";
             }
         }
+    }
 
-        function showProfileError(message) {
-            const errorDiv = document.getElementById('profileError');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
+    // Textarea auto-resize
+    function autoResizeTextarea() {
+        chatTextarea.style.height = 'auto';
+        const newHeight = Math.min(chatTextarea.scrollHeight, 200);
+        chatTextarea.style.height = newHeight + 'px';
+        
+        // Show/hide scrollbar based on content
+        if (chatTextarea.scrollHeight > 200) {
+            chatTextarea.style.overflowY = 'scroll';
+        } else {
+            chatTextarea.style.overflowY = 'hidden';
         }
+    }
 
-        function showProfileSuccess(message) {
-            const successDiv = document.getElementById('profileSuccess');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
+    // Send message function
+    function sendMessage() {
+        const text = chatTextarea.value.trim();
+        if (text) {
+            processUserInput(text);
+            chatTextarea.value = '';
+            autoResizeTextarea();
+            sendBtn.disabled = true;
         }
+    }
 
-        function clearProfileMessages() {
-            document.getElementById('profileError').style.display = 'none';
-            document.getElementById('profileSuccess').style.display = 'none';
-        }
-
-        // Utility functions
-        function generateChatId() {
-            return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        function updateUserDisplay() {
-            if (!currentUser) {
-                userName.textContent = 'Guest User';
-                return;
-            }
-
-            const nameProperty = currentUser.name || currentUser.username || currentUser.fullName || 'User';
-            const nameParts = nameProperty.toString().trim().split(' ');
-            const surname = nameParts[nameParts.length - 1];
-            userName.textContent = surname || 'User';
-
-            // Update profile modal with current user data
-            if (document.getElementById('profileName')) {
-                document.getElementById('profileName').value = nameProperty;
-                document.getElementById('profileEmail').value = currentUser.email || '';
-            }
-        }
-
-        // Toggle audio responses
-        function toggleAudioResponses() {
-            audioEnabled = !audioEnabled;
+    // Initialize the app
+    function initializeApp() {
+        // Load audio preference
+        const savedAudio = localStorage.getItem('medAI_audioEnabled');
+        if (savedAudio !== null) {
+            audioEnabled = savedAudio === 'true';
             const btn = document.getElementById('audioToggleBtn');
             const icon = document.getElementById('audioToggleIcon');
-
-            if (audioEnabled) {
-                btn.classList.remove('audio-disabled');
-                icon.className = 'fas fa-volume-up';
-                statusIndicator.textContent = 'Audio responses enabled';
-            } else {
+            if (!audioEnabled) {
                 btn.classList.add('audio-disabled');
                 icon.className = 'fas fa-volume-mute';
-                statusIndicator.textContent = 'Audio responses disabled';
+            }
+        }
+
+        // Initialize speech recognition
+        initializeSpeechRecognition();
+
+        // Check if user is already logged in
+        const savedUser = localStorage.getItem('medAI_currentUser');
+        if (savedUser) {
+            try {
+                currentUser = JSON.parse(savedUser);
+                updateUserDisplay();
+                loadUserChatHistory(currentUser.id);
+            } catch (e) {
+                console.error('Error loading user:', e);
+                loadGuestData();
+            }
+        } else {
+            loadGuestData();
+        }
+
+        // Setup event listeners for new input system
+        setupEventListeners();
+        startPeriodicSync();
+    }
+
+    function setupEventListeners() {
+        // Textarea input events
+        chatTextarea.addEventListener('input', function() {
+            autoResizeTextarea();
+            sendBtn.disabled = !this.value.trim();
+        });
+
+        chatTextarea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (this.value.trim()) {
+                    sendMessage();
+                }
+            }
+        });
+
+        // Send button
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Voice button
+        voiceInputBtn.addEventListener('click', toggleListening);
+
+        // Suggestion buttons
+        document.querySelectorAll('.suggestion-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const prompt = this.getAttribute('data-prompt');
+                chatTextarea.value = prompt;
+                autoResizeTextarea();
+                sendBtn.disabled = false;
+                chatTextarea.focus();
+            });
+        });
+
+        // Profile modal close button
+        closeProfileModal.addEventListener('click', function() {
+            profileModal.style.display = 'none';
+            clearProfileMessages();
+        });
+
+        // Profile update button
+        updateProfileBtn.addEventListener('click', updateUserProfile);
+    }
+
+    // Profile update function
+    async function updateUserProfile() {
+        const name = document.getElementById('profileName').value.trim();
+        const email = document.getElementById('profileEmail').value.trim();
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+        const errorDiv = document.getElementById('profileError');
+        const successDiv = document.getElementById('profileSuccess');
+
+        // Clear previous messages
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+
+        // Validation
+        if (!name) {
+            showProfileError('Name is required');
+            return;
+        }
+
+        if (!email) {
+            showProfileError('Email is required');
+            return;
+        }
+
+        // If password change is attempted
+        if (newPassword || confirmNewPassword) {
+            if (!currentPassword) {
+                showProfileError('Current password is required to change password');
+                return;
             }
 
-            localStorage.setItem('medAI_audioEnabled', audioEnabled);
-            setTimeout(() => {
-                statusIndicator.textContent = 'Ready to chat';
-            }, 2000);
+            if (newPassword.length < 6) {
+                showProfileError('New password must be at least 6 characters');
+                return;
+            }
+
+            if (newPassword !== confirmNewPassword) {
+                showProfileError('New passwords do not match');
+                return;
+            }
         }
 
-        // Email verification functions
-        async function sendVerificationEmail(email, code) {
-            return new Promise((resolve) => {
-                emailjs.send('service_zjhyid5', 'template_vha29yp', {
-                    to_email: email,
-                    verification_code: code,
-                }).then(
-                    function (response) {
-                        console.log('[EMAIL] Email sent successfully');
-                        resolve(true);
-                    },
-                    function (error) {
-                        console.error('[EMAIL] Failed to send email:', error);
-                        alert('Failed to send verification email. Please check your email address and try again.');
-                        resolve(false);
-                    }
-                );
+        try {
+            updateProfileBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+            updateProfileBtn.disabled = true;
+
+            const response = await fetch(`${AUTH_URL}/update-profile`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    originalEmail: currentUser.email,
+                    name: name,
+                    newEmail: email,
+                    currentPassword: currentPassword || null,
+                    newPassword: newPassword || null
+                })
             });
+
+            const result = await response.json();
+
+            if (result.success) {
+                // Update current user
+                currentUser = result.user;
+                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+                updateUserDisplay();
+
+                // Show success
+                showProfileSuccess('Profile updated successfully!');
+
+                // Clear password fields
+                document.getElementById('currentPassword').value = '';
+                document.getElementById('newPassword').value = '';
+                document.getElementById('confirmNewPassword').value = '';
+
+                // Update button state
+                updateProfileBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
+                updateProfileBtn.disabled = false;
+
+            } else {
+                throw new Error(result.error || 'Update failed');
+            }
+        } catch (error) {
+            showProfileError(error.message);
+            updateProfileBtn.innerHTML = '<i class="fas fa-save"></i> Update Profile';
+            updateProfileBtn.disabled = false;
+        }
+    }
+
+    function showProfileError(message) {
+        const errorDiv = document.getElementById('profileError');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    function showProfileSuccess(message) {
+        const successDiv = document.getElementById('profileSuccess');
+        successDiv.textContent = message;
+        successDiv.style.display = 'block';
+    }
+
+    function clearProfileMessages() {
+        document.getElementById('profileError').style.display = 'none';
+        document.getElementById('profileSuccess').style.display = 'none';
+    }
+
+    // Utility functions
+    function generateChatId() {
+        return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function updateUserDisplay() {
+        if (!currentUser) {
+            userName.textContent = 'Guest User';
+            return;
         }
 
-        function generateVerificationCode() {
-            return Math.floor(100000 + Math.random() * 900000).toString();
+        const nameProperty = currentUser.name || currentUser.username || currentUser.fullName || 'User';
+        const nameParts = nameProperty.toString().trim().split(' ');
+        const surname = nameParts[nameParts.length - 1];
+        userName.textContent = surname || 'User';
+
+        // Update profile modal with current user data
+        if (document.getElementById('profileName')) {
+            document.getElementById('profileName').value = nameProperty;
+            document.getElementById('profileEmail').value = currentUser.email || '';
+        }
+    }
+
+    // Toggle audio responses
+    function toggleAudioResponses() {
+        audioEnabled = !audioEnabled;
+        const btn = document.getElementById('audioToggleBtn');
+        const icon = document.getElementById('audioToggleIcon');
+
+        if (audioEnabled) {
+            btn.classList.remove('audio-disabled');
+            icon.className = 'fas fa-volume-up';
+            statusIndicator.textContent = 'Audio responses enabled';
+        } else {
+            btn.classList.add('audio-disabled');
+            icon.className = 'fas fa-volume-mute';
+            statusIndicator.textContent = 'Audio responses disabled';
         }
 
-        function setupAutoVerify() {
+        localStorage.setItem('medAI_audioEnabled', audioEnabled);
+        setTimeout(() => {
+            statusIndicator.textContent = 'Ready to chat';
+        }, 2000);
+    }
+
+    // Email verification functions
+    async function sendVerificationEmail(email, code) {
+        return new Promise((resolve) => {
+            emailjs.send('service_zjhyid5', 'template_vha29yp', {
+                to_email: email,
+                verification_code: code,
+            }).then(
+                function (response) {
+                    console.log('[EMAIL] Email sent successfully');
+                    resolve(true);
+                },
+                function (error) {
+                    console.error('[EMAIL] Failed to send email:', error);
+                    alert('Failed to send verification email. Please check your email address and try again.');
+                    resolve(false);
+                }
+            );
+        });
+    }
+
+    function generateVerificationCode() {
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    function setupAutoVerify() {
+        const input = document.getElementById('verificationCodeInput');
+        const errorDiv = document.getElementById('verificationError');
+        const successDiv = document.getElementById('verificationSuccess');
+
+        if (!input) return;
+
+        input.addEventListener('input', function (e) {
+            this.value = this.value.replace(/[^0-9]/g, '');
+
+            if (this.value.length === 6) {
+                const enteredCode = this.value;
+
+                if (enteredCode === verificationCode) {
+                    errorDiv.style.display = 'none';
+                    successDiv.style.display = 'block';
+                    input.disabled = true;
+                    input.style.borderColor = 'var(--primary-color)';
+
+                    setTimeout(() => {
+                        completeRegistration();
+                    }, 1000);
+                } else {
+                    successDiv.style.display = 'none';
+                    errorDiv.style.display = 'block';
+                    input.value = '';
+                    input.focus();
+                }
+            }
+        });
+    }
+
+    async function loginUser(email, password) {
+        const loginBtn = document.querySelector('#loginForm .btn-primary');
+        const originalText = loginBtn.textContent;
+
+        try {
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+            loginBtn.disabled = true;
+
+            const response = await fetch(`${AUTH_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email, password: password })
+            });
+
+            const result = await response.json();
+
+            if (response.ok && result.success) {
+                currentUser = result.user;
+                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+                updateUserDisplay();
+                
+                await checkCloudSyncStatus();
+                await loadUserChatHistory(currentUser.id);
+
+                loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
+                loginBtn.style.backgroundColor = '#10a37f';
+
+                setTimeout(() => {
+                    loginModal.style.display = 'none';
+                    statusIndicator.textContent = `Welcome back, ${userName.textContent}!`;
+                    loginBtn.textContent = originalText;
+                    loginBtn.disabled = false;
+                    loginBtn.style.backgroundColor = '';
+                    document.getElementById('loginForm').reset();
+                }, 1000);
+
+            } else {
+                throw new Error(result.error || "Invalid email or password");
+            }
+        } catch (error) {
+            loginBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            loginBtn.style.backgroundColor = '#ef4444';
+
+            setTimeout(() => {
+                alert(error.message || "Login failed. Please check your connection and try again.");
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+                loginBtn.style.backgroundColor = '';
+            }, 1000);
+        }
+    }
+
+    async function registerUser(name, email, password) {
+        const registerBtn = document.querySelector('#registerForm .btn-primary');
+        const originalText = registerBtn.textContent;
+
+        try {
+            registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            registerBtn.disabled = true;
+
+            verificationCode = generateVerificationCode();
+            const emailSent = await sendVerificationEmail(email, verificationCode);
+
+            if (!emailSent) {
+                throw new Error('Failed to send verification email');
+            }
+
+            pendingUser = { name, email, password };
+            registerModal.style.display = 'none';
+            verificationModal.style.display = 'flex';
+
             const input = document.getElementById('verificationCodeInput');
             const errorDiv = document.getElementById('verificationError');
             const successDiv = document.getElementById('verificationSuccess');
 
-            if (!input) return;
+            input.value = '';
+            input.disabled = false;
+            input.style.borderColor = '';
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            input.focus();
 
-            input.addEventListener('input', function (e) {
-                this.value = this.value.replace(/[^0-9]/g, '');
+            registerBtn.textContent = originalText;
+            registerBtn.disabled = false;
 
-                if (this.value.length === 6) {
-                    const enteredCode = this.value;
+        } catch (error) {
+            registerBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+            registerBtn.style.backgroundColor = '#ef4444';
 
-                    if (enteredCode === verificationCode) {
-                        errorDiv.style.display = 'none';
-                        successDiv.style.display = 'block';
-                        input.disabled = true;
-                        input.style.borderColor = 'var(--primary-color)';
-
-                        setTimeout(() => {
-                            completeRegistration();
-                        }, 1000);
-                    } else {
-                        successDiv.style.display = 'none';
-                        errorDiv.style.display = 'block';
-                        input.value = '';
-                        input.focus();
-                    }
-                }
-            });
-        }
-
-        async function loginUser(email, password) {
-            const loginBtn = document.querySelector('#loginForm .btn-primary');
-            const originalText = loginBtn.textContent;
-
-            try {
-                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
-                loginBtn.disabled = true;
-
-                const response = await fetch(`${AUTH_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, password: password })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.success) {
-                    currentUser = result.user;
-                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-                    updateUserDisplay();
-                    
-                    await checkCloudSyncStatus();
-                    await loadUserChatHistory(currentUser.id);
-
-                    loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
-                    loginBtn.style.backgroundColor = '#10a37f';
-
-                    setTimeout(() => {
-                        loginModal.style.display = 'none';
-                        statusIndicator.textContent = `Welcome back, ${userName.textContent}!`;
-                        loginBtn.textContent = originalText;
-                        loginBtn.disabled = false;
-                        loginBtn.style.backgroundColor = '';
-                        document.getElementById('loginForm').reset();
-                    }, 1000);
-
-                } else {
-                    throw new Error(result.error || "Invalid email or password");
-                }
-            } catch (error) {
-                loginBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
-                loginBtn.style.backgroundColor = '#ef4444';
-
-                setTimeout(() => {
-                    alert(error.message || "Login failed. Please check your connection and try again.");
-                    loginBtn.textContent = originalText;
-                    loginBtn.disabled = false;
-                    loginBtn.style.backgroundColor = '';
-                }, 1000);
-            }
-        }
-
-        async function registerUser(name, email, password) {
-            const registerBtn = document.querySelector('#registerForm .btn-primary');
-            const originalText = registerBtn.textContent;
-
-            try {
-                registerBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
-                registerBtn.disabled = true;
-
-                verificationCode = generateVerificationCode();
-                const emailSent = await sendVerificationEmail(email, verificationCode);
-
-                if (!emailSent) {
-                    throw new Error('Failed to send verification email');
-                }
-
-                pendingUser = { name, email, password };
-                registerModal.style.display = 'none';
-                verificationModal.style.display = 'flex';
-
-                const input = document.getElementById('verificationCodeInput');
-                const errorDiv = document.getElementById('verificationError');
-                const successDiv = document.getElementById('verificationSuccess');
-
-                input.value = '';
-                input.disabled = false;
-                input.style.borderColor = '';
-                errorDiv.style.display = 'none';
-                successDiv.style.display = 'none';
-                input.focus();
-
+            setTimeout(() => {
+                alert(error.message || 'Registration failed. Please try again.');
                 registerBtn.textContent = originalText;
                 registerBtn.disabled = false;
-
-            } catch (error) {
-                registerBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
-                registerBtn.style.backgroundColor = '#ef4444';
-
-                setTimeout(() => {
-                    alert(error.message || 'Registration failed. Please try again.');
-                    registerBtn.textContent = originalText;
-                    registerBtn.disabled = false;
-                    registerBtn.style.backgroundColor = '';
-                }, 1000);
-            }
+                registerBtn.style.backgroundColor = '';
+            }, 1000);
         }
+    }
 
-        async function completeRegistration() {
-    if (!pendingUser) return;
+    async function completeRegistration() {
+        if (!pendingUser) return;
 
-    try {
-        const response = await fetch(`${AUTH_URL}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username: pendingUser.name,
-                email: pendingUser.email,
-                password: pendingUser.password
-            })
-        });
+        try {
+            const response = await fetch(`${AUTH_URL}/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: pendingUser.name,
+                    email: pendingUser.email,
+                    password: pendingUser.password
+                })
+            });
 
-        const result = await response.json();
+            const result = await response.json();
 
-        if (result.success) {
-            currentUser = result.user;
-            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-            updateUserDisplay();
-            
-            // Load user chats after registration
-            await loadUserChatHistory(currentUser.id);
+            if (result.success) {
+                currentUser = result.user;
+                localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+                updateUserDisplay();
+                loadUserChatHistory(currentUser.id);
 
-            // Auto-login the user
-            setTimeout(() => {
                 verificationModal.style.display = 'none';
                 statusIndicator.textContent = `Welcome to DRUGBOT, ${userName.textContent}!`;
-                
-                // Show success message
-                addMessageToChat(
-                    `Welcome to DRUGBOT! I'm your AI medical assistant. How can I help you today?`,
-                    false,
-                    false,
-                    false,
-                    false,
-                    null,
-                    null,
-                    true
-                );
-                
                 document.getElementById('registerForm').reset();
                 pendingUser = null;
                 verificationCode = '';
-            }, 1000);
-            
-        } else {
-            throw new Error(result.error || 'Registration failed after verification.');
-        }
-    } catch (error) {
-        alert('Registration failed after verification. Please try again.');
-        verificationModal.style.display = 'none';
-        registerModal.style.display = 'flex';
-        
-        // Reset verification state
-        const input = document.getElementById('verificationCodeInput');
-        const errorDiv = document.getElementById('verificationError');
-        const successDiv = document.getElementById('verificationSuccess');
-        
-        if (input) input.value = '';
-        if (errorDiv) errorDiv.style.display = 'none';
-        if (successDiv) successDiv.style.display = 'none';
-    }
-}
-        // Chat history functions
-        async function loadUserChatHistory(userId) {
-            if (!userId) {
-                loadGuestData();
-                return;
+                
+                // Auto-login successful
+                setTimeout(() => {
+                    statusIndicator.textContent = `Welcome to DRUGBOT, ${userName.textContent}!`;
+                }, 1000);
+                
+            } else {
+                throw new Error(result.error || 'Registration failed after verification.');
             }
+        } catch (error) {
+            alert('Registration failed after verification. Please try again.');
+            verificationModal.style.display = 'none';
+            registerModal.style.display = 'flex';
+            
+            // Reset verification state
+            const input = document.getElementById('verificationCodeInput');
+            const errorDiv = document.getElementById('verificationError');
+            const successDiv = document.getElementById('verificationSuccess');
+            
+            if (input) input.value = '';
+            if (errorDiv) errorDiv.style.display = 'none';
+            if (successDiv) successDiv.style.display = 'none';
+        }
+    }
 
-            chatHistoryData = {};
+    // Chat history functions
+    async function loadUserChatHistory(userId) {
+        if (!userId) {
+            loadGuestData();
+            return;
+        }
 
-            try {
-                const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.success && result.chats) {
-                        chatHistoryData = validateChatData(result.chats);
-                        const userHistoryKey = `medAI_chatHistory_${userId}`;
-                        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-                    } else {
-                        loadFromLocalStorage(userId);
-                    }
+        chatHistoryData = {};
+
+        try {
+            const response = await fetch(`${AUTH_URL}/chats/load?user_id=${userId}`);
+            if (response.ok) {
+                const result = await response.json();
+                if (result.success && result.chats) {
+                    chatHistoryData = validateChatData(result.chats);
+                    const userHistoryKey = `medAI_chatHistory_${userId}`;
+                    localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
                 } else {
                     loadFromLocalStorage(userId);
                 }
-            } catch (error) {
+            } else {
                 loadFromLocalStorage(userId);
             }
-
-            if (Object.keys(chatHistoryData).length === 0) {
-                createInitialChat();
-            }
-
-            const chatIds = Object.keys(chatHistoryData);
-            if (chatIds.length > 0) {
-                const sortedChats = chatIds.sort((a, b) => {
-                    const dateA = chatHistoryData[a].date ? new Date(chatHistoryData[a].date) : new Date(0);
-                    const dateB = chatHistoryData[b].date ? new Date(chatHistoryData[b].date) : new Date(0);
-                    return dateB - dateA;
-                });
-                currentChatId = sortedChats[0];
-            }
-
-            renderChatHistory();
-            loadChat(currentChatId);
+        } catch (error) {
+            loadFromLocalStorage(userId);
         }
 
-        function validateChatData(chatData) {
-            const validated = {};
-            Object.keys(chatData).forEach(chatId => {
-                const chat = chatData[chatId];
-                validated[chatId] = {
-                    id: chatId,
-                    title: chat.title || "Untitled Conversation",
-                    date: chat.date || new Date().toISOString(),
-                    messages: []
-                };
+        if (Object.keys(chatHistoryData).length === 0) {
+            createInitialChat();
+        }
 
-                if (Array.isArray(chat.messages)) {
-                    chat.messages.forEach(msg => {
-                        const validatedMsg = {
-                            role: msg.role === 'user' ? 'user' : 'ai',
-                            content: msg.content || '',
-                            timestamp: msg.timestamp || new Date().toISOString()
-                        };
-
-                        if (msg.isMedical !== undefined) validatedMsg.isMedical = Boolean(msg.isMedical);
-                        if (msg.drugRecommendation) validatedMsg.drugRecommendation = msg.drugRecommendation;
-                        if (msg.disclaimer) validatedMsg.disclaimer = msg.disclaimer;
-
-                        validated[chatId].messages.push(validatedMsg);
-                    });
-                }
+        const chatIds = Object.keys(chatHistoryData);
+        if (chatIds.length > 0) {
+            const sortedChats = chatIds.sort((a, b) => {
+                const dateA = chatHistoryData[a].date ? new Date(chatHistoryData[a].date) : new Date(0);
+                const dateB = chatHistoryData[b].date ? new Date(chatHistoryData[b].date) : new Date(0);
+                return dateB - dateA;
             });
-            return validated;
+            currentChatId = sortedChats[0];
         }
 
-        function loadFromLocalStorage(userId) {
-            const userHistoryKey = `medAI_chatHistory_${userId}`;
-            const savedHistory = localStorage.getItem(userHistoryKey);
-            if (savedHistory) {
-                try {
-                    chatHistoryData = JSON.parse(savedHistory);
-                } catch (e) {
-                    chatHistoryData = {};
-                }
-            } else {
+        renderChatHistory();
+        loadChat(currentChatId);
+    }
+
+    function validateChatData(chatData) {
+        const validated = {};
+        Object.keys(chatData).forEach(chatId => {
+            const chat = chatData[chatId];
+            validated[chatId] = {
+                id: chatId,
+                title: chat.title || "Untitled Conversation",
+                date: chat.date || new Date().toISOString(),
+                messages: []
+            };
+
+            if (Array.isArray(chat.messages)) {
+                chat.messages.forEach(msg => {
+                    const validatedMsg = {
+                        role: msg.role === 'user' ? 'user' : 'ai',
+                        content: msg.content || '',
+                        timestamp: msg.timestamp || new Date().toISOString()
+                    };
+
+                    if (msg.isMedical !== undefined) validatedMsg.isMedical = Boolean(msg.isMedical);
+                    if (msg.drugRecommendation) validatedMsg.drugRecommendation = msg.drugRecommendation;
+                    if (msg.disclaimer) validatedMsg.disclaimer = msg.disclaimer;
+
+                    validated[chatId].messages.push(validatedMsg);
+                });
+            }
+        });
+        return validated;
+    }
+
+    function loadFromLocalStorage(userId) {
+        const userHistoryKey = `medAI_chatHistory_${userId}`;
+        const savedHistory = localStorage.getItem(userHistoryKey);
+        if (savedHistory) {
+            try {
+                chatHistoryData = JSON.parse(savedHistory);
+            } catch (e) {
                 chatHistoryData = {};
             }
+        } else {
+            chatHistoryData = {};
         }
+    }
 
-        function loadGuestData() {
-            const savedHistory = localStorage.getItem('medAI_guestHistory');
-            if (savedHistory) {
-                chatHistoryData = JSON.parse(savedHistory);
-            } else {
-                chatHistoryData = {
-                    [currentChatId]: {
-                        id: currentChatId,
-                        title: "DRUGBOT Assistant",
-                        date: new Date().toISOString(),
-                        messages: [{
-                            role: "ai",
-                            content: "Hello! I'm your AI medical assistant. I can understand Twi and English speech. I can help with medical questions, general knowledge, translations, and more. Select your language and either type your message or use the voice button to speak to me.",
-                            timestamp: new Date().toISOString()
-                        }]
-                    }
-                };
-                saveChatHistory();
-            }
-            renderChatHistory();
-            loadChat(currentChatId);
-        }
-
-        function createInitialChat() {
-            currentChatId = generateChatId();
+    function loadGuestData() {
+        const savedHistory = localStorage.getItem('medAI_guestHistory');
+        if (savedHistory) {
+            chatHistoryData = JSON.parse(savedHistory);
+        } else {
             chatHistoryData = {
                 [currentChatId]: {
                     id: currentChatId,
-                    title: "Welcome to DRUGBOT",
+                    title: "DRUGBOT Assistant",
                     date: new Date().toISOString(),
                     messages: [{
                         role: "ai",
-                        content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                        content: "Hello! I'm your AI medical assistant. I can understand Twi and English speech. I can help with medical questions, general knowledge, translations, and more. Select your language and either type your message or use the voice button to speak to me.",
                         timestamp: new Date().toISOString()
                     }]
                 }
             };
+            saveChatHistory();
         }
-
-     async function saveChatHistory() {
-    console.log('[SAVE] Starting save process...');
-    
-    if (currentUser) {
-        const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-        console.log('[SAVE] Saved to local storage for user:', currentUser.id);
-        
-        document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
         renderChatHistory();
-        
-        // Attempt cloud sync immediately
-        await attemptCloudSync();
-    } else {
-        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-        console.log('[SAVE] Saved to guest storage');
-        renderChatHistory();
+        loadChat(currentChatId);
     }
-}
 
-async function attemptCloudSync() {
-    if (!currentUser) return;
-    
-    console.log('[CLOUD] Attempting cloud sync...');
-    
-    try {
-        // Send all chats, not just current
-        const syncPayload = {
-            user_id: currentUser.id,
-            chat_data: chatHistoryData
-        };
-        
-        console.log('[CLOUD] Sending payload with', Object.keys(chatHistoryData).length, 'chats');
-        
-        const response = await fetch(`${AUTH_URL}/chats/save`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(syncPayload)
-        });
-        
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-            console.log('[CLOUD] Sync successful');
-            const indicator = document.getElementById('statusIndicator');
-            indicator.textContent = '✓ Synced to cloud';
-            
-            // Store last sync timestamp
-            localStorage.setItem(`medAI_lastSync_${currentUser.id}`, new Date().toISOString());
-            
-            setTimeout(() => {
-                indicator.textContent = 'Ready to chat';
-            }, 3000);
-        } else {
-            console.error('[CLOUD] Server error:', result.error);
-            document.getElementById('statusIndicator').textContent = 'Sync failed - using local storage';
-        }
-        
-    } catch (error) {
-        console.error('[CLOUD] Network error:', error.message);
-        document.getElementById('statusIndicator').textContent = 'Offline mode - using local storage';
-    }
-}
-
-// Update the backend save_chat function to handle multiple chats
-@app.route('/api/chats/save', methods=['POST'])
-def save_chat():
-    """Save chat to cloud database"""
-    try:
-        data = request.get_json()
-        
-        if not data or 'user_id' not in data:
-            return jsonify({
-                "success": False,
-                "error": "Missing user_id"
-            }), 400
-        
-        user_id = data['user_id']
-        chat_data = data.get('chat_data', {})
-        
-        # Save each chat
-        success_count = 0
-        for chat_id, chat in chat_data.items():
-            result = database.save_chat_to_cloud(user_id, {chat_id: chat})
-            if result.get('success'):
-                success_count += 1
-        
-        return jsonify({
-            "success": True,
-            "message": f"Saved {success_count} chats to cloud",
-            "saved_count": success_count
-        })
-        
-    except Exception as e:
-        print(f"❌ Error in save_chat: {str(e)}")
-        return jsonify({
-            "success": False,
-            "error": str(e)
-        }), 500
-        async function attemptCloudSync() {
-            if (!currentUser) return;
-            
-            console.log('[CLOUD] Attempting cloud sync...');
-            
-            try {
-                const currentChat = chatHistoryData[currentChatId];
-                if (!currentChat) return;
-                
-                const syncPayload = {
-                    user_id: currentUser.id,
-                    chat_data: {
-                        [currentChatId]: currentChat
-                    }
-                };
-                
-                console.log('[CLOUD] Sending payload for chat:', currentChatId);
-                
-                const response = await fetch(`${AUTH_URL}/chats/save`, {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(syncPayload)
-                });
-                
-                const result = await response.json();
-                
-                if (response.ok && result.success) {
-                    console.log('[CLOUD] Sync successful');
-                    const indicator = document.getElementById('statusIndicator');
-                    const originalText = indicator.textContent;
-                    indicator.textContent = '✓ Synced to cloud';
-                    
-                    setTimeout(() => {
-                        if (indicator.textContent.includes('✓ Synced')) {
-                            indicator.textContent = originalText;
-                        }
-                    }, 3000);
-                } else {
-                    console.error('[CLOUD] Server error:', result.error);
-                }
-                
-            } catch (error) {
-                console.error('[CLOUD] Network error:', error.message);
-            }
-        }
-
-        function startPeriodicSync() {
-            setInterval(() => {
-                if (currentUser && Object.keys(chatHistoryData).length > 0) {
-                    saveChatHistory();
-                }
-            }, 30000);
-        }
-
-        async function checkCloudSyncStatus() {
-            if (!currentUser) return;
-            
-            try {
-                const response = await fetch(`${AUTH_URL}/chats/status?user_id=${currentUser.id}`);
-                if (response.ok) {
-                    const result = await response.json();
-                    if (result.lastSync) {
-                        const localSync = localStorage.getItem(`medAI_lastSync_${currentUser.id}`);
-                        if (!localSync || new Date(localSync) < new Date(result.lastSync)) {
-                            console.log('[SYNC] Cloud has newer data, triggering load...');
-                            loadUserChatHistory(currentUser.id);
-                        }
-                    }
-                }
-            } catch (error) {
-                console.log('[SYNC] Cloud status check failed, using local data.');
-            }
-        }
-
-        function renderChatHistory() {
-            chatHistory.innerHTML = '';
-            const today = new Date().toDateString();
-            const yesterday = new Date(Date.now() - 86400000).toDateString();
-
-            const todayChats = [];
-            const yesterdayChats = [];
-            const olderChats = [];
-
-            Object.values(chatHistoryData).forEach(chat => {
-                const chatDate = new Date(chat.date).toDateString();
-                if (chatDate === today) todayChats.push(chat);
-                else if (chatDate === yesterday) yesterdayChats.push(chat);
-                else olderChats.push(chat);
-            });
-
-            if (todayChats.length > 0) {
-                const todayTitle = document.createElement('div');
-                todayTitle.className = 'history-title';
-                todayTitle.textContent = 'Today';
-                chatHistory.appendChild(todayTitle);
-                todayChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
-            }
-
-            if (yesterdayChats.length > 0) {
-                const yesterdayTitle = document.createElement('div');
-                yesterdayTitle.className = 'history-title';
-                yesterdayTitle.textContent = 'Yesterday';
-                chatHistory.appendChild(yesterdayTitle);
-                yesterdayChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
-            }
-
-            if (olderChats.length > 0) {
-                const olderTitle = document.createElement('div');
-                olderTitle.className = 'history-title';
-                olderTitle.textContent = 'Previous 7 Days';
-                chatHistory.appendChild(olderTitle);
-                olderChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
-            }
-        }
-
-        function createHistoryItem(chat) {
-            const historyItem = document.createElement('div');
-            historyItem.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
-            historyItem.dataset.chatId = chat.id;
-
-            const itemContent = document.createElement('div');
-            itemContent.className = 'history-item-content';
-
-            const icon = document.createElement('i');
-            icon.className = 'fas fa-message';
-
-            const title = document.createElement('span');
-            title.className = 'history-item-title';
-            title.textContent = chat.title;
-
-            itemContent.appendChild(icon);
-            itemContent.appendChild(title);
-            historyItem.appendChild(itemContent);
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'action-btn';
-            deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
-            deleteBtn.style.opacity = '0.5';
-            deleteBtn.onclick = (e) => {
-                e.stopPropagation();
-                deleteChat(chat.id);
-            };
-            historyItem.appendChild(deleteBtn);
-
-            historyItem.addEventListener('click', () => loadChat(chat.id));
-            return historyItem;
-        }
-
-        function loadChat(chatId) {
-            document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
-            const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
-            if (activeItem) activeItem.classList.add('active');
-
-            currentChatId = chatId;
-            chatContainer.innerHTML = '';
-
-            const chat = chatHistoryData[chatId];
-            if (chat && chat.messages) {
-                chat.messages.forEach((message) => {
-                    try {
-                        addMessageToChat(
-                            message.content || '',
-                            message.role === 'user',
-                            false,
-                            false,
-                            message.isMedical || false,
-                            message.drugRecommendation || null,
-                            message.disclaimer || null,
-                            false
-                        );
-                    } catch (error) {
-                        addMessageToChat(
-                            `Error loading message: ${error.message}`,
-                            false,
-                            false,
-                            true,
-                            false,
-                            null,
-                            null,
-                            false
-                        );
-                    }
-                });
-            } else {
-                addMessageToChat(
-                    "Hello! I'm your AI medical assistant. How can I help you today?",
-                    false,
-                    false,
-                    false,
-                    false,
-                    null,
-                    null,
-                    false
-                );
-            }
-
-            if (window.innerWidth <= 768) sidebar.classList.remove('open');
-            setTimeout(() => chatContainer.scrollTop = chatContainer.scrollHeight, 100);
-        }
-
-        function deleteChat(chatId) {
-            if (Object.keys(chatHistoryData).length === 1) {
-                alert('You cannot delete your only chat.');
-                return;
-            }
-
-            if (confirm('Are you sure you want to delete this chat?')) {
-                delete chatHistoryData[chatId];
-                saveChatHistory();
-                renderChatHistory();
-
-                if (chatId === currentChatId) {
-                    const remainingChatIds = Object.keys(chatHistoryData);
-                    if (remainingChatIds.length > 0) loadChat(remainingChatIds[0]);
-                }
-            }
-        }
-
-        function createNewChat() {
-            currentChatId = generateChatId();
-            chatHistoryData[currentChatId] = {
+    function createInitialChat() {
+        currentChatId = generateChatId();
+        chatHistoryData = {
+            [currentChatId]: {
                 id: currentChatId,
-                title: "New Conversation",
+                title: "Welcome to DRUGBOT",
                 date: new Date().toISOString(),
                 messages: [{
                     role: "ai",
                     content: "Hello! I'm your AI medical assistant. How can I help you today?",
                     timestamp: new Date().toISOString()
                 }]
-            };
+            }
+        };
+    }
 
+    async function saveChatHistory() {
+        console.log('[SAVE] Starting save process...');
+        
+        if (currentUser) {
+            const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+            localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+            console.log('[SAVE] Saved to local storage for user:', currentUser.id);
+            
+            document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
+            renderChatHistory();
+            
+            // Attempt cloud sync immediately
+            await attemptCloudSync();
+        } else {
+            localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+            console.log('[SAVE] Saved to guest storage');
+            renderChatHistory();
+        }
+    }
+
+    async function attemptCloudSync() {
+        if (!currentUser) return;
+        
+        console.log('[CLOUD] Attempting cloud sync...');
+        
+        try {
+            // Send all chats, not just current
+            const syncPayload = {
+                user_id: currentUser.id,
+                chat_data: chatHistoryData
+            };
+            
+            console.log('[CLOUD] Sending payload with', Object.keys(chatHistoryData).length, 'chats');
+            
+            const response = await fetch(`${AUTH_URL}/chats/save`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(syncPayload)
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok && result.success) {
+                console.log('[CLOUD] Sync successful');
+                const indicator = document.getElementById('statusIndicator');
+                indicator.textContent = '✓ Synced to cloud';
+                
+                // Store last sync timestamp
+                localStorage.setItem(`medAI_lastSync_${currentUser.id}`, new Date().toISOString());
+                
+                setTimeout(() => {
+                    indicator.textContent = 'Ready to chat';
+                }, 3000);
+            } else {
+                console.error('[CLOUD] Server error:', result.error);
+                document.getElementById('statusIndicator').textContent = 'Sync failed - using local storage';
+            }
+            
+        } catch (error) {
+            console.error('[CLOUD] Network error:', error.message);
+            document.getElementById('statusIndicator').textContent = 'Offline mode - using local storage';
+        }
+    }
+
+    function startPeriodicSync() {
+        setInterval(() => {
+            if (currentUser && Object.keys(chatHistoryData).length > 0) {
+                saveChatHistory();
+            }
+        }, 30000);
+    }
+
+    async function checkCloudSyncStatus() {
+        if (!currentUser) return;
+        
+        try {
+            const response = await fetch(`${AUTH_URL}/chats/status?user_id=${currentUser.id}`);
+            if (response.ok) {
+                const result = await response.json();
+                if (result.lastSync) {
+                    const localSync = localStorage.getItem(`medAI_lastSync_${currentUser.id}`);
+                    if (!localSync || new Date(localSync) < new Date(result.lastSync)) {
+                        console.log('[SYNC] Cloud has newer data, triggering load...');
+                        loadUserChatHistory(currentUser.id);
+                    }
+                }
+            }
+        } catch (error) {
+            console.log('[SYNC] Cloud status check failed, using local data.');
+        }
+    }
+
+    function renderChatHistory() {
+        chatHistory.innerHTML = '';
+        const today = new Date().toDateString();
+        const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+        const todayChats = [];
+        const yesterdayChats = [];
+        const olderChats = [];
+
+        Object.values(chatHistoryData).forEach(chat => {
+            const chatDate = new Date(chat.date).toDateString();
+            if (chatDate === today) todayChats.push(chat);
+            else if (chatDate === yesterday) yesterdayChats.push(chat);
+            else olderChats.push(chat);
+        });
+
+        if (todayChats.length > 0) {
+            const todayTitle = document.createElement('div');
+            todayTitle.className = 'history-title';
+            todayTitle.textContent = 'Today';
+            chatHistory.appendChild(todayTitle);
+            todayChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
+        }
+
+        if (yesterdayChats.length > 0) {
+            const yesterdayTitle = document.createElement('div');
+            yesterdayTitle.className = 'history-title';
+            yesterdayTitle.textContent = 'Yesterday';
+            chatHistory.appendChild(yesterdayTitle);
+            yesterdayChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
+        }
+
+        if (olderChats.length > 0) {
+            const olderTitle = document.createElement('div');
+            olderTitle.className = 'history-title';
+            olderTitle.textContent = 'Previous 7 Days';
+            chatHistory.appendChild(olderTitle);
+            olderChats.forEach(chat => chatHistory.appendChild(createHistoryItem(chat)));
+        }
+    }
+
+    function createHistoryItem(chat) {
+        const historyItem = document.createElement('div');
+        historyItem.className = `history-item ${chat.id === currentChatId ? 'active' : ''}`;
+        historyItem.dataset.chatId = chat.id;
+
+        const itemContent = document.createElement('div');
+        itemContent.className = 'history-item-content';
+
+        const icon = document.createElement('i');
+        icon.className = 'fas fa-message';
+
+        const title = document.createElement('span');
+        title.className = 'history-item-title';
+        title.textContent = chat.title;
+
+        itemContent.appendChild(icon);
+        itemContent.appendChild(title);
+        historyItem.appendChild(itemContent);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'action-btn';
+        deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+        deleteBtn.style.opacity = '0.5';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            deleteChat(chat.id);
+        };
+        historyItem.appendChild(deleteBtn);
+
+        historyItem.addEventListener('click', () => loadChat(chat.id));
+        return historyItem;
+    }
+
+    function loadChat(chatId) {
+        document.querySelectorAll('.history-item').forEach(item => item.classList.remove('active'));
+        const activeItem = document.querySelector(`.history-item[data-chat-id="${chatId}"]`);
+        if (activeItem) activeItem.classList.add('active');
+
+        currentChatId = chatId;
+        chatContainer.innerHTML = '';
+
+        const chat = chatHistoryData[chatId];
+        if (chat && chat.messages) {
+            chat.messages.forEach((message) => {
+                try {
+                    addMessageToChat(
+                        message.content || '',
+                        message.role === 'user',
+                        false,
+                        false,
+                        message.isMedical || false,
+                        message.drugRecommendation || null,
+                        message.disclaimer || null,
+                        false
+                    );
+                } catch (error) {
+                    addMessageToChat(
+                        `Error loading message: ${error.message}`,
+                        false,
+                        false,
+                        true,
+                        false,
+                        null,
+                        null,
+                        false
+                    );
+                }
+            });
+        } else {
+            addMessageToChat(
+                "Hello! I'm your AI medical assistant. How can I help you today?",
+                false,
+                false,
+                false,
+                false,
+                null,
+                null,
+                false
+            );
+        }
+
+        if (window.innerWidth <= 768) sidebar.classList.remove('open');
+        setTimeout(() => chatContainer.scrollTop = chatContainer.scrollHeight, 100);
+    }
+
+    function deleteChat(chatId) {
+        if (Object.keys(chatHistoryData).length === 1) {
+            alert('You cannot delete your only chat.');
+            return;
+        }
+
+        if (confirm('Are you sure you want to delete this chat?')) {
+            delete chatHistoryData[chatId];
             saveChatHistory();
             renderChatHistory();
-            loadChat(currentChatId);
-            statusIndicator.textContent = "New chat created";
-        }
 
-        function renderMarkdown(text) {
-            if (!text) return '';
+            if (chatId === currentChatId) {
+                const remainingChatIds = Object.keys(chatHistoryData);
+                if (remainingChatIds.length > 0) loadChat(remainingChatIds[0]);
+            }
+        }
+    }
+
+    function createNewChat() {
+        currentChatId = generateChatId();
+        chatHistoryData[currentChatId] = {
+            id: currentChatId,
+            title: "New Conversation",
+            date: new Date().toISOString(),
+            messages: [{
+                role: "ai",
+                content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        saveChatHistory();
+        renderChatHistory();
+        loadChat(currentChatId);
+        statusIndicator.textContent = "New chat created";
+    }
+
+    function renderMarkdown(text) {
+        if (!text) return '';
+        
+        const lines = text.split('\n');
+        let result = [];
+        let tableRows = [];
+        let inTable = false;
+        
+        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
+            const line = lines[lineIndex];
+            const trimmedLine = line.trim();
             
-            const lines = text.split('\n');
-            let result = [];
-            let tableRows = [];
-            let inTable = false;
-            
-            for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-                const line = lines[lineIndex];
-                const trimmedLine = line.trim();
-                
-                // Handle tables
-                if (trimmedLine.includes('|') && !inTable) {
-                    inTable = true;
-                    tableRows = [line];
-                    continue;
-                }
-                
-                if (inTable) {
-                    if (trimmedLine.includes('|')) {
-                        tableRows.push(line);
-                    } else {
-                        processTable();
-                        inTable = false;
-                        lineIndex--;
-                    }
-                    continue;
-                }
-                
-                processRegularLine(line, trimmedLine, lineIndex);
+            // Handle tables
+            if (trimmedLine.includes('|') && !inTable) {
+                inTable = true;
+                tableRows = [line];
+                continue;
             }
             
-            if (inTable && tableRows.length > 0) {
-                processTable();
+            if (inTable) {
+                if (trimmedLine.includes('|')) {
+                    tableRows.push(line);
+                } else {
+                    processTable();
+                    inTable = false;
+                    lineIndex--;
+                }
+                continue;
             }
             
-            return result.join('');
-            
-            function processTable() {
-                if (tableRows.length < 2) {
-                    result.push(tableRows.join('<br>') + '<br>');
-                    tableRows = [];
-                    return;
-                }
-                
-                let tableHtml = '<table class="ai-table"><tbody>';
-                let hasHeaderSeparator = tableRows.length > 1 && /^[\s\|:-]+$/.test(tableRows[1].trim());
-                
-                for (let rowIndex = 0; rowIndex < tableRows.length; rowIndex++) {
-                    const row = tableRows[rowIndex];
-                    
-                    if (/^[\s\|:-]+$/.test(row.trim())) {
-                        continue;
-                    }
-                    
-                    const cells = row.split('|')
-                        .map(cell => cell.trim())
-                        .filter(cell => cell !== '');
-                    
-                    if (cells.length === 0) continue;
-                    
-                    tableHtml += '<tr>';
-                    
-                    for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
-                        let cellContent = cells[cellIndex];
-                        
-                        cellContent = cellContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                        cellContent = cellContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                        
-                        if ((rowIndex === 0 && !hasHeaderSeparator) || 
-                            (rowIndex === 1 && hasHeaderSeparator)) {
-                            tableHtml += `<th>${cellContent}</th>`;
-                        } else {
-                            tableHtml += `<td>${cellContent}</td>`;
-                        }
-                    }
-                    
-                    tableHtml += '</tr>';
-                }
-                
-                tableHtml += '</tbody></table>';
-                result.push(tableHtml);
+            processRegularLine(line, trimmedLine, lineIndex);
+        }
+        
+        if (inTable && tableRows.length > 0) {
+            processTable();
+        }
+        
+        return result.join('');
+        
+        function processTable() {
+            if (tableRows.length < 2) {
+                result.push(tableRows.join('<br>') + '<br>');
                 tableRows = [];
+                return;
             }
             
-            function processRegularLine(line, trimmedLine, currentLineIndex) {
-                let processedLine = line;
+            let tableHtml = '<table class="ai-table"><tbody>';
+            let hasHeaderSeparator = tableRows.length > 1 && /^[\s\|:-]+$/.test(tableRows[1].trim());
+            
+            for (let rowIndex = 0; rowIndex < tableRows.length; rowIndex++) {
+                const row = tableRows[rowIndex];
                 
-                if (trimmedLine.startsWith('### ')) {
-                    result.push(`<h3>${trimmedLine.substring(4)}</h3>`);
-                    return;
+                if (/^[\s\|:-]+$/.test(row.trim())) {
+                    continue;
                 }
                 
-                if (trimmedLine.startsWith('## ')) {
-                    result.push(`<h2>${trimmedLine.substring(3)}</h2>`);
-                    return;
-                }
+                const cells = row.split('|')
+                    .map(cell => cell.trim())
+                    .filter(cell => cell !== '');
                 
-                if (trimmedLine.match(/^[-*]\s+/)) {
-                    let listHtml = '<ul>';
-                    while (currentLineIndex < lines.length && lines[currentLineIndex].trim().match(/^[-*]\s+/)) {
-                        let item = lines[currentLineIndex].trim().substring(2).trim();
-                        item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                        item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                        listHtml += `<li>${item}</li>`;
-                        currentLineIndex++;
-                    }
-                    listHtml += '</ul>';
-                    result.push(listHtml);
-                    lineIndex = currentLineIndex - 1;
-                    return;
-                }
+                if (cells.length === 0) continue;
                 
-                if (trimmedLine.match(/^\d+\.\s+/)) {
-                    let listHtml = '<ol>';
-                    while (currentLineIndex < lines.length && lines[currentLineIndex].trim().match(/^\d+\.\s+/)) {
-                        let item = lines[currentLineIndex].trim().replace(/^\d+\.\s+/, '').trim();
-                        item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                        item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                        listHtml += `<li>${item}</li>`;
-                        currentLineIndex++;
-                    }
-                    listHtml += '</ol>';
-                    result.push(listHtml);
-                    lineIndex = currentLineIndex - 1;
-                    return;
-                }
+                tableHtml += '<tr>';
                 
-                if (trimmedLine.length > 0) {
-                    processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-                    processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                for (let cellIndex = 0; cellIndex < cells.length; cellIndex++) {
+                    let cellContent = cells[cellIndex];
                     
-                    if (result.length > 0 && !result[result.length - 1].endsWith('</p>')) {
-                        const lastIndex = result.length - 1;
-                        result[lastIndex] = result[lastIndex].replace(/<\/p>$/, '');
-                        result[lastIndex] += `<br>${processedLine}</p>`;
+                    cellContent = cellContent.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    cellContent = cellContent.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    
+                    if ((rowIndex === 0 && !hasHeaderSeparator) || 
+                        (rowIndex === 1 && hasHeaderSeparator)) {
+                        tableHtml += `<th>${cellContent}</th>`;
                     } else {
-                        result.push(`<p>${processedLine}</p>`);
-                    }
-                } else {
-                    if (result.length > 0) {
-                        result.push('<br>');
+                        tableHtml += `<td>${cellContent}</td>`;
                     }
                 }
+                
+                tableHtml += '</tr>';
             }
+            
+            tableHtml += '</tbody></table>';
+            result.push(tableHtml);
+            tableRows = [];
         }
-
-        function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
-            if (!content && !isTyping) {
-                content = "Message content unavailable";
-                isError = true;
+        
+        function processRegularLine(line, trimmedLine, currentLineIndex) {
+            let processedLine = line;
+            
+            if (trimmedLine.startsWith('### ')) {
+                result.push(`<h3>${trimmedLine.substring(4)}</h3>`);
+                return;
             }
-
-            if (typeof content !== 'string') content = String(content || '');
-
-            const messageDiv = document.createElement('div');
-            let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
-            if (isMedical) messageClass += ' medical-message';
-            if (isError) messageClass += ' error-message';
-            messageDiv.className = messageClass;
-
-            const avatarDiv = document.createElement('div');
-            avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
-            avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-
-            const contentDiv = document.createElement('div');
-            contentDiv.className = 'message-content';
-
-            if (isTyping) {
-                contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+            
+            if (trimmedLine.startsWith('## ')) {
+                result.push(`<h2>${trimmedLine.substring(3)}</h2>`);
+                return;
+            }
+            
+            if (trimmedLine.match(/^[-*]\s+/)) {
+                let listHtml = '<ul>';
+                while (currentLineIndex < lines.length && lines[currentLineIndex].trim().match(/^[-*]\s+/)) {
+                    let item = lines[currentLineIndex].trim().substring(2).trim();
+                    item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    listHtml += `<li>${item}</li>`;
+                    currentLineIndex++;
+                }
+                listHtml += '</ul>';
+                result.push(listHtml);
+                lineIndex = currentLineIndex - 1;
+                return;
+            }
+            
+            if (trimmedLine.match(/^\d+\.\s+/)) {
+                let listHtml = '<ol>';
+                while (currentLineIndex < lines.length && lines[currentLineIndex].trim().match(/^\d+\.\s+/)) {
+                    let item = lines[currentLineIndex].trim().replace(/^\d+\.\s+/, '').trim();
+                    item = item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    item = item.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    listHtml += `<li>${item}</li>`;
+                    currentLineIndex++;
+                }
+                listHtml += '</ol>';
+                result.push(listHtml);
+                lineIndex = currentLineIndex - 1;
+                return;
+            }
+            
+            if (trimmedLine.length > 0) {
+                processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                processedLine = processedLine.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                
+                if (result.length > 0 && !result[result.length - 1].endsWith('</p>')) {
+                    const lastIndex = result.length - 1;
+                    result[lastIndex] = result[lastIndex].replace(/<\/p>$/, '');
+                    result[lastIndex] += `<br>${processedLine}</p>`;
+                } else {
+                    result.push(`<p>${processedLine}</p>`);
+                }
             } else {
-                if (!isUser && !isError) {
-                    contentDiv.innerHTML = renderMarkdown(content);
-                } else {
-                    contentDiv.innerHTML = `<p>${(content || '').toString().replace(/\n/g, '<br>')}</p>`;
+                if (result.length > 0) {
+                    result.push('<br>');
                 }
+            }
+        }
+    }
 
-                if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'undefined') {
-                    try {
-                        const drugDiv = document.createElement('div');
-                        drugDiv.className = 'drug-recommendation';
-                        drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${renderMarkdown(drugRecommendation)}`;
-                        contentDiv.appendChild(drugDiv);
-                    } catch (error) {
-                        console.error('Error adding drug recommendation:', error);
-                    }
-                }
+    function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
+        if (!content && !isTyping) {
+            content = "Message content unavailable";
+            isError = true;
+        }
 
-                if (disclaimer && disclaimer !== 'null' && disclaimer !== 'undefined') {
-                    try {
-                        const disclaimerDiv = document.createElement('div');
-                        disclaimerDiv.className = 'disclaimer';
-                        disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
-                        contentDiv.appendChild(disclaimerDiv);
-                    } catch (error) {
-                        console.error('Error adding disclaimer:', error);
-                    }
-                }
+        if (typeof content !== 'string') content = String(content || '');
 
-                if (!isUser && !isError) {
-                    const actionsDiv = document.createElement('div');
-                    actionsDiv.className = 'message-actions';
-                    actionsDiv.innerHTML = `
-                        <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
-                        <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
-                        <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
-                    `;
-                    contentDiv.appendChild(actionsDiv);
+        const messageDiv = document.createElement('div');
+        let messageClass = `message ${isUser ? 'user-message' : 'ai-message'}`;
+        if (isMedical) messageClass += ' medical-message';
+        if (isError) messageClass += ' error-message';
+        messageDiv.className = messageClass;
+
+        const avatarDiv = document.createElement('div');
+        avatarDiv.className = `message-avatar ${isUser ? 'user-avatar' : 'ai-avatar'}`;
+        avatarDiv.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        if (isTyping) {
+            contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+        } else {
+            if (!isUser && !isError) {
+                contentDiv.innerHTML = renderMarkdown(content);
+            } else {
+                contentDiv.innerHTML = `<p>${(content || '').toString().replace(/\n/g, '<br>')}</p>`;
+            }
+
+            if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'undefined') {
+                try {
+                    const drugDiv = document.createElement('div');
+                    drugDiv.className = 'drug-recommendation';
+                    drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${renderMarkdown(drugRecommendation)}`;
+                    contentDiv.appendChild(drugDiv);
+                } catch (error) {
+                    console.error('Error adding drug recommendation:', error);
                 }
             }
 
-            messageDiv.appendChild(avatarDiv);
-            messageDiv.appendChild(contentDiv);
-            chatContainer.appendChild(messageDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-
-            if (saveToHistory && !isTyping && !isError) {
-                if (!chatHistoryData[currentChatId]) {
-                    chatHistoryData[currentChatId] = {
-                        id: currentChatId,
-                        title: "New Conversation",
-                        date: new Date().toISOString(),
-                        messages: []
-                    };
+            if (disclaimer && disclaimer !== 'null' && disclaimer !== 'undefined') {
+                try {
+                    const disclaimerDiv = document.createElement('div');
+                    disclaimerDiv.className = 'disclaimer';
+                    disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
+                    contentDiv.appendChild(disclaimerDiv);
+                } catch (error) {
+                    console.error('Error adding disclaimer:', error);
                 }
+            }
 
-                const messageData = {
-                    role: isUser ? 'user' : 'ai',
-                    content: content || '',
-                    timestamp: new Date().toISOString()
+            if (!isUser && !isError) {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.className = 'message-actions';
+                actionsDiv.innerHTML = `
+                    <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
+                    <button class="action-btn"><i class="fas fa-thumbs-up"></i></button>
+                    <button class="action-btn"><i class="fas fa-thumbs-down"></i></button>
+                `;
+                contentDiv.appendChild(actionsDiv);
+            }
+        }
+
+        messageDiv.appendChild(avatarDiv);
+        messageDiv.appendChild(contentDiv);
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+
+        if (saveToHistory && !isTyping && !isError) {
+            if (!chatHistoryData[currentChatId]) {
+                chatHistoryData[currentChatId] = {
+                    id: currentChatId,
+                    title: "New Conversation",
+                    date: new Date().toISOString(),
+                    messages: []
                 };
-
-                if (isMedical !== undefined) messageData.isMedical = Boolean(isMedical);
-                if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
-                if (disclaimer) messageData.disclaimer = disclaimer;
-
-                if (Array.isArray(chatHistoryData[currentChatId].messages)) {
-                    chatHistoryData[currentChatId].messages.push(messageData);
-                } else {
-                    chatHistoryData[currentChatId].messages = [messageData];
-                }
-
-                if (isUser && (chatHistoryData[currentChatId].title === "New Conversation" ||
-                    chatHistoryData[currentChatId].title === "Welcome to DRUGBOT")) {
-                    const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
-                    chatHistoryData[currentChatId].title = shortMessage;
-                }
-
-                chatHistoryData[currentChatId].date = new Date().toISOString();
-
-                if (!isTyping) {
-                    setTimeout(() => saveChatHistory(), 100);
-                }
             }
 
-            return messageDiv;
-        }
+            const messageData = {
+                role: isUser ? 'user' : 'ai',
+                content: content || '',
+                timestamp: new Date().toISOString()
+            };
 
-        // AI API call
-        async function callBackendAPI(userMessage) {
-            try {
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text: userMessage })
-                });
+            if (isMedical !== undefined) messageData.isMedical = Boolean(isMedical);
+            if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
+            if (disclaimer) messageData.disclaimer = disclaimer;
 
-                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            if (Array.isArray(chatHistoryData[currentChatId].messages)) {
+                chatHistoryData[currentChatId].messages.push(messageData);
+            } else {
+                chatHistoryData[currentChatId].messages = [messageData];
+            }
 
-                const responseText = await response.text();
-                return JSON.parse(responseText);
-            } catch (error) {
-                console.error('API call failed:', error);
-                throw error;
+            if (isUser && (chatHistoryData[currentChatId].title === "New Conversation" ||
+                chatHistoryData[currentChatId].title === "Welcome to DRUGBOT")) {
+                const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+                chatHistoryData[currentChatId].title = shortMessage;
+            }
+
+            chatHistoryData[currentChatId].date = new Date().toISOString();
+
+            if (!isTyping) {
+                setTimeout(() => saveChatHistory(), 100);
             }
         }
 
-        async function processUserInput(input) {
-            if (!input.trim()) return;
+        return messageDiv;
+    }
 
-            addMessageToChat(input, true);
-            statusIndicator.textContent = "Processing with AI...";
-            const typingMessage = addMessageToChat("Analyzing your message...", false, true);
+    // AI API call
+    async function callBackendAPI(userMessage) {
+        try {
+            const response = await fetch(BACKEND_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: userMessage })
+            });
 
-            try {
-                const response = await callBackendAPI(input);
-                typingMessage.remove();
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                addMessageToChat(
-                    response.response,
-                    false,
-                    false,
-                    false,
-                    response.is_medical,
-                    response.drug_recommendation,
-                    response.disclaimer
-                );
+            const responseText = await response.text();
+            return JSON.parse(responseText);
+        } catch (error) {
+            console.error('API call failed:', error);
+            throw error;
+        }
+    }
 
-                if (response.translation && response.translation !== "Error processing request") {
-                    const translationDiv = document.createElement('div');
-                    translationDiv.style.marginTop = '10px';
-                    translationDiv.style.fontSize = '0.9rem';
-                    translationDiv.style.opacity = '0.8';
-                    translationDiv.style.fontStyle = 'italic';
-                    translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
-                    chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
-                }
+    async function processUserInput(input) {
+        if (!input.trim()) return;
 
-                statusIndicator.textContent = "Response ready";
-                speakResponse(response.response);
-                setTimeout(() => saveChatHistory(), 500);
+        addMessageToChat(input, true);
+        statusIndicator.textContent = "Processing with AI...";
+        const typingMessage = addMessageToChat("Analyzing your message...", false, true);
 
-            } catch (error) {
-                typingMessage.remove();
-                const errorMessage = `I'm having trouble connecting to the server. Please check your internet connection and try again.\n\nError details: ${error.message}`;
-                addMessageToChat(errorMessage, false, false, true);
-                statusIndicator.textContent = "Connection error. Please try again.";
+        try {
+            const response = await callBackendAPI(input);
+            typingMessage.remove();
+
+            addMessageToChat(
+                response.response,
+                false,
+                false,
+                false,
+                response.is_medical,
+                response.drug_recommendation,
+                response.disclaimer
+            );
+
+            if (response.translation && response.translation !== "Error processing request") {
+                const translationDiv = document.createElement('div');
+                translationDiv.style.marginTop = '10px';
+                translationDiv.style.fontSize = '0.9rem';
+                translationDiv.style.opacity = '0.8';
+                translationDiv.style.fontStyle = 'italic';
+                translationDiv.textContent = `🔍 Translation: "${response.translation}"`;
+                chatContainer.lastChild.querySelector('.message-content').appendChild(translationDiv);
             }
+
+            statusIndicator.textContent = "Response ready";
+            speakResponse(response.response);
+            setTimeout(() => saveChatHistory(), 500);
+
+        } catch (error) {
+            typingMessage.remove();
+            const errorMessage = `I'm having trouble connecting to the server. Please check your internet connection and try again.\n\nError details: ${error.message}`;
+            addMessageToChat(errorMessage, false, false, true);
+            statusIndicator.textContent = "Connection error. Please try again.";
         }
+    }
 
-        function speakResponse(text) {
-            if (!audioEnabled || !('speechSynthesis' in window)) return;
-
-            speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.9;
-            utterance.pitch = 1;
-            utterance.volume = 0.8;
-            speechSynthesis.speak(utterance);
-        }
-
-        function copyToClipboard(button) {
-            const messageContent = button.closest('.message').querySelector('.message-content p').textContent;
-            navigator.clipboard.writeText(messageContent).then(() => {
-                const originalHTML = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => button.innerHTML = originalHTML, 2000);
-            });
-        }
-
-        function logoutUser() {
-            if (confirm("Are you sure you want to logout? Your chat history will be saved.")) {
-                if (currentUser) saveChatHistory();
-                currentUser = null;
-                localStorage.removeItem('medAI_currentUser');
-                loadGuestData();
-                updateUserDisplay();
-                statusIndicator.textContent = "You have been logged out";
-                setTimeout(() => loginModal.style.display = 'flex', 500);
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            initializeApp();
-
-            sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
-            newChatBtn.addEventListener('click', createNewChat);
-
-            clearChatBtn.addEventListener('click', () => {
-                if (confirm("Are you sure you want to clear this conversation?")) {
-                    chatHistoryData[currentChatId].messages = [{
-                        role: "ai",
-                        content: "Hello! I'm your AI medical assistant. How can I help you today?",
-                        timestamp: new Date().toISOString()
-                    }];
-                    saveChatHistory();
-                    loadChat(currentChatId);
-                    statusIndicator.textContent = "Conversation cleared";
-                }
-            });
-
-            document.getElementById('audioToggleBtn').addEventListener('click', toggleAudioResponses);
-
-            settingsBtn.addEventListener('click', () => settingsMenu.classList.toggle('show'));
-            document.addEventListener('click', (e) => {
-                if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
-                    settingsMenu.classList.remove('show');
-                }
-            });
-
-            // Profile settings click
-            document.getElementById('profileSettings').addEventListener('click', () => {
-                if (currentUser) {
-                    document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
-                    document.getElementById('profileEmail').value = currentUser.email || '';
-                    clearProfileMessages();
-                    profileModal.style.display = 'flex';
-                } else {
-                    loginModal.style.display = 'flex';
-                }
-                settingsMenu.classList.remove('show');
-            });
-
-            // Other menu items
-            document.getElementById('privacyPolicy').addEventListener('click', () => {
-                privacyModal.style.display = 'flex';
-                settingsMenu.classList.remove('show');
-            });
-
-            document.getElementById('contactUs').addEventListener('click', () => {
-                contactModal.style.display = 'flex';
-                settingsMenu.classList.remove('show');
-            });
-
-            document.getElementById('aboutUs').addEventListener('click', () => {
-                aboutModal.style.display = 'flex';
-                settingsMenu.classList.remove('show');
-            });
-
-            document.getElementById('logoutBtn').addEventListener('click', logoutUser);
-
-            userProfile.addEventListener('click', () => {
-                if (currentUser) {
-                    document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
-                    document.getElementById('profileEmail').value = currentUser.email || '';
-                    clearProfileMessages();
-                    profileModal.style.display = 'flex';
-                } else {
-                    loginModal.style.display = 'flex';
-                }
-            });
-
-         // Replace the existing window click event listener with this:
-window.addEventListener('click', (e) => {
-    // Close modals when clicking outside
-    if (e.target.classList.contains('modal')) {
-        e.target.style.display = 'none';
+    function cleanTextForSpeech(text) {
+        if (!text) return '';
         
-        // Specific handling for verification modal
-        if (e.target.id === 'verificationModal') {
-            registerModal.style.display = 'flex';
-            pendingUser = null;
-            verificationCode = '';
-        }
+        // Remove markdown headings
+        let cleaned = text.replace(/#{1,6}\s+/g, '');
         
-        // Specific handling for profile modal
-        if (e.target.id === 'profileModal') {
-            clearProfileMessages();
-        }
+        // Remove bold/italic markers but keep the text
+        cleaned = cleaned.replace(/\*\*/g, '');
+        cleaned = cleaned.replace(/\*/g, '');
+        
+        // Remove code blocks
+        cleaned = cleaned.replace(/`{1,3}[^`]*`{1,3}/g, '');
+        
+        // Remove markdown links but keep text
+        cleaned = cleaned.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+        
+        // Clean up multiple spaces
+        cleaned = cleaned.replace(/\s{2,}/g, ' ');
+        
+        // Remove table formatting for speech
+        cleaned = cleaned.replace(/\|/g, ', ');
+        cleaned = cleaned.replace(/-+\|/g, '');
+        cleaned = cleaned.replace(/\|-+/g, '');
+        
+        return cleaned.trim();
     }
-    
-    // Close sidebar when clicking outside on mobile
-    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-            sidebar.classList.remove('open');
-        }
+
+    function speakResponse(text) {
+        if (!audioEnabled || !('speechSynthesis' in window)) return;
+
+        const cleanText = cleanTextForSpeech(text);
+        
+        if (!cleanText) return;
+        
+        speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 0.8;
+        
+        speechSynthesis.speak(utterance);
     }
-    
-    // Close settings menu when clicking outside
-    if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target) && settingsMenu.classList.contains('show')) {
-        settingsMenu.classList.remove('show');
-    }
-});
 
-// Also add touch events for mobile
-document.addEventListener('touchstart', (e) => {
-    // Close sidebar on mobile when touching outside
-    if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-        if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
-            sidebar.classList.remove('open');
-        }
-    }
-    
-    // Close settings menu on mobile
-    if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target) && settingsMenu.classList.contains('show')) {
-        settingsMenu.classList.remove('show');
-    }
-});
-
-            // Modal close buttons
-            ['closeLoginModal', 'closeRegisterModal', 'closePrivacyModal',
-                'closeContactModal', 'closeAboutModal', 'closeVerificationModal'].forEach(id => {
-                    document.getElementById(id).addEventListener('click', () => {
-                        document.getElementById(id.replace('close', '').replace('Modal', 'Modal')).style.display = 'none';
-                        if (id === 'closeVerificationModal') {
-                            registerModal.style.display = 'flex';
-                            pendingUser = null;
-                            verificationCode = '';
-                        }
-                    });
-                });
-
-            // Modal links
-            document.getElementById('showRegister').addEventListener('click', (e) => {
-                e.preventDefault();
-                loginModal.style.display = 'none';
-                registerModal.style.display = 'flex';
-            });
-
-            document.getElementById('showLogin').addEventListener('click', (e) => {
-                e.preventDefault();
-                registerModal.style.display = 'none';
-                loginModal.style.display = 'flex';
-            });
-
-            // Form submissions
-            document.getElementById('loginForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                loginUser(email, password);
-            });
-
-            document.getElementById('registerForm').addEventListener('submit', (e) => {
-                e.preventDefault();
-                const name = document.getElementById('registerName').value;
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
-                const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-                if (password !== confirmPassword) {
-                    alert("Passwords do not match");
-                    return;
-                }
-
-                if (password.length < 6) {
-                    alert("Password must be at least 6 characters long");
-                    return;
-                }
-
-                registerUser(name, email, password);
-            });
+    function copyToClipboard(button) {
+        const messageContent = button.closest('.message').querySelector('.message-content p').textContent;
+        navigator.clipboard.writeText(messageContent).then(() => {
+            const originalHTML = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            setTimeout(() => button.innerHTML = originalHTML, 2000);
         });
-    </script>
-</body>
-</html>
+    }
 
+    function logoutUser() {
+        if (confirm("Are you sure you want to logout? Your chat history will be saved.")) {
+            if (currentUser) saveChatHistory();
+            currentUser = null;
+            localStorage.removeItem('medAI_currentUser');
+            loadGuestData();
+            updateUserDisplay();
+            statusIndicator.textContent = "You have been logged out";
+            setTimeout(() => loginModal.style.display = 'flex', 500);
+        }
+    }
 
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeApp();
 
+        sidebarToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+        newChatBtn.addEventListener('click', createNewChat);
 
+        clearChatBtn.addEventListener('click', () => {
+            if (confirm("Are you sure you want to clear this conversation?")) {
+                chatHistoryData[currentChatId].messages = [{
+                    role: "ai",
+                    content: "Hello! I'm your AI medical assistant. How can I help you today?",
+                    timestamp: new Date().toISOString()
+                }];
+                saveChatHistory();
+                loadChat(currentChatId);
+                statusIndicator.textContent = "Conversation cleared";
+            }
+        });
 
+        document.getElementById('audioToggleBtn').addEventListener('click', toggleAudioResponses);
 
+        settingsBtn.addEventListener('click', () => settingsMenu.classList.toggle('show'));
+        
+        // Close settings menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target)) {
+                settingsMenu.classList.remove('show');
+            }
+        });
 
+        // Profile settings click
+        document.getElementById('profileSettings').addEventListener('click', () => {
+            if (currentUser) {
+                document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
+                document.getElementById('profileEmail').value = currentUser.email || '';
+                clearProfileMessages();
+                profileModal.style.display = 'flex';
+            } else {
+                loginModal.style.display = 'flex';
+            }
+            settingsMenu.classList.remove('show');
+        });
 
+        // Other menu items
+        document.getElementById('privacyPolicy').addEventListener('click', () => {
+            privacyModal.style.display = 'flex';
+            settingsMenu.classList.remove('show');
+        });
 
+        document.getElementById('contactUs').addEventListener('click', () => {
+            contactModal.style.display = 'flex';
+            settingsMenu.classList.remove('show');
+        });
 
+        document.getElementById('aboutUs').addEventListener('click', () => {
+            aboutModal.style.display = 'flex';
+            settingsMenu.classList.remove('show');
+        });
 
+        document.getElementById('logoutBtn').addEventListener('click', logoutUser);
 
+        userProfile.addEventListener('click', () => {
+            if (currentUser) {
+                document.getElementById('profileName').value = currentUser.name || currentUser.username || '';
+                document.getElementById('profileEmail').value = currentUser.email || '';
+                clearProfileMessages();
+                profileModal.style.display = 'flex';
+            } else {
+                loginModal.style.display = 'flex';
+            }
+        });
 
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            // Close modals when clicking outside
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+                
+                // Specific handling for verification modal
+                if (e.target.id === 'verificationModal') {
+                    registerModal.style.display = 'flex';
+                    pendingUser = null;
+                    verificationCode = '';
+                }
+                
+                // Specific handling for profile modal
+                if (e.target.id === 'profileModal') {
+                    clearProfileMessages();
+                }
+            }
+            
+            // Close sidebar when clicking outside on mobile
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+        });
 
+        // Also add touch events for mobile
+        document.addEventListener('touchstart', (e) => {
+            // Close sidebar on mobile when touching outside
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+                    sidebar.classList.remove('open');
+                }
+            }
+            
+            // Close settings menu on mobile
+            if (!settingsBtn.contains(e.target) && !settingsMenu.contains(e.target) && settingsMenu.classList.contains('show')) {
+                settingsMenu.classList.remove('show');
+            }
+        });
 
+        // Modal close buttons
+        ['closeLoginModal', 'closeRegisterModal', 'closePrivacyModal',
+            'closeContactModal', 'closeAboutModal', 'closeVerificationModal'].forEach(id => {
+                document.getElementById(id).addEventListener('click', () => {
+                    document.getElementById(id.replace('close', '').replace('Modal', 'Modal')).style.display = 'none';
+                    if (id === 'closeVerificationModal') {
+                        registerModal.style.display = 'flex';
+                        pendingUser = null;
+                        verificationCode = '';
+                    }
+                });
+            });
 
+        // Modal links
+        document.getElementById('showRegister').addEventListener('click', (e) => {
+            e.preventDefault();
+            loginModal.style.display = 'none';
+            registerModal.style.display = 'flex';
+        });
 
+        document.getElementById('showLogin').addEventListener('click', (e) => {
+            e.preventDefault();
+            registerModal.style.display = 'none';
+            loginModal.style.display = 'flex';
+        });
+
+        // Form submissions
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            loginUser(email, password);
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match");
+                return;
+            }
+
+            if (password.length < 6) {
+                alert("Password must be at least 6 characters long");
+                return;
+            }
+
+            registerUser(name, email, password);
+        });
+        
+        // Setup auto-verification
+        setupAutoVerify();
+    });
+</script>
