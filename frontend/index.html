@@ -1975,63 +1975,58 @@
             });
         }
 
-        // Authentication functions
-        async function loginUser(email, password) {
-            const loginBtn = document.querySelector('#loginForm .btn-primary');
-            const originalText = loginBtn.textContent;
+      async function loginUser(email, password) {
+    const loginBtn = document.querySelector('#loginForm .btn-primary');
+    const originalText = loginBtn.textContent;
 
-            try {
-                loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
-                loginBtn.disabled = true;
+    try {
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        loginBtn.disabled = true;
 
-                const response = await fetch(`${AUTH_URL}/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email, password: password })
-                });
+        const response = await fetch(`${AUTH_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        });
 
-                const result = await response.json();
+        const result = await response.json();
 
-             // Inside your loginUser() function, after successful login:
-if (response.ok && result.success) {
-    currentUser = result.user;
-    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-    updateUserDisplay();
-    
-    // Check cloud status first, then load history
-    await checkCloudSyncStatus();
-    await loadUserChatHistory(currentUser.id);
-    // ... rest of your login code
-}
-
-                    loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
-                    loginBtn.style.backgroundColor = '#10a37f';
-
-                    setTimeout(() => {
-                        loginModal.style.display = 'none';
-                        statusIndicator.textContent = `Welcome back, ${userName.textContent}!`;
-                        loginBtn.textContent = originalText;
-                        loginBtn.disabled = false;
-                        loginBtn.style.backgroundColor = '';
-                        document.getElementById('loginForm').reset();
-                    }, 1000);
-
+        if (response.ok && result.success) {
+            currentUser = result.user;
+            localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+            updateUserDisplay();
             
-            else {
-                    throw new Error(result.error || "Invalid email or password");
-                }
-            } catch (error) {
-                loginBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
-                loginBtn.style.backgroundColor = '#ef4444';
+            // Check cloud status first, then load history
+            await checkCloudSyncStatus();
+            await loadUserChatHistory(currentUser.id);
 
-                setTimeout(() => {
-                    alert(error.message || "Login failed. Please check your connection and try again.");
-                    loginBtn.textContent = originalText;
-                    loginBtn.disabled = false;
-                    loginBtn.style.backgroundColor = '';
-                }, 1000);
-            }
+            loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
+            loginBtn.style.backgroundColor = '#10a37f';
+
+            setTimeout(() => {
+                loginModal.style.display = 'none';
+                statusIndicator.textContent = `Welcome back, ${userName.textContent}!`;
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+                loginBtn.style.backgroundColor = '';
+                document.getElementById('loginForm').reset();
+            }, 1000);
+
+        } else {
+            throw new Error(result.error || "Invalid email or password");
         }
+    } catch (error) {
+        loginBtn.innerHTML = '<i class="fas fa-times"></i> Failed';
+        loginBtn.style.backgroundColor = '#ef4444';
+
+        setTimeout(() => {
+            alert(error.message || "Login failed. Please check your connection and try again.");
+            loginBtn.textContent = originalText;
+            loginBtn.disabled = false;
+            loginBtn.style.backgroundColor = '';
+        }, 1000);
+    }
+}
         // Add this function to debug the backend API
 async function testBackendEndpoints() {
     console.log('🔍 Testing Backend Endpoints...');
@@ -3272,6 +3267,7 @@ async function debugCloudSync() {
     </script>
 </body>
 </html>
+
 
 
 
