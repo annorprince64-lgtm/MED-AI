@@ -2605,7 +2605,7 @@ function renderMarkdown(text) {
             if (isTyping) {
                 contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
             } else {
-                contentDiv.innerHTML = `<p>${content}</p>`;
+                contentDiv.innerHTML = `<div>${renderMarkdown(content)}</div>`;
 
                 if (drugRecommendation && drugRecommendation !== 'null') {
                     const drugDiv = document.createElement('div');
@@ -2971,6 +2971,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
