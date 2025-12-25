@@ -2367,41 +2367,69 @@ To summarize the data flow and purposes clearly, the following table provides an
             }
         }
 // Add this function to render markdown in your frontend
-function renderMarkdown(content) {
-    // Simple markdown to HTML conversion
-    let html = content;
+// Replace the renderMarkdown function with this:
+function renderMarkdown(text) {
+    if (!text) return '';
     
-    // Headings
-    html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
-    html = html.replace(/^## (.*$)/gm, '<h2>$1</h2>');
-    html = html.replace(/^# (.*$)/gm, '<h1>$1</h1>');
+    let html = text;
     
-    // Bold
+    // Convert headers
+    html = html.replace(/^### (.*?)$/gm, '<h3 class="ai-heading">$1</h3>');
+    html = html.replace(/^## (.*?)$/gm, '<h2 class="ai-heading">$1</h2>');
+    
+    // Convert bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
-    // Italic
+    // Convert italic
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
     
-    // Lists
-    html = html.replace(/^\* (.*$)/gm, '<li>$1</li>');
-    html = html.replace(/^- (.*$)/gm, '<li>$1</li>');
-    html = html.replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>');
-    html = html.replace(/<\/ul>\n<ul>/g, '');
+    // Convert bullet points (both * and -)
+    html = html.replace(/^\s*[-*]\s+(.*)$/gm, '<li>$1</li>');
     
-    // Tables (basic)
-    html = html.replace(/\n(\|.*\|)\n(\|.*\|)\n((\|.*\|)\n)+/g, function(match) {
+    // Wrap consecutive li elements in ul
+    const lines = html.split('\n');
+    let inList = false;
+    let result = [];
+    
+    for (let line of lines) {
+        if (line.startsWith('<li>')) {
+            if (!inList) {
+                result.push('<ul class="ai-list">');
+                inList = true;
+            }
+            result.push(line);
+        } else {
+            if (inList) {
+                result.push('</ul>');
+                inList = false;
+            }
+            result.push(line);
+        }
+    }
+    
+    if (inList) {
+        result.push('</ul>');
+    }
+    
+    html = result.join('\n');
+    
+    // Convert tables (simple markdown tables)
+    html = html.replace(/(?:\|.*\|(?:\r?\n|\r)?)+/g, function(match) {
         const rows = match.trim().split('\n');
+        if (rows.length < 2) return match;
+        
         let tableHtml = '<table class="ai-table">';
         
-        rows.forEach((row, index) => {
+        rows.forEach((row, rowIndex) => {
             const cells = row.split('|').filter(cell => cell.trim() !== '');
             tableHtml += '<tr>';
             
             cells.forEach(cell => {
-                if (index === 0) {
-                    tableHtml += `<th>${cell.trim()}</th>`;
+                const content = cell.trim();
+                if (rowIndex === 0) {
+                    tableHtml += `<th>${content}</th>`;
                 } else {
-                    tableHtml += `<td>${cell.trim()}</td>`;
+                    tableHtml += `<td>${content}</td>`;
                 }
             });
             
@@ -2412,13 +2440,100 @@ function renderMarkdown(content) {
         return tableHtml;
     });
     
-    // Line breaks
+    // Convert line breaks
     html = html.replace(/\n/g, '<br>');
     
     return html;
 }
 
-// Update the addMessageToChat function to use markdown rendering
+// Update the CSS for better formatting
+const style = document.createElement('style');
+style.textContent = `
+.ai-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ai-table th {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 600;
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.ai-table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+}
+
+.ai-table tr:last-child td {
+    border-bottom: none;
+}
+
+.ai-table tr:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.ai-heading {
+    margin: 20px 0 10px 0;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.ai-heading:first-child {
+    margin-top: 0;
+}
+
+h2.ai-heading {
+    font-size: 1.4em;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+    padding-bottom: 5px;
+}
+
+h3.ai-heading {
+    font-size: 1.2em;
+    color: #a78bfa;
+}
+
+.ai-list {
+    margin: 10px 0 10px 20px;
+    padding-left: 0;
+}
+
+.ai-list li {
+    margin: 8px 0;
+    padding-left: 10px;
+    position: relative;
+    line-height: 1.5;
+}
+
+.ai-list li:before {
+    content: "•";
+    color: #667eea;
+    font-size: 1.2em;
+    position: absolute;
+    left: -10px;
+}
+
+.message-content strong {
+    color: #a78bfa;
+    font-weight: 600;
+}
+
+.message-content em {
+    color: #94a3b8;
+    font-style: italic;
+}
+`;
+document.head.appendChild(style);
 function addMessageToChat(content, isUser = false, isTyping = false, isError = false, 
                          isMedical = false, drugRecommendation = null, disclaimer = null, 
                          saveToHistory = true, formatType = 'structured') {
@@ -2439,34 +2554,43 @@ function addMessageToChat(content, isUser = false, isTyping = false, isError = f
     if (isTyping) {
         contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
     } else {
-        // Use markdown rendering for AI responses
+        // FORMAT AI RESPONSES PROPERLY
         if (!isUser && formatType === 'structured') {
             contentDiv.innerHTML = renderMarkdown(content);
         } else {
-            contentDiv.innerHTML = `<p>${content}</p>`;
+            contentDiv.innerHTML = `<p>${content.replace(/\n/g, '<br>')}</p>`;
         }
 
-        if (drugRecommendation && drugRecommendation !== 'null') {
+        // Add drug recommendation if present
+        if (drugRecommendation && drugRecommendation !== 'null' && drugRecommendation !== 'None') {
             const drugDiv = document.createElement('div');
             drugDiv.className = 'drug-recommendation';
-            drugDiv.innerHTML = `<strong>💊 Recommended OTC Medication:</strong> ${drugRecommendation}`;
+            drugDiv.innerHTML = renderMarkdown(`**💊 Recommended:** ${drugRecommendation}`);
             contentDiv.appendChild(drugDiv);
         }
 
-        if (disclaimer && disclaimer !== 'null') {
+        // Add disclaimer if present
+        if (disclaimer && disclaimer !== 'null' && disclaimer !== 'None') {
             const disclaimerDiv = document.createElement('div');
             disclaimerDiv.className = 'disclaimer';
-            disclaimerDiv.innerHTML = `<strong>⚠️ Important:</strong> ${disclaimer}`;
+            disclaimerDiv.innerHTML = renderMarkdown(`**⚠️ Important:** ${disclaimer}`);
             contentDiv.appendChild(disclaimerDiv);
         }
 
+        // Add action buttons for AI messages
         if (!isUser && !isError) {
             const actionsDiv = document.createElement('div');
             actionsDiv.className = 'message-actions';
             actionsDiv.innerHTML = `
-                <button class="action-btn" onclick="copyToClipboard(this)"><i class="fas fa-copy"></i></button>
-                <button class="action-btn" onclick="rateResponse(this, 'like')"><i class="fas fa-thumbs-up"></i></button>
-                <button class="action-btn" onclick="rateResponse(this, 'dislike')"><i class="fas fa-thumbs-down"></i></button>
+                <button class="action-btn" onclick="copyToClipboard(this)" title="Copy">
+                    <i class="fas fa-copy"></i>
+                </button>
+                <button class="action-btn like-btn" onclick="rateResponse(this, 'like')" title="Helpful">
+                    <i class="fas fa-thumbs-up"></i>
+                </button>
+                <button class="action-btn dislike-btn" onclick="rateResponse(this, 'dislike')" title="Not helpful">
+                    <i class="fas fa-thumbs-down"></i>
+                </button>
             `;
             contentDiv.appendChild(actionsDiv);
         }
@@ -2479,38 +2603,45 @@ function addMessageToChat(content, isUser = false, isTyping = false, isError = f
     chatContainer.scrollTop = chatContainer.scrollHeight;
 
     if (saveToHistory && !isTyping && !isError) {
-        if (!chatHistoryData[currentChatId]) {
-            chatHistoryData[currentChatId] = {
-                id: currentChatId,
-                title: "New Conversation",
-                date: new Date().toISOString(),
-                messages: []
-            };
-        }
-
-        const messageData = {
-            role: isUser ? 'user' : 'ai',
-            content: content,
-            timestamp: new Date().toISOString()
-        };
-
-        if (isMedical) messageData.isMedical = true;
-        if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
-        if (disclaimer) messageData.disclaimer = disclaimer;
-        if (formatType) messageData.formatType = formatType;
-
-        chatHistoryData[currentChatId].messages.push(messageData);
-        
-        // Update title with first user message
-        if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
-            const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
-            chatHistoryData[currentChatId].title = shortMessage;
-            renderChatHistory();
-        }
-        
-        // Save to cloud
-        saveChatHistory();
+        saveToHistoryLogic(content, isUser, isMedical, drugRecommendation, disclaimer, formatType);
     }
+    
+    return messageDiv;
+}
+
+function saveToHistoryLogic(content, isUser, isMedical, drugRecommendation, disclaimer, formatType) {
+    if (!chatHistoryData[currentChatId]) {
+        chatHistoryData[currentChatId] = {
+            id: currentChatId,
+            title: "New Conversation",
+            date: new Date().toISOString(),
+            messages: []
+        };
+    }
+
+    const messageData = {
+        role: isUser ? 'user' : 'ai',
+        content: content,
+        timestamp: new Date().toISOString()
+    };
+
+    if (isMedical) messageData.isMedical = true;
+    if (drugRecommendation) messageData.drugRecommendation = drugRecommendation;
+    if (disclaimer) messageData.disclaimer = disclaimer;
+    if (formatType) messageData.formatType = formatType;
+
+    chatHistoryData[currentChatId].messages.push(messageData);
+    
+    // Update title with first user message
+    if (isUser && chatHistoryData[currentChatId].title === "New Conversation") {
+        const shortMessage = content.length > 30 ? content.substring(0, 30) + '...' : content;
+        chatHistoryData[currentChatId].title = shortMessage;
+        renderChatHistory();
+    }
+    
+    // Save to cloud
+    saveChatHistory();
+}
     
     return messageDiv;
 }
@@ -3124,6 +3255,7 @@ async function processUserInput(input) {
     </script>
 </body>
 </html>
+
 
 
 
