@@ -2362,7 +2362,7 @@ function createInitialChat() {
         // ============================================
         // CHAT HISTORY FUNCTIONS
         // ============================================
-     async function loadUserChatHistory(userId) {
+    async function loadUserChatHistory(userId) {
     console.log('[USER] Loading chat history for user:', userId);
     
     if (!userId) {
@@ -2383,8 +2383,9 @@ function createInitialChat() {
             const result = await response.json();
             
             if (result.success && result.chats) {
-                chatHistoryData = result.chats;
-                console.log('[CLOUD] Successfully loaded from cloud:', Object.keys(chatHistoryData).length, 'chats');
+                // Validate and clean chat data
+                chatHistoryData = validateChatData(result.chats);
+                console.log('[CLOUD] Successfully loaded and validated:', Object.keys(chatHistoryData).length, 'chats');
                 
                 // Save cloud data to local storage as backup
                 const userHistoryKey = `medAI_chatHistory_${userId}`;
@@ -2414,13 +2415,55 @@ function createInitialChat() {
     if (chatIds.length > 0) {
         // Sort by date to get most recent
         const sortedChats = chatIds.sort((a, b) => {
-            return new Date(chatHistoryData[b].date) - new Date(chatHistoryData[a].date);
+            const dateA = chatHistoryData[a].date ? new Date(chatHistoryData[a].date) : new Date(0);
+            const dateB = chatHistoryData[b].date ? new Date(chatHistoryData[b].date) : new Date(0);
+            return dateB - dateA;
         });
         currentChatId = sortedChats[0];
     }
     
     renderChatHistory();
     loadChat(currentChatId);
+}
+
+function validateChatData(chatData) {
+    console.log('[VALIDATE] Cleaning chat data...');
+    const validated = {};
+    
+    Object.keys(chatData).forEach(chatId => {
+        const chat = chatData[chatId];
+        
+        // Ensure basic structure
+        validated[chatId] = {
+            id: chatId,
+            title: chat.title || "Untitled Conversation",
+            date: chat.date || new Date().toISOString(),
+            messages: []
+        };
+        
+        // Validate messages array
+        if (Array.isArray(chat.messages)) {
+            chat.messages.forEach(msg => {
+                // Ensure each message has required fields
+                const validatedMsg = {
+                    role: msg.role === 'user' ? 'user' : 'ai',
+                    content: msg.content || '',
+                    timestamp: msg.timestamp || new Date().toISOString()
+                };
+                
+                // Add optional fields if they exist
+                if (msg.isMedical !== undefined) validatedMsg.isMedical = Boolean(msg.isMedical);
+                if (msg.drugRecommendation) validatedMsg.drugRecommendation = msg.drugRecommendation;
+                if (msg.disclaimer) validatedMsg.disclaimer = msg.disclaimer;
+                
+                validated[chatId].messages.push(validatedMsg);
+            });
+        } else {
+            console.warn(`[VALIDATE] Chat ${chatId} has invalid messages format`);
+        }
+    });
+    
+    return validated;
 }
  function debugChatData() {
     console.log('=== CHAT DATA DEBUG ===');
@@ -3420,6 +3463,7 @@ function renderMarkdown(text) {
     </script>
 </body>
 </html>
+
 
 
 
