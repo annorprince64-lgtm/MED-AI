@@ -2274,26 +2274,34 @@ function loadFromLocalStorage(userId) {
         };
     }
 
-    async function saveChatHistory() {
-        console.log('[SAVE] Starting save process...');
+ async function saveChatHistory() {
+    console.log('[SAVE] Starting save process...');
+    console.log('[SAVE] Current user:', currentUser ? currentUser.id : 'none');
+    console.log('[SAVE] Chat count:', Object.keys(chatHistoryData).length);
+    
+    if (currentUser) {
+        const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
         
-        if (currentUser) {
-            const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-            localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-            console.log('[SAVE] Saved to local storage for user:', currentUser.id);
-            
-            document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
-            renderChatHistory();
-            
-            // Attempt cloud sync immediately
-            await attemptCloudSync();
-        } else {
-            localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-            console.log('[SAVE] Saved to guest storage');
-            renderChatHistory();
-        }
+        // Log what we're saving
+        Object.keys(chatHistoryData).forEach(chatId => {
+            const chat = chatHistoryData[chatId];
+            console.log(`[SAVE] Chat ${chatId}: "${chat.title}" with ${chat.messages ? chat.messages.length : 0} messages`);
+        });
+        
+        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+        console.log('[SAVE] ✅ Saved to local storage');
+        
+        document.getElementById('statusIndicator').textContent = 'Saved locally ✓';
+        renderChatHistory();
+        
+        // Attempt cloud sync
+        await attemptCloudSync();
+    } else {
+        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+        console.log('[SAVE] ✅ Saved to guest storage');
+        renderChatHistory();
     }
-
+}
     async function attemptCloudSync() {
         if (!currentUser) return;
         
@@ -3142,6 +3150,7 @@ function addDebugButton() {
         setupAutoVerify();
     });
 </script>
+
 
 
 
