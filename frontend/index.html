@@ -1992,11 +1992,17 @@
 
                 const result = await response.json();
 
-                if (response.ok && result.success) {
-                    currentUser = result.user;
-                    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
-                    updateUserDisplay();
-                    await loadUserChatHistory(currentUser.id);
+             // Inside your loginUser() function, after successful login:
+if (response.ok && result.success) {
+    currentUser = result.user;
+    localStorage.setItem('medAI_currentUser', JSON.stringify(currentUser));
+    updateUserDisplay();
+    
+    // Check cloud status first, then load history
+    await checkCloudSyncStatus();
+    await loadUserChatHistory(currentUser.id);
+    // ... rest of your login code
+}
 
                     loginBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
                     loginBtn.style.backgroundColor = '#10a37f';
@@ -3026,6 +3032,7 @@ async function checkCloudSyncStatus() {
     </script>
 </body>
 </html>
+
 
 
 
