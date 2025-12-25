@@ -2237,29 +2237,110 @@
             };
         }
 
-        async function saveChatHistory() {
-            if (currentUser) {
-                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
-                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+async function saveChatHistory() {
+    // 1. Always save to local storage first for immediate UI response
+    if (currentUser) {
+        const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+        localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
+    } else {
+        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+    }
 
-                try {
-                    const response = await fetch(`${AUTH_URL}/chats/save`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            user_id: currentUser.id,
-                            chat_data: chatHistoryData
-                        })
-                    });
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                } catch (error) {
-                    console.error('Error saving to cloud:', error);
-                }
-            } else {
-                localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-            }
-            renderChatHistory();
+    // 2. Only attempt cloud sync for logged-in users
+    if (!currentUser) {
+        console.log('[SYNC] User is guest, skipping cloud save.');
+        renderChatHistory();
+        return;
+    }
+
+    // 3. Create a dedicated sync status indicator
+    const syncIndicator = document.getElementById('statusIndicator');
+    const originalStatus = syncIndicator.textContent;
+
+    try {
+        // Show user that sync is in progress
+        syncIndicator.textContent = 'Syncing chats to cloud...';
+        
+        // Attempt to save to cloud
+        const response = await fetch(`${AUTH_URL}/chats/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: currentUser.id,
+                chat_data: chatHistoryData,
+                last_sync: new Date().toISOString() // Add timestamp
+            })
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Cloud sync failed: ${response.status} - ${errorText}`);
         }
+
+        const result = await response.json();
+        
+        if (result.success) {
+            // Cloud save successful
+            syncIndicator.textContent = 'All chats synced ✓';
+            console.log('[SYNC] Cloud save successful:', result.message || '');
+            
+            // Store the successful sync time
+            localStorage.setItem(`medAI_lastSync_${currentUser.id}`, new Date().toISOString());
+            
+            // Clear any pending sync flags
+            localStorage.removeItem(`medAI_pendingSync_${currentUser.id}`);
+        } else {
+            throw new Error(result.error || 'Cloud server rejected the data');
+        }
+        
+    } catch (error) {
+        // Cloud save failed - implement fallback strategy
+        console.error('[SYNC] Cloud save failed, using local backup:', error);
+        
+        // Mark that we have unsynced data
+        localStorage.setItem(`medAI_pendingSync_${currentUser.id}`, 'true');
+        
+        // Notify user (subtly)
+        syncIndicator.textContent = 'Working offline - changes saved locally';
+        
+        // Optionally, you could queue this for retry
+        queueForRetry(currentUser.id, chatHistoryData);
+        
+        // Don't show alert to avoid interrupting user experience
+    } finally {
+        // Always update the UI and revert status after a delay
+        renderChatHistory();
+        
+        // Revert status message after 3 seconds
+        setTimeout(() => {
+            if (syncIndicator.textContent.includes('offline') || 
+                syncIndicator.textContent.includes('synced')) {
+                syncIndicator.textContent = originalStatus;
+            }
+        }, 3000);
+    }
+}
+
+// Optional: Function to retry failed syncs
+function queueForRetry(userId, data) {
+    // Store the data that needs to be synced
+    const retryKey = `medAI_retryQueue_${userId}`;
+    const retryQueue = JSON.parse(localStorage.getItem(retryKey) || '[]');
+    retryQueue.push({
+        timestamp: new Date().toISOString(),
+        data: data
+    });
+    localStorage.setItem(retryKey, JSON.stringify(retryQueue.slice(-5))); // Keep last 5 attempts
+    
+    // Try to sync again when network might be back
+    setTimeout(() => {
+        const hasPending = localStorage.getItem(`medAI_pendingSync_${userId}`);
+        if (hasPending === 'true') {
+            console.log('[SYNC] Retrying pending sync...');
+            saveChatHistory();
+        }
+    }, 30000); // Retry after 30 seconds
+}
 
         function startPeriodicSync() {
             setInterval(() => {
@@ -2926,4 +3007,5 @@
     </script>
 </body>
 </html>
+
 
