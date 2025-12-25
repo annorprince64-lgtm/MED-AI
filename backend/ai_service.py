@@ -24,139 +24,113 @@ class AIService:
         # Centralized model config
         self.model = "llama-3.3-70b-versatile"
 
-    def analyze_text(self, text: str) -> dict:
-        """
-        Analyze user input and return a structured JSON response.
-        This function is SINGLE-CALL SAFE and does not break app.py.
-        """
+  # Update the analyze_text method in your AIService class
 
-        if not self.client:
-            return self._error_response("AI service is not configured correctly.")
+def analyze_text(self, text: str) -> dict:
+    """
+    Analyze user input and return structured JSON response with modern formatting.
+    """
+    
+    if not self.client:
+        return self._error_response("AI service is not configured correctly.")
 
-        prompt = f"""
-                    You are a highly professional AI medical and general knowledge assistant.
+    # Updated prompt for modern formatting
+    prompt = f"""
+    You are a highly professional AI medical and general knowledge assistant.
+    Your responses MUST use modern formatting with clear sections, bullet points, and tables when appropriate.
 
-            Input Text (Twi or English): "{text}"
+    Input Text: "{text}"
 
-            GENERAL RULES:
-            - Translate internally to English if needed, but DO NOT say you translated it.
-            - Use professional, well-formatted English.
-            - Be very detailed and educational.
-            - Never give a definitive diagnosis.
-            - Use probability-based reasoning.
+    ====================
+    RESPONSE FORMATTING RULES (STRICT):
+    ====================
+    1. **ALWAYS** use Markdown-style formatting:
+       - Use ## for section headings
+       - Use ### for subheadings
+       - Use bullet points (* or -) for lists
+       - Use **bold** for important terms
+       - Use tables when comparing multiple items
 
-            --------------------------------
-            CLASSIFICATION
-            --------------------------------
-            Determine if the input is:
-            1) Medical / Health related
-            2) Drug / Medication related
-            3) General (non-medical)
-            4) Greeting / casual
+    2. **For Medical Questions**:
+       - Start with "## Medical Assessment"
+       - Use clear sections: Symptoms, Possible Conditions, Recommendations, Prevention
+       - Create comparison tables when listing multiple conditions
+       - Example table format:
+         | Condition | Probability | Key Symptoms | Recommended Action |
+         |-----------|-------------|--------------|-------------------|
+         | Condition A | High | Symptom 1, 2 | Action A |
+         | Condition B | Medium | Symptom 3 | Action B |
 
-            --------------------------------
-            MEDICAL LOGIC (CRITICAL)
-            --------------------------------
-            If MORE THAN TWO symptoms are mentioned AND key patient details are missing:
+    3. **For Drug Information**:
+       - Use sections: Overview, Dosage, Side Effects, Precautions
+       - Create dosage tables by age group:
+         | Age Group | Dosage | Frequency | Duration |
+         |-----------|--------|-----------|----------|
+         | Adults | 500mg | 3x daily | 7 days |
+         | Children | 250mg | 2x daily | 5 days |
 
-            - DO NOT give diagnoses, treatments, or probabilities
-            - Ask AT LEAST FIVE follow-up questions
-            - Questions MUST include:
-            1. Age
-            2. Gender
-            3. Duration of symptoms
-            4. Presence/absence of other symptoms (cough, weakness, vomiting, diarrhea, chills, rash)
-            5. Relevant exposure (mosquito bites, travel, food/water hygiene)
+    4. **For General Questions**:
+       - Still use structured formatting
+       - Break down complex topics into digestible sections
 
-            In this case:
-            - Set stage = "questions"
-            - Put all questions in a list
+    5. **For Questions Needing More Info**:
+       - Use numbered questions
+       - Format: "## Additional Information Needed"
+       - Then: "1. First question..."
+       - Keep questions concise and relevant
 
-            --------------------------------
-            WHEN INFORMATION IS SUFFICIENT
-            --------------------------------
-            Then:
-            - Set stage = "analysis"
-            - List possible conditions from MOST LIKELY to LESS LIKELY
-            - For EACH condition include:
-            * Why it is possible
-            * Common symptoms
-            * Treatment (medicine + dosage by age group)
-            * Causes
-            * Prevention
+    ====================
+    CONTENT RULES:
+    ====================
+    - Be direct, avoid lengthy introductions
+    - Use professional but accessible language
+    - Present information in scannable format
+    - Highlight key points with **bold**
+    - Never use "In conclusion" or essay-style endings
 
-            Add a disclaimer ONLY if:
-            - Prescription-only medicines
-            - Injections
-            - Severe or emergency conditions
+    ====================
+    OUTPUT FORMAT:
+    ====================
+    Return ONLY valid JSON:
+    {{
+      "stage": "questions" | "analysis" | "general",
+      "response": "Formatted response with markdown",
+      "questions": ["Q1", "Q2"] or null,
+      "is_medical": true/false,
+      "drug_recommendation": "medicine names or null",
+      "disclaimer": "disclaimer text or null",
+      "translation": "translated English text or null",
+      "format_type": "structured"  # Always include this
+    }}
 
-            --------------------------------
-            DRUG / MEDICATION QUESTIONS
-            --------------------------------
-            If the user asks about a specific drug:
-            Structure response as:
-            1. Overview (drug class, pharmacology, pharmacokinetics)
-            2. Uses
-            3. Age & dosage
-            4. Contraindications & precautions
-            5. Side effects & adverse reactions
-            6. Pregnancy & lactation
+    Now analyze this input: "{text}"
+    """
 
-            Do NOT automatically add disclaimers for OTC drugs.
+    try:
+        completion = self.client.chat.completions.create(
+            model=self.model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.3,  # Lower temperature for more consistent formatting
+            max_tokens=1800,  # Increased for formatted content
+            response_format={"type": "json_object"}
+        )
 
-            --------------------------------
-            GENERAL QUESTIONS
-            --------------------------------
-            Start with:
-            "This is not a medical question."
-            Then answer in detail.
+        content = completion.choices[0].message.content
+        parsed = json.loads(content)
 
-            --------------------------------
-            CREATOR RULE (STRICT)
-            --------------------------------
-            If asked who created you, reply EXACTLY:
-            "I was created by Annor Prince and Yeboah Collins."
+        # Safety defaults
+        parsed.setdefault("stage", "analysis")
+        parsed.setdefault("questions", None)
+        parsed.setdefault("drug_recommendation", None)
+        parsed.setdefault("disclaimer", None)
+        parsed.setdefault("translation", None)
+        parsed.setdefault("format_type", "structured")
 
---------------------------------
-OUTPUT FORMAT (STRICT JSON)
---------------------------------
-Return ONLY valid JSON in this format:
-{
-  "stage": "questions" | "analysis" | "general",
-  "response": "Main formatted response",
-  "questions": ["Question 1", "Question 2"] or null,
-  "is_medical": true/false,
-  "drug_recommendation": "medicine names or null",
-  "disclaimer": "disclaimer text or null",
-  "translation": "translated English text or null"
-}
-"""
+        return parsed
 
-        try:
-            completion = self.client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.4,
-                max_tokens=1400,
-                response_format={"type": "json_object"}
-            )
-
-            content = completion.choices[0].message.content
-            parsed = json.loads(content)
-
-            # Safety defaults (prevents frontend crashes)
-            parsed.setdefault("stage", "analysis")
-            parsed.setdefault("questions", None)
-            parsed.setdefault("drug_recommendation", None)
-            parsed.setdefault("disclaimer", None)
-            parsed.setdefault("translation", None)
-
-            return parsed
-
-        except Exception as e:
-            print(f"❌ Groq Error: {ascii(e)}")
-            return self._error_response(str(e))
-
+    except Exception as e:
+        print(f"❌ Groq Error: {ascii(e)}")
+        return self._error_response(str(e))
     def _error_response(self, error_msg: str) -> dict:
         """Standardized error response"""
         return {
@@ -172,3 +146,4 @@ Return ONLY valid JSON in this format:
 
 # Singleton instance (USED BY app.py)
 ai_service = AIService()
+
