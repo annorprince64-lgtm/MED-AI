@@ -2626,6 +2626,45 @@ async function checkCloudSyncStatus() {
         result.push(tableHtml);
         tableRows = [];
     }
+          // Add this debugging function to your JavaScript
+async function debugCloudSync() {
+    if (!currentUser) {
+        console.log('[DEBUG] No user logged in');
+        return;
+    }
+    
+    console.log('[DEBUG] Current user ID:', currentUser.id);
+    console.log('[DEBUG] Chat history data keys:', Object.keys(chatHistoryData));
+    console.log('[DEBUG] Sample chat structure:', chatHistoryData[Object.keys(chatHistoryData)[0]]);
+    
+    // Test the endpoint directly
+    try {
+        console.log('[DEBUG] Testing endpoint:', `${AUTH_URL}/chats/save`);
+        
+        const testData = {
+            user_id: currentUser.id,
+            test: "test message",
+            timestamp: new Date().toISOString()
+        };
+        
+        console.log('[DEBUG] Sending test data:', testData);
+        
+        const response = await fetch(`${AUTH_URL}/chats/save`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(testData)
+        });
+        
+        console.log('[DEBUG] Response status:', response.status);
+        const responseText = await response.text();
+        console.log('[DEBUG] Response text:', responseText);
+        
+    } catch (error) {
+        console.error('[DEBUG] Test failed:', error);
+    }
+}
+
+// Call this from browser console: debugCloudSync()
     
     function processRegularLine(line, trimmedLine, currentLineIndex) {
         let processedLine = line;
@@ -3032,6 +3071,7 @@ async function checkCloudSyncStatus() {
     </script>
 </body>
 </html>
+
 
 
 
