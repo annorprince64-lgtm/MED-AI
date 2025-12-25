@@ -2237,18 +2237,53 @@ To summarize the data flow and purposes clearly, the following table provides an
             loadChat(currentChatId);
         }
 
-        function saveChatHistory() {
-            console.log('[SAVE] Saving chat history, currentUser:', currentUser);
-
-            if (currentUser) {
+       async function saveChatHistory() {
+    console.log('[CLOUD] Attempting to save chat history');
+    
+    if (currentUser && currentUser.id) {
+        try {
+            // Get current chat data
+            const chatData = chatHistoryData[currentChatId];
+            if (!chatData) {
+                console.log('[CLOUD] No chat data to save');
+                return;
+            }
+            
+            // Send to cloud
+            const response = await fetch(`${AUTH_URL}/chats/save`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: currentUser.id,
+                    chat_data: chatData
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                console.log('[CLOUD] Chat saved to cloud successfully');
+                // Also save locally as backup
                 const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
                 localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to user storage:', userHistoryKey);
             } else {
-                localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
-                console.log('[SAVE] Saved to guest storage');
+                console.warn('[CLOUD] Cloud save failed, saving locally:', result.error);
+                const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+                localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
             }
+        } catch (error) {
+            console.error('[CLOUD] Error saving to cloud, saving locally:', error);
+            const userHistoryKey = `medAI_chatHistory_${currentUser.id}`;
+            localStorage.setItem(userHistoryKey, JSON.stringify(chatHistoryData));
         }
+    } else {
+        // Guest user - save locally
+        console.log('[CLOUD] Guest user, saving locally');
+        localStorage.setItem('medAI_guestHistory', JSON.stringify(chatHistoryData));
+    }
+}
 
         function renderChatHistory() {
             chatHistory.innerHTML = '';
@@ -2806,4 +2841,5 @@ To summarize the data flow and purposes clearly, the following table provides an
     </script>
 </body>
 </html>
+
 
