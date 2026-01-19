@@ -2604,44 +2604,17 @@ function addDebugButton() {
         statusIndicator.textContent = "New chat created";
     }
 
-    function renderMarkdown(text) {
-        if (!text) return '';
-        
-        const lines = text.split('\n');
-        let result = [];
-        let tableRows = [];
-        let inTable = false;
-        
-        for (let lineIndex = 0; lineIndex < lines.length; lineIndex++) {
-            const line = lines[lineIndex];
-            const trimmedLine = line.trim();
-            
-            // Handle tables
-            if (trimmedLine.includes('|') && !inTable) {
-                inTable = true;
-                tableRows = [line];
-                continue;
-            }
-            
-            if (inTable) {
-                if (trimmedLine.includes('|')) {
-                    tableRows.push(line);
-                } else {
-                    processTable();
-                    inTable = false;
-                    lineIndex--;
-                }
-                continue;
-            }
-            
-            processRegularLine(line, trimmedLine, lineIndex);
-        }
-        
-        if (inTable && tableRows.length > 0) {
-            processTable();
-        }
-        
-        return result.join('');
+   function renderMarkdown(text) {
+    if (!text) return '';
+    
+    // Configure marked
+    marked.setOptions({
+        breaks: true,
+        gfm: true
+    });
+    
+    return marked.parse(text);
+}
         
         function processTable() {
             if (tableRows.length < 2) {
@@ -3162,6 +3135,7 @@ function addDebugButton() {
         setupAutoVerify();
     });
 </script>
+
 
 
 
