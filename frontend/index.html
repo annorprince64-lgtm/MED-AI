@@ -79,17 +79,85 @@
             transform: translateX(0);
         }
         
-        .ai-table {
-            display: block;
-            overflow-x: auto;
-        }
+       /* AI Table Styles - IMPROVED */
+.ai-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
 
-        .ai-table th,
-        .ai-table td {
-            padding: 8px 10px;
-            font-size: 12px;
-        }
-    }
+.ai-table th {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+    color: white;
+    font-weight: 600;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ai-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    color: var(--text-color);
+    transition: background-color 0.2s ease;
+}
+
+.ai-table tr:last-child td {
+    border-bottom: none;
+}
+
+.ai-table tr:hover td {
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.ai-table thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Ensure tables created by marked have proper styling */
+.message-content table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin: 20px 0;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.message-content table th {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.8), rgba(118, 75, 162, 0.8));
+    color: white;
+    font-weight: 600;
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 14px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.message-content table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.message-content table tr:last-child td {
+    border-bottom: none;
+}
 
     /* Sidebar */
     .sidebar {
@@ -2604,25 +2672,43 @@ function addDebugButton() {
         statusIndicator.textContent = "New chat created";
     }
 
-   function renderMarkdown(text) {
+  function renderMarkdown(text) {
     if (!text) return '';
     
-    // Configure marked
+    // Configure marked with better options for tables
     marked.setOptions({
         breaks: true,
-        gfm: true
+        gfm: true,
+        tables: true,
+        headerIds: false, // Disable auto IDs for headers
+        mangle: false // Don't mangle links
     });
     
-    return marked.parse(text);
+    // Parse markdown with marked library
+    const html = marked.parse(text);
+    
+    // Add a class to all tables for consistent styling
+    return html.replace(/<table>/g, '<table class="ai-table">');
 }
-       
 
     function addMessageToChat(content, isUser = false, isTyping = false, isError = false, isMedical = false, drugRecommendation = null, disclaimer = null, saveToHistory = true) {
-        if (!content && !isTyping) {
-            content = "Message content unavailable";
-            isError = true;
-        }
-
+       if (isTyping) {
+    contentDiv.innerHTML = 'Thinking<span class="typing-indicator"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></span>';
+} else {
+    if (!isUser && !isError) {
+        const renderedHTML = renderMarkdown(content);
+        contentDiv.innerHTML = renderedHTML;
+        
+        // Ensure all tables have proper styling
+        const tables = contentDiv.querySelectorAll('table');
+        tables.forEach(table => {
+            if (!table.classList.contains('ai-table')) {
+                table.classList.add('ai-table');
+            }
+        });
+    } else {
+        contentDiv.innerHTML = `<p>${(content || '').toString().replace(/\n/g, '<br>')}</p>`;
+    }
         if (typeof content !== 'string') content = String(content || '');
 
         const messageDiv = document.createElement('div');
@@ -3027,6 +3113,7 @@ function addDebugButton() {
         setupAutoVerify();
     });
 </script>
+
 
 
 
