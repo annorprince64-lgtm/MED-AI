@@ -419,4 +419,3 @@ def delete_chat_from_cloud(user_id, chat_id):
 init_db()
 
 
-
