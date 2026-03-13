@@ -314,7 +314,9 @@ def analyze_text():
             }), 400
 
         text = data.get('text', '')
+        conversation_history = data.get('conversation_history', [])
         print(f"Processing text (length: {len(text)})")
+        print(f"Conversation history: {len(conversation_history)} messages")
 
         if not text:
             print("Error: Empty text received")
@@ -333,8 +335,8 @@ def analyze_text():
                 "is_medical": False
             }), 500
 
-        # Use your AIService to process the text
-        result = ai_service.analyze_text(text)
+        # Use your AIService to process the text with conversation history
+        result = ai_service.analyze_text(text, conversation_history)
 
         print(f"Analysis complete, returning result")
         return jsonify(result)
