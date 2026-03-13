@@ -90,7 +90,8 @@ def verify_user(email, password):
                 'user': {
                     'id': user[0],
                     'username': user[1],
-                    'email': user[2]
+                    'email': user[2],
+                    'name': user[1]  # Add name field for frontend compatibility
                 }
             }
         else:
