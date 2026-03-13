@@ -46,8 +46,9 @@ except Exception as e:
 @app.route('/')
 def home():
     return jsonify({
-        "message": "MED AI Backend is running!",
+        "message": "ASK AI Backend is running!",
         "status": "active",
+        "developers": "Annor Prince & Yeboah Collins",
         "endpoints": {
             "analyze": "/api/analyze (POST)",
             "register": "/api/register (POST)",
@@ -463,7 +464,7 @@ def chat_status():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    print(f"Starting Grok AI Backend on port {port}...")
+    print(f"Starting ASK AI Backend on port {port}...")
+    print(f"Developed by: Annor Prince & Yeboah Collins")
     print(f"API Key configured: {'Yes' if ai_service.api_key else 'No'}")
     app.run(debug=True, host='0.0.0.0', port=port)
-
