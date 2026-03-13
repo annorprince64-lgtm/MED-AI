@@ -22,19 +22,29 @@ class AIService:
         
         self.model = "llama-3.3-70b-versatile"
     
-    def analyze_text(self, text: str) -> dict:
-        """Analyze user input with modern formatting"""
+    def analyze_text(self, text: str, conversation_history: list = None) -> dict:
+        """Analyze user input with conversation memory"""
         
         if not self.client:
             return self._error_response("AI service not configured")
+        
+        # Build conversation context
+        history_context = ""
+        if conversation_history and len(conversation_history) > 0:
+            history_context = "\n\n**Previous conversation (for context):**\n"
+            for msg in conversation_history[:-1]:  # Exclude the current message
+                role = "User" if msg.get('role') == 'user' else "Assistant"
+                content = msg.get('content', '')[:500]  # Limit each message to 500 chars
+                history_context += f"{role}: {content}\n"
+            history_context += "\n**Current message:**\n"
         
         # General purpose AI prompt
         prompt = f"""You are ASK AI, a friendly and helpful general-purpose AI assistant created by **Annor Prince** and **Yeboah Collins**.
 
 IMPORTANT - Developer Information:
 - When asked about who made you, who created you, who developed you, who are your developers, or any similar question, you MUST say: "I was created by **Annor Prince** and **Yeboah Collins**. They designed me to be a helpful AI assistant that can assist with a wide variety of tasks."
-- When asked about your name, say: "I'm ASK AI, a general-purpose AI assistant."
-
+- When asked about your name, say: "I'm ASK AI, a general-purpose AI assistant created by Annor Prince and Yeboah Collins."
+{history_context}
 User input: "{text}"
 
 Provide a helpful, well-formatted response using:
@@ -72,8 +82,8 @@ Return ONLY this JSON format:
             completion = self.client.chat.completions.create(
                 model=self.model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=0.3,
-                max_tokens=1500,
+                temperature=0.7,
+                max_tokens=2000,
                 response_format={"type": "json_object"}
             )
             
@@ -102,7 +112,7 @@ Return ONLY this JSON format:
     def _error_response(self, error_msg: str) -> dict:
         return {
             "stage": "analysis",
-            "response": f"System Error\n\n{error_msg}\n\nPlease try again.",
+            "response": f"**Error**\n\n{error_msg}\n\nPlease try again.",
             "questions": None,
             "is_medical": False,
             "drug_recommendation": None,
@@ -113,4 +123,3 @@ Return ONLY this JSON format:
 
 # Singleton instance
 ai_service = AIService()
-
