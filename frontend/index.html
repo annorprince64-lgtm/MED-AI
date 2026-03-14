@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -260,6 +260,15 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ user_id: userId, chat_data: chatData }),
         });
+      },
+      
+      deleteAccount: async (email, password) => {
+        const res = await fetch(`${BACKEND_URL}/delete-account`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        return res.json();
       },
     };
     
@@ -1271,6 +1280,7 @@
               setCurrentUser={setCurrentUser}
               isDark={isDark}
               toast={toast}
+              onLogout={handleLogout}
             />
           )}
           
@@ -1303,13 +1313,16 @@
     }
     
     // ==================== PROFILE MODAL ====================
-    function ProfileModal({ onClose, currentUser, setCurrentUser, isDark, toast }) {
+    function ProfileModal({ onClose, currentUser, setCurrentUser, isDark, toast, onLogout }) {
       const [name, setName] = React.useState(currentUser?.name || '');
       const [email, setEmail] = React.useState(currentUser?.email || '');
       const [currentPassword, setCurrentPassword] = React.useState('');
       const [newPassword, setNewPassword] = React.useState('');
       const [confirmPassword, setConfirmPassword] = React.useState('');
       const [loading, setLoading] = React.useState(false);
+      const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+      const [deletePassword, setDeletePassword] = React.useState('');
+      const [deleteLoading, setDeleteLoading] = React.useState(false);
       
       const styles = {
         bgSecondary: isDark ? '#2f2f2f' : '#e5e7eb',
@@ -1351,6 +1364,30 @@
           toast('Error', 'Failed to update', 'error');
         } finally {
           setLoading(false);
+        }
+      };
+      
+      const handleDeleteAccount = async () => {
+        if (!deletePassword) {
+          toast('Error', 'Please enter your password to confirm', 'error');
+          return;
+        }
+        setDeleteLoading(true);
+        try {
+          const result = await api.deleteAccount(currentUser.email, deletePassword);
+          if (result.success) {
+            toast('Account Deleted', 'Your account has been permanently deleted');
+            onClose();
+            onLogout();
+          } else {
+            toast('Error', result.error || 'Failed to delete account', 'error');
+          }
+        } catch (e) {
+          toast('Error', 'Failed to delete account', 'error');
+        } finally {
+          setDeleteLoading(false);
+          setShowDeleteConfirm(false);
+          setDeletePassword('');
         }
       };
       
@@ -1404,6 +1441,59 @@
                 {loading ? <Icons.Loader /> : 'Save Changes'}
               </button>
             </form>
+            
+            {/* Delete Account Section */}
+            <div style={{ borderTop: `1px solid ${styles.borderColor}`, marginTop: 20, paddingTop: 20 }}>
+              {!showDeleteConfirm ? (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  style={{
+                    width: '100%', padding: 12, borderRadius: 12, fontWeight: 500,
+                    background: 'transparent', color: '#ef4444', border: `1px solid #ef4444`, fontSize: 14, cursor: 'pointer',
+                  }}
+                >
+                  Delete Account
+                </button>
+              ) : (
+                <div style={{ background: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, padding: 16 }}>
+                  <p style={{ color: '#ef4444', fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
+                    ⚠️ This action cannot be undone!
+                  </p>
+                  <p style={{ fontSize: 14, color: styles.textSecondary, marginBottom: 12, textAlign: 'center' }}>
+                    Enter your password to confirm account deletion
+                  </p>
+                  <input
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter your password"
+                    style={inputStyle}
+                  />
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button
+                      onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); }}
+                      style={{
+                        flex: 1, padding: 12, borderRadius: 12, fontWeight: 500,
+                        background: styles.bgSecondary, color: isDark ? '#fff' : '#111', border: 'none', fontSize: 14, cursor: 'pointer',
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deleteLoading || !deletePassword}
+                      style={{
+                        flex: 1, padding: 12, borderRadius: 12, fontWeight: 500,
+                        background: '#ef4444', color: '#fff', border: 'none', fontSize: 14, cursor: 'pointer',
+                        opacity: deleteLoading || !deletePassword ? 0.5 : 1,
+                      }}
+                    >
+                      {deleteLoading ? <Icons.Loader /> : 'Delete Forever'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       );
