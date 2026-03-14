@@ -1052,17 +1052,7 @@
                   onClick={() => setTheme(isDark ? 'light' : 'dark')}
                   style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
                 >
-                  {isDark ? <Icons.Sun /> : <Icons.Moon />}
-                </button>
-                <button
-                  onClick={toggleAudio}
-                  style={{ 
-                    padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer',
-                    color: audioEnabled ? styles.textPrimary : styles.textSecondary 
-                  }}
-                >
-                  {audioEnabled ? <Icons.Volume2 /> : <Icons.VolumeX />}
-                </button>
+              
                 <button
                   onClick={() => { if (confirm('Clear this conversation?')) clearChat(currentChatId); }}
                   style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
