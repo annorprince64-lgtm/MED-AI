@@ -7,7 +7,7 @@
   <meta name="description" content="Your intelligent AI-powered assistant. Get answers, recommendations, and guidance 24/7.">
   <meta name="author" content="Annor Prince & Collins Yeboah">
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
-  <meta name="theme-color" content="#212121">
+  <meta name="theme-color" content="#171717">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
@@ -44,6 +44,9 @@
       .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     }
     
+    /* Prevent horizontal scroll */
+    .no-horizontal-scroll { overflow-x: hidden; overflow-y: auto; }
+    
     /* Bounce Animation */
     @keyframes bounce {
       0%, 100% { transform: translateY(0); }
@@ -55,8 +58,8 @@
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
     
-    /* Markdown Dark */
-    .markdown-dark { color: #e5e7eb; line-height: 1.7; font-size: 15px; }
+    /* Markdown Dark - Black & White */
+    .markdown-dark { color: #e5e7eb; line-height: 1.7; font-size: 15px; word-wrap: break-word; overflow-wrap: break-word; }
     .markdown-dark p { margin: 0 0 1em 0; }
     .markdown-dark h1 { font-size: 1.5em; font-weight: 700; color: #fff; margin: 0.8em 0 0.4em 0; }
     .markdown-dark h2 { font-size: 1.3em; font-weight: 600; color: #fff; margin: 0.7em 0 0.4em 0; }
@@ -69,15 +72,15 @@
     .markdown-dark code { background: rgba(255,255,255,0.1); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; color: #d1d5db; word-break: break-word; }
     .markdown-dark pre { background: rgba(0,0,0,0.3); padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
     .markdown-dark pre code { background: none; padding: 0; }
-    .markdown-dark blockquote { border-left: 3px solid #10a37f; padding-left: 1em; margin: 0.5em 0; color: #9ca3af; }
+    .markdown-dark blockquote { border-left: 3px solid #666; padding-left: 1em; margin: 0.5em 0; color: #9ca3af; }
     .markdown-dark table { width: 100%; border-collapse: collapse; margin: 1em 0; display: block; overflow-x: auto; }
     .markdown-dark th { padding: 0.6em 1em; text-align: left; font-weight: 600; color: #d1d5db; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
     .markdown-dark td { padding: 0.6em 1em; border: 1px solid rgba(255,255,255,0.1); color: #e5e7eb; }
     .markdown-dark tr:nth-child(even) { background: rgba(255,255,255,0.02); }
-    .markdown-dark a { color: #10a37f; text-decoration: underline; }
+    .markdown-dark a { color: #fff; text-decoration: underline; }
     
-    /* Markdown Light */
-    .markdown-light { color: #374151; line-height: 1.7; font-size: 15px; }
+    /* Markdown Light - Black & White */
+    .markdown-light { color: #374151; line-height: 1.7; font-size: 15px; word-wrap: break-word; overflow-wrap: break-word; }
     .markdown-light p { margin: 0 0 1em 0; }
     .markdown-light h1 { font-size: 1.5em; font-weight: 700; color: #111827; margin: 0.8em 0 0.4em 0; }
     .markdown-light h2 { font-size: 1.3em; font-weight: 600; color: #111827; margin: 0.7em 0 0.4em 0; }
@@ -90,22 +93,22 @@
     .markdown-light code { background: rgba(0,0,0,0.05); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; color: #374151; word-break: break-word; }
     .markdown-light pre { background: rgba(0,0,0,0.05); padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
     .markdown-light pre code { background: none; padding: 0; }
-    .markdown-light blockquote { border-left: 3px solid #10a37f; padding-left: 1em; margin: 0.5em 0; color: #6b7280; }
+    .markdown-light blockquote { border-left: 3px solid #999; padding-left: 1em; margin: 0.5em 0; color: #6b7280; }
     .markdown-light table { width: 100%; border-collapse: collapse; margin: 1em 0; display: block; overflow-x: auto; }
     .markdown-light th { padding: 0.6em 1em; text-align: left; font-weight: 600; color: #374151; border: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.03); }
     .markdown-light td { padding: 0.6em 1em; border: 1px solid rgba(0,0,0,0.1); color: #374151; }
     .markdown-light tr:nth-child(even) { background: rgba(0,0,0,0.02); }
-    .markdown-light a { color: #10a37f; text-decoration: underline; }
+    .markdown-light a { color: #111; text-decoration: underline; }
     
     /* Toast */
     .toast-container { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; width: calc(100% - 32px); max-width: 400px; }
-    .toast { background: #2f2f2f; color: #fff; padding: 12px 20px; border-radius: 12px; margin-top: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: slideUp 0.3s ease; text-align: center; }
-    .toast.error { background: #ef4444; }
+    .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 12px; margin-top: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: slideUp 0.3s ease; text-align: center; border: 1px solid #555; }
+    .toast.error { background: #444; border-color: #666; }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
     /* Modal Overlay */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
-    .modal { background: var(--modal-bg); border-radius: 20px; padding: 24px; max-width: 400px; width: 100%; max-height: 85vh; overflow-y: auto; position: relative; }
+    .modal { background: var(--modal-bg); border-radius: 20px; padding: 24px; max-width: 400px; width: 100%; max-height: 85vh; overflow-y: auto; position: relative; border: 1px solid rgba(255,255,255,0.1); }
     
     /* Safe area for mobile */
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
@@ -200,14 +203,14 @@
     // ==================== STORAGE ====================
     const loadState = () => {
       try {
-        const saved = localStorage.getItem('askai-storage-v5');
+        const saved = localStorage.getItem('askai-storage-v6');
         return saved ? JSON.parse(saved) : null;
       } catch { return null; }
     };
     
     const saveState = (state) => {
       try {
-        localStorage.setItem('askai-storage-v5', JSON.stringify({
+        localStorage.setItem('askai-storage-v6', JSON.stringify({
           currentUser: state.currentUser,
           isAuthenticated: state.isAuthenticated,
           chats: state.chats,
@@ -683,6 +686,9 @@
           // No speech active, just toggle the setting
           const newEnabled = !audioEnabled;
           setAudioEnabled(newEnabled);
+          if (!newEnabled) {
+            window.speechSynthesis.cancel();
+          }
         }
       };
       
@@ -835,15 +841,15 @@
           return groups;
         }, {});
       
-      // Theme styles
+      // Theme styles - Black & White only
       const styles = {
-        bgMain: isDark ? '#212121' : '#f3f4f6',
-        bgSidebar: isDark ? '#171717' : '#ffffff',
-        bgSecondary: isDark ? '#2f2f2f' : '#e5e7eb',
-        bgHover: isDark ? '#3e3e3e' : '#d1d5db',
-        textPrimary: isDark ? '#e5e7eb' : '#1f2937',
-        textSecondary: isDark ? '#9ca3af' : '#6b7280',
-        borderColor: isDark ? 'rgba(255,255,255,0.05)' : '#e5e7eb',
+        bgMain: isDark ? '#0a0a0a' : '#ffffff',
+        bgSidebar: isDark ? '#111111' : '#fafafa',
+        bgSecondary: isDark ? '#1a1a1a' : '#f0f0f0',
+        bgHover: isDark ? '#222222' : '#e5e5e5',
+        textPrimary: isDark ? '#ffffff' : '#000000',
+        textSecondary: isDark ? '#888888' : '#666666',
+        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
       };
       
       // Render markdown
@@ -896,6 +902,7 @@
                     background: styles.bgSecondary,
                     border: 'none',
                     cursor: 'pointer',
+                    color: styles.textPrimary,
                   }}
                 >
                   <Icons.XLarge />
@@ -911,13 +918,13 @@
                   background: styles.bgSecondary, color: styles.textPrimary,
                 }}
               >
-                <div style={{ background: '#10a37f', padding: 4, borderRadius: 6, color: 'white' }}>
+                <div style={{ background: isDark ? '#333' : '#ddd', padding: 4, borderRadius: 6, color: styles.textPrimary }}>
                   <Icons.Plus />
                 </div>
                 <span style={{ fontSize: 14, fontWeight: 500 }}>New Chat</span>
               </button>
               
-              <div style={{ flex: 1, overflowY: 'auto' }} className="custom-scrollbar">
+              <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }} className="custom-scrollbar">
                 {Object.entries(groupedChats).map(([group, groupChats]) => (
                   <div key={group} style={{ marginBottom: 24 }}>
                     <h3 style={{
@@ -944,7 +951,7 @@
                         {Object.keys(chats).length > 1 && (
                           <button
                             onClick={(e) => { e.stopPropagation(); deleteChat(chat.id); }}
-                            style={{ padding: 6, opacity: 0.6, border: 'none', background: 'none', cursor: 'pointer' }}
+                            style={{ padding: 6, opacity: 0.6, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
                           >
                             <Icons.X />
                           </button>
@@ -969,9 +976,9 @@
                     >
                       <div style={{
                         width: 28, height: 28, borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+                        background: isDark ? '#333' : '#ddd',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 10, fontWeight: 'bold', color: 'white',
+                        fontSize: 10, fontWeight: 'bold', color: styles.textPrimary,
                       }}>{userInitials}</div>
                       <span style={{ fontSize: 14, fontWeight: 500 }}>{currentUser?.name}</span>
                     </button>
@@ -1011,7 +1018,7 @@
                   >
                     <div style={{
                       width: 28, height: 28, borderRadius: '50%',
-                      background: '#3b82f6',
+                      background: isDark ? '#333' : '#ddd',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}><Icons.User /></div>
                     <span style={{ fontWeight: 500 }}>Sign In</span>
@@ -1028,13 +1035,13 @@
               height: mobile ? 52 : 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
               padding: mobile ? '0 8px' : '0 12px', borderBottom: `1px solid ${styles.borderColor}`,
               position: 'sticky', top: 0, zIndex: 30, flexShrink: 0,
-              background: isDark ? 'rgba(33,33,33,0.95)' : 'rgba(243,244,246,0.95)',
+              background: isDark ? 'rgba(10,10,10,0.95)' : 'rgba(255,255,255,0.95)',
               backdropFilter: 'blur(12px)',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
                 >
                   <Icons.Menu />
                 </button>
@@ -1043,7 +1050,7 @@
               <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? 2 : 4 }}>
                 <button
                   onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
                 >
                   {isDark ? <Icons.Sun /> : <Icons.Moon />}
                 </button>
@@ -1051,14 +1058,14 @@
                   onClick={toggleAudio}
                   style={{ 
                     padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer',
-                    color: audioEnabled ? '#10a37f' : styles.textSecondary 
+                    color: audioEnabled ? styles.textPrimary : styles.textSecondary 
                   }}
                 >
-                  {window.speechSynthesis?.paused ? <Icons.VolumeX /> : <Icons.Volume2 />}
+                  {audioEnabled ? <Icons.Volume2 /> : <Icons.VolumeX />}
                 </button>
                 <button
                   onClick={() => { if (confirm('Clear this conversation?')) clearChat(currentChatId); }}
-                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
                 >
                   <Icons.Trash />
                 </button>
@@ -1066,7 +1073,7 @@
             </header>
             
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }} className="custom-scrollbar">
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }} className="custom-scrollbar">
               <div style={{ maxWidth: 768, margin: '0 auto', padding: mobile ? '16px 12px' : '24px 16px', paddingBottom: mobile ? 100 : 80 }}>
                 {messages.map((msg) => (
                   <div key={msg.id} style={{
@@ -1075,9 +1082,9 @@
                   }}>
                     {msg.role === 'ai' && (
                       <div style={{
-                        width: 32, height: 32, borderRadius: '50%', background: '#10a37f',
+                        width: 32, height: 32, borderRadius: '50%', background: isDark ? '#222' : '#e5e5e5',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0, color: 'white',
+                        flexShrink: 0, color: styles.textPrimary, border: `1px solid ${styles.borderColor}`,
                       }}>
                         <Icons.Bot />
                       </div>
@@ -1089,27 +1096,33 @@
                         color: msg.role === 'user' ? styles.textPrimary : undefined,
                         borderBottomRightRadius: msg.role === 'user' ? 4 : 20,
                         borderBottomLeftRadius: msg.role === 'ai' ? 4 : 20,
+                        wordWrap: 'break-word',
+                        overflowWrap: 'break-word',
                       }} className={msg.role === 'ai' ? (isDark ? 'markdown-dark' : 'markdown-light') : ''}>
-                        {msg.role === 'ai' ? renderMarkdown(msg.content) : <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>}
+                        {msg.role === 'ai' ? renderMarkdown(msg.content) : <span style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{msg.content}</span>}
                       </div>
                       {msg.role === 'ai' && (
                         <div style={{ display: 'flex', gap: 12, marginTop: 8, marginLeft: 4, opacity: 0.7 }}>
                           <button onClick={() => { navigator.clipboard.writeText(msg.content); toast('Copied!'); }}
-                                  style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer' }}>
+                                  style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
                             <Icons.Copy />
                           </button>
-                          <button onClick={() => speakText(msg.content)} style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer' }}>
-                            <Icons.Volume2 />
-                          </button>
+                          {/* Only show speak button when audio is enabled */}
+                          {audioEnabled && (
+                            <button onClick={() => speakText(msg.content)} style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+                              <Icons.Volume2 />
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
                     {msg.role === 'user' && (
                       <div style={{
                         width: 32, height: 32, borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #6366f1, #a855f7)',
+                        background: isDark ? '#222' : '#e5e5e5',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        flexShrink: 0, fontSize: 10, fontWeight: 'bold', color: 'white',
+                        flexShrink: 0, fontSize: 10, fontWeight: 'bold', color: styles.textPrimary,
+                        border: `1px solid ${styles.borderColor}`,
                       }}>{userInitials}</div>
                     )}
                   </div>
@@ -1117,14 +1130,15 @@
                 {isTyping && (
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                     <div style={{
-                      width: 32, height: 32, borderRadius: '50%', background: '#10a37f',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                      width: 32, height: 32, borderRadius: '50%', background: isDark ? '#222' : '#e5e5e5',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                      border: `1px solid ${styles.borderColor}`,
                     }}><Icons.Bot /></div>
                     <div style={{ padding: '12px 16px', borderRadius: 20, borderBottomLeftRadius: 4, background: styles.bgSecondary }}>
                       <div style={{ display: 'flex', gap: 4 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#9ca3af' }} className="animate-bounce" />
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#9ca3af' }} className="animate-bounce" />
-                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#9ca3af' }} className="animate-bounce" />
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary }} className="animate-bounce" />
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary }} className="animate-bounce" />
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary }} className="animate-bounce" />
                       </div>
                     </div>
                   </div>
@@ -1148,21 +1162,22 @@
                     display: 'flex', alignItems: 'center', gap: 8,
                     padding: '8px 12px', marginBottom: 8,
                     borderRadius: 12, background: styles.bgSecondary,
+                    border: `1px solid ${styles.borderColor}`,
                   }}>
                     <Icons.FileText />
-                    <span style={{ flex: 1, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span style={{ flex: 1, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: styles.textPrimary }}>
                       {selectedFile.name}
                     </span>
                     <button
                       onClick={removeFile}
-                      style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', opacity: 0.7 }}
+                      style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', opacity: 0.7, color: styles.textPrimary }}
                     >
                       <Icons.X />
                     </button>
                   </div>
                 )}
                 <div style={{
-                  borderRadius: 24, border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                  borderRadius: 24, border: `1px solid ${styles.borderColor}`,
                   background: styles.bgSecondary,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 12px', gap: 8 }}>
@@ -1176,7 +1191,7 @@
                     />
                     <button 
                       onClick={() => fileInputRef.current?.click()}
-                      style={{ padding: 8, borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer' }}
+                      style={{ padding: 8, borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
                     >
                       <Icons.Paperclip />
                     </button>
@@ -1195,7 +1210,7 @@
                       style={{
                         flex: 1, background: 'transparent', border: 'none', outline: 'none',
                         padding: '8px 0', resize: 'none', maxHeight: 150, fontSize: 16,
-                        color: isDark ? '#fff' : '#111', lineHeight: 1.5,
+                        color: isDark ? '#fff' : '#000', lineHeight: 1.5,
                       }}
                       rows={1}
                     />
@@ -1205,7 +1220,8 @@
                         disabled={isTyping}
                         style={{
                           padding: 8, borderRadius: '50%', border: 'none', background: 'none',
-                          color: isListening ? '#ef4444' : styles.textSecondary, cursor: 'pointer',
+                          color: isListening ? '#fff' : styles.textSecondary, cursor: 'pointer',
+                          background: isListening ? (isDark ? '#fff' : '#000') : 'transparent',
                         }}
                       >
                         {isListening ? <Icons.MicOff /> : <Icons.Mic />}
@@ -1215,8 +1231,8 @@
                         disabled={!input.trim() || isTyping}
                         style={{
                           padding: 10, borderRadius: '50%', border: 'none',
-                          background: input.trim() ? '#10a37f' : 'transparent',
-                          color: input.trim() ? '#fff' : '#6b7280', cursor: 'pointer',
+                          background: input.trim() ? (isDark ? '#fff' : '#000') : 'transparent',
+                          color: input.trim() ? (isDark ? '#000' : '#fff') : styles.textSecondary, cursor: 'pointer',
                         }}
                       >
                         <Icons.Send />
@@ -1234,17 +1250,18 @@
           {/* Login Modal */}
           {showLogin && (
             <div className="modal-overlay" onClick={() => setShowLogin(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
                    onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => setShowLogin(false)}
-                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
                   <Icons.XLarge />
                 </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
-                    background: 'linear-gradient(135deg, #6366f1, #a855f7)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
                   }}><Icons.User /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Welcome back</h2>
                   <p style={{ color: styles.textSecondary, marginTop: 4 }}>Sign in to your account</p>
@@ -1258,9 +1275,9 @@
                       placeholder="Enter your email"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1272,9 +1289,9 @@
                       placeholder="Enter your password"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1282,7 +1299,7 @@
                     type="submit" disabled={loading}
                     style={{
                       width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
-                      background: '#10a37f', color: '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
                     }}
                   >
                     {loading ? <Icons.Loader /> : 'Sign in'}
@@ -1290,14 +1307,14 @@
                 </form>
                 <p style={{ textAlign: 'center', marginTop: 12, fontSize: 14 }}>
                   <button onClick={() => { setShowLogin(false); setShowForgotPassword(true); }}
-                          style={{ color: '#10a37f', background: 'none', border: 'none', cursor: 'pointer' }}>
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
                     Forgot Password?
                   </button>
                 </p>
                 <p style={{ textAlign: 'center', marginTop: 8, fontSize: 14, color: styles.textSecondary }}>
                   Don't have an account?{' '}
                   <button onClick={() => { setShowLogin(false); setShowRegister(true); }}
-                          style={{ color: '#10a37f', background: 'none', border: 'none', cursor: 'pointer' }}>
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
                     Sign up
                   </button>
                 </p>
@@ -1308,17 +1325,18 @@
           {/* Register Modal */}
           {showRegister && (
             <div className="modal-overlay" onClick={() => setShowRegister(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
                    onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => setShowRegister(false)}
-                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
                   <Icons.XLarge />
                 </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
-                    background: 'linear-gradient(135deg, #a855f7, #6366f1)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
                   }}><Icons.User /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Create account</h2>
                   <p style={{ color: styles.textSecondary, marginTop: 4 }}>Join ASK AI today</p>
@@ -1332,9 +1350,9 @@
                       placeholder="Your name"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1346,9 +1364,9 @@
                       placeholder="your@email.com"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1360,9 +1378,9 @@
                       placeholder="Min 6 characters"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1374,9 +1392,9 @@
                       placeholder="Confirm password"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1384,7 +1402,7 @@
                     type="submit" disabled={loading}
                     style={{
                       width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
-                      background: '#10a37f', color: '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
                     }}
                   >
                     {loading ? <Icons.Loader /> : 'Create account'}
@@ -1393,7 +1411,7 @@
                 <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: styles.textSecondary }}>
                   Already have an account?{' '}
                   <button onClick={() => { setShowRegister(false); setShowLogin(true); }}
-                          style={{ color: '#10a37f', background: 'none', border: 'none', cursor: 'pointer' }}>
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
                     Sign in
                   </button>
                 </p>
@@ -1404,17 +1422,18 @@
           {/* Verification Modal */}
           {showVerification && (
             <div className="modal-overlay" onClick={() => setShowVerification(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
                    onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => setShowVerification(false)}
-                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
                   <Icons.XLarge />
                 </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
-                    background: '#10a37f',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
                   }}><Icons.Mail /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Verify your email</h2>
                   <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter the 6-digit code sent to your email</p>
@@ -1428,9 +1447,9 @@
                     style={{
                       width: '100%', padding: '16px', borderRadius: 12, textAlign: 'center',
                       fontSize: 28, letterSpacing: '0.5em',
-                      border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                      border: `1px solid ${styles.borderColor}`,
                       background: styles.bgSecondary,
-                      color: isDark ? '#fff' : '#111',
+                      color: isDark ? '#fff' : '#000',
                     }}
                   />
                   <button
@@ -1438,7 +1457,8 @@
                     disabled={verificationInput.length !== 6 || loading}
                     style={{
                       width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
-                      background: '#10a37f', color: '#fff', border: 'none', fontSize: 16, marginTop: 16, cursor: 'pointer',
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 16, cursor: 'pointer',
+                      opacity: verificationInput.length !== 6 ? 0.5 : 1,
                     }}
                   >
                     {loading ? <Icons.Loader /> : 'Verify'}
@@ -1451,17 +1471,18 @@
           {/* Forgot Password Modal */}
           {showForgotPassword && (
             <div className="modal-overlay" onClick={() => setShowForgotPassword(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
                    onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => setShowForgotPassword(false)}
-                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
                   <Icons.XLarge />
                 </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
-                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
                   }}><Icons.Mail /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Recover Account</h2>
                   <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter your email to receive a verification code</p>
@@ -1475,9 +1496,9 @@
                       placeholder="Enter your registered email"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1516,7 +1537,7 @@
                     disabled={loading || !recoveryEmail}
                     style={{
                       width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
-                      background: '#f59e0b', color: '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
                       opacity: loading || !recoveryEmail ? 0.5 : 1,
                     }}
                   >
@@ -1526,7 +1547,7 @@
                 <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: styles.textSecondary }}>
                   Remember your password?{' '}
                   <button onClick={() => { setShowForgotPassword(false); setShowLogin(true); }}
-                          style={{ color: '#10a37f', background: 'none', border: 'none', cursor: 'pointer' }}>
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
                     Sign in
                   </button>
                 </p>
@@ -1537,17 +1558,18 @@
           {/* Reset Password Modal */}
           {showResetPassword && (
             <div className="modal-overlay" onClick={() => setShowResetPassword(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
                    onClick={(e) => e.stopPropagation()}>
                 <button onClick={() => setShowResetPassword(false)}
-                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
                   <Icons.XLarge />
                 </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
                   <div style={{
                     width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
-                    background: 'linear-gradient(135deg, #10a37f, #059669)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
                   }}><Icons.Shield /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Reset Password</h2>
                   <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter the code and your new password</p>
@@ -1563,9 +1585,9 @@
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
                         textAlign: 'center', fontSize: 24, letterSpacing: '0.3em',
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1577,9 +1599,9 @@
                       placeholder="Min 6 characters"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1591,9 +1613,9 @@
                       placeholder="Confirm new password"
                       style={{
                         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
-                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        border: `1px solid ${styles.borderColor}`,
                         background: styles.bgSecondary, fontSize: 16,
-                        color: isDark ? '#fff' : '#111',
+                        color: isDark ? '#fff' : '#000',
                       }}
                     />
                   </div>
@@ -1635,7 +1657,7 @@
                     disabled={loading || recoveryCodeInput.length !== 6 || !newPassword || !newPasswordConfirm}
                     style={{
                       width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
-                      background: '#10a37f', color: '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
                       opacity: loading || recoveryCodeInput.length !== 6 || !newPassword || !newPasswordConfirm ? 0.5 : 1,
                     }}
                   >
@@ -1653,6 +1675,7 @@
               currentUser={currentUser}
               setCurrentUser={setCurrentUser}
               isDark={isDark}
+              styles={styles}
               toast={toast}
               onLogout={handleLogout}
             />
@@ -1663,6 +1686,7 @@
             <SettingsModal
               onClose={() => setShowSettings(false)}
               isDark={isDark}
+              styles={styles}
               toast={toast}
               onLogout={handleLogout}
               currentUser={currentUser}
@@ -1674,7 +1698,7 @@
     }
     
     // ==================== PROFILE MODAL ====================
-    function ProfileModal({ onClose, currentUser, setCurrentUser, isDark, toast, onLogout }) {
+    function ProfileModal({ onClose, currentUser, setCurrentUser, isDark, styles, toast, onLogout }) {
       const [name, setName] = React.useState(currentUser?.name || '');
       const [email, setEmail] = React.useState(currentUser?.email || '');
       const [currentPassword, setCurrentPassword] = React.useState('');
@@ -1685,17 +1709,11 @@
       const [deletePassword, setDeletePassword] = React.useState('');
       const [deleteLoading, setDeleteLoading] = React.useState(false);
       
-      const styles = {
-        bgSecondary: isDark ? '#2f2f2f' : '#e5e7eb',
-        textSecondary: isDark ? '#9ca3af' : '#6b7280',
-        borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db',
-      };
-      
       const inputStyle = {
         width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
         border: `1px solid ${styles.borderColor}`,
         background: styles.bgSecondary, fontSize: 16,
-        color: isDark ? '#fff' : '#111',
+        color: isDark ? '#fff' : '#000',
       };
       
       const handleSubmit = async (e) => {
@@ -1754,16 +1772,17 @@
       
       return (
         <div className="modal-overlay" onClick={onClose}>
-          <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+          <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
                onClick={(e) => e.stopPropagation()}>
-            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
               <Icons.XLarge />
             </button>
             <div style={{ textAlign: 'center', marginBottom: 24 }}>
               <div style={{
                 width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
-                background: 'linear-gradient(135deg, #6366f1, #a855f7)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                background: isDark ? '#222' : '#e5e5e5',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                border: `1px solid ${styles.borderColor}`,
               }}><Icons.User /></div>
               <h2 style={{ fontSize: 20, fontWeight: 600 }}>Account Settings</h2>
             </div>
@@ -1796,7 +1815,7 @@
                 type="submit" disabled={loading}
                 style={{
                   width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
-                  background: '#10a37f', color: '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
+                  background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
                 }}
               >
                 {loading ? <Icons.Loader /> : 'Save Changes'}
@@ -1810,14 +1829,14 @@
                   onClick={() => setShowDeleteConfirm(true)}
                   style={{
                     width: '100%', padding: 12, borderRadius: 12, fontWeight: 500,
-                    background: 'transparent', color: '#ef4444', border: `1px solid #ef4444`, fontSize: 14, cursor: 'pointer',
+                    background: 'transparent', color: isDark ? '#fff' : '#000', border: `2px solid ${isDark ? '#fff' : '#000'}`, fontSize: 14, cursor: 'pointer',
                   }}
                 >
                   Delete Account
                 </button>
               ) : (
-                <div style={{ background: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, padding: 16 }}>
-                  <p style={{ color: '#ef4444', fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
+                <div style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', borderRadius: 12, padding: 16, border: `1px solid ${styles.borderColor}` }}>
+                  <p style={{ fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
                     This action cannot be undone!
                   </p>
                   <p style={{ fontSize: 14, color: styles.textSecondary, marginBottom: 12, textAlign: 'center' }}>
@@ -1835,7 +1854,7 @@
                       onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); }}
                       style={{
                         flex: 1, padding: 12, borderRadius: 12, fontWeight: 500,
-                        background: styles.bgSecondary, color: isDark ? '#fff' : '#111', border: 'none', fontSize: 14, cursor: 'pointer',
+                        background: styles.bgSecondary, color: styles.textPrimary, border: 'none', fontSize: 14, cursor: 'pointer',
                       }}
                     >
                       Cancel
@@ -1845,7 +1864,7 @@
                       disabled={deleteLoading || !deletePassword}
                       style={{
                         flex: 1, padding: 12, borderRadius: 12, fontWeight: 500,
-                        background: '#ef4444', color: '#fff', border: 'none', fontSize: 14, cursor: 'pointer',
+                        background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 14, cursor: 'pointer',
                         opacity: deleteLoading || !deletePassword ? 0.5 : 1,
                       }}
                     >
@@ -1861,14 +1880,7 @@
     }
     
     // ==================== SETTINGS MODAL ====================
-    function SettingsModal({ onClose, isDark, toast, onLogout, currentUser, onOpenProfile }) {
-      const styles = {
-        bgSecondary: isDark ? '#2f2f2f' : '#e5e7eb',
-        textSecondary: isDark ? '#9ca3af' : '#6b7280',
-        textPrimary: isDark ? '#e5e7eb' : '#1f2937',
-        borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb',
-      };
-      
+    function SettingsModal({ onClose, isDark, styles, toast, onLogout, currentUser, onOpenProfile }) {
       const menuItems = [
         { 
           icon: <Icons.User />, 
@@ -1916,17 +1928,18 @@
       
       return (
         <div className="modal-overlay" onClick={onClose}>
-          <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff', maxWidth: 420 }}
+          <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', maxWidth: 420, borderColor: styles.borderColor }}
                onClick={(e) => e.stopPropagation()}>
-            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
               <Icons.XLarge />
             </button>
             <div style={{ textAlign: 'center', marginBottom: 20 }}>
               <div style={{
                 width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
-                background: 'rgba(16, 163, 127, 0.2)',
+                background: isDark ? '#222' : '#e5e5e5',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#10a37f',
+                color: styles.textPrimary,
+                border: `1px solid ${styles.borderColor}`,
               }}><Icons.Settings /></div>
               <h2 style={{ fontSize: 20, fontWeight: 600 }}>Settings</h2>
               {currentUser && (
@@ -1945,16 +1958,17 @@
                     display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
                     borderRadius: 12, border: 'none', cursor: 'pointer', textAlign: 'left',
                     background: styles.bgSecondary,
-                    color: item.danger ? '#ef4444' : styles.textPrimary,
+                    color: styles.textPrimary,
                     transition: 'background 0.2s',
                   }}
                 >
                   <div style={{ 
                     width: 40, height: 40, borderRadius: 10, 
-                    background: item.danger ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 163, 127, 0.1)',
+                    background: isDark ? '#222' : '#e5e5e5',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    color: item.danger ? '#ef4444' : '#10a37f',
+                    color: styles.textPrimary,
                     flexShrink: 0,
+                    border: `1px solid ${styles.borderColor}`,
                   }}>
                     {item.icon}
                   </div>
@@ -1981,4 +1995,3 @@
   </script>
 </body>
 </html>
-
