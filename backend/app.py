@@ -241,6 +241,66 @@ def delete_account():
             "error": str(e)
         }), 500
 
+@app.route('/api/check-email', methods=['POST'])
+def check_email():
+    """Check if an email exists in the database"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '')
+        
+        if not email:
+            return jsonify({
+                "success": False,
+                "error": "Email is required"
+            }), 400
+        
+        result = database.check_email_exists(email)
+        return jsonify(result)
+        
+    except Exception as e:
+        print(f"❌ Error in check_email: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+@app.route('/api/reset-password', methods=['POST'])
+def reset_password():
+    """Reset user password after verification"""
+    try:
+        data = request.get_json()
+        email = data.get('email', '')
+        new_password = data.get('new_password', '')
+        
+        if not email or not new_password:
+            return jsonify({
+                "success": False,
+                "error": "Email and new password are required"
+            }), 400
+        
+        if len(new_password) < 6:
+            return jsonify({
+                "success": False,
+                "error": "Password must be at least 6 characters"
+            }), 400
+        
+        result = database.reset_password(email, new_password)
+        
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Password reset successfully"
+            }), 200
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        print(f"❌ Error in reset_password: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 @app.route('/api/chats/save', methods=['POST'])
 def save_chat():
     """Save chat to cloud database"""
@@ -346,8 +406,12 @@ def analyze_text():
 
         text = data.get('text', '')
         conversation_history = data.get('conversation_history', [])
+        attachment = data.get('attachment', None)
+        
         print(f"Processing text (length: {len(text)})")
         print(f"Conversation history: {len(conversation_history)} messages")
+        if attachment:
+            print(f"Attachment: {attachment.get('name', 'unknown')} ({attachment.get('type', 'unknown type')})")
 
         if not text:
             print("Error: Empty text received")
@@ -366,8 +430,8 @@ def analyze_text():
                 "is_medical": False
             }), 500
 
-        # Use your AIService to process the text with conversation history
-        result = ai_service.analyze_text(text, conversation_history)
+        # Use your AIService to process the text with conversation history and attachment
+        result = ai_service.analyze_text(text, conversation_history, attachment)
 
         print(f"Analysis complete, returning result")
         return jsonify(result)
