@@ -121,7 +121,7 @@
     
     /* Touch improvements */
     button { touch-action: manipulation; }
-    input, textarea { font-size: 16px; } /* Prevents zoom on iOS */
+    input, textarea { font-size: 16px; }
     
     /* Mobile specific fixes */
     @media (max-width: 768px) {
@@ -158,7 +158,7 @@
       Loader: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>,
       User: () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
       Bot: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="18" height="10" x="3" y="11" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" x2="8" y1="16" y2="16"/><line x1="16" x2="16" y1="16" y2="16"/></svg>,
-      
+      Copy: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>,
       Sun: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>,
       Moon: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>,
       Menu: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>,
@@ -169,10 +169,7 @@
       Heart: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>,
       ChevronDown: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>,
       Trash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
-      MoreHorizontal: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>,
       Paperclip: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg>,
-      ThumbsUp: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>,
-      ThumbsDown: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>,
       ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>,
       FileText: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>,
       Database: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
@@ -182,38 +179,24 @@
     // ==================== UTILITIES ====================
     const generateId = () => `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    const cleanTextForSpeech = (text) => {
-      return text
-        .replace(/#{1,6}\s+/g, '')
-        .replace(/\*\*/g, '')
-        .replace(/\*/g, '')
-        .replace(/`{1,3}[^`]*`{1,3}/g, '')
-        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-        .replace(/\|/g, ', ')
-        .replace(/-+/g, '')
-        .replace(/\s{2,}/g, ' ')
-        .trim();
-    };
-    
     // Check if mobile
     const isMobile = () => window.innerWidth < 768;
     
     // ==================== STORAGE ====================
     const loadState = () => {
       try {
-        const saved = localStorage.getItem('askai-storage-v6');
+        const saved = localStorage.getItem('askai-storage-v8');
         return saved ? JSON.parse(saved) : null;
       } catch { return null; }
     };
     
     const saveState = (state) => {
       try {
-        localStorage.setItem('askai-storage-v6', JSON.stringify({
+        localStorage.setItem('askai-storage-v8', JSON.stringify({
           currentUser: state.currentUser,
           isAuthenticated: state.isAuthenticated,
           chats: state.chats,
           currentChatId: state.currentChatId,
-          audioEnabled: state.audioEnabled,
           theme: state.theme,
         }));
       } catch {}
@@ -346,7 +329,6 @@
       const [isAuthenticated, setIsAuthenticated] = React.useState(savedState?.isAuthenticated || false);
       const [chats, setChats] = React.useState(savedState?.chats || {});
       const [currentChatId, setCurrentChatId] = React.useState(savedState?.currentChatId || '');
-      const [audioEnabled, setAudioEnabled] = React.useState(savedState?.audioEnabled || false);
       const [theme, setTheme] = React.useState(savedState?.theme || 'dark');
       const [isTyping, setIsTyping] = React.useState(false);
       const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -356,10 +338,6 @@
       // File attachment state
       const [selectedFile, setSelectedFile] = React.useState(null);
       const fileInputRef = React.useRef(null);
-      
-      // Audio state for pause/resume
-      const [isAudioPaused, setIsAudioPaused] = React.useState(false);
-      const currentUtteranceRef = React.useRef(null);
       
       // Modals
       const [showLogin, setShowLogin] = React.useState(false);
@@ -390,7 +368,6 @@
       const [newPasswordConfirm, setNewPasswordConfirm] = React.useState('');
       
       const messagesEndRef = React.useRef(null);
-      const lastSpokenContentRef = React.useRef('');
       const textareaRef = React.useRef(null);
       
       const isDark = theme === 'dark';
@@ -398,8 +375,8 @@
       
       // Save state
       React.useEffect(() => {
-        saveState({ currentUser, isAuthenticated, chats, currentChatId, audioEnabled, theme });
-      }, [currentUser, isAuthenticated, chats, currentChatId, audioEnabled, theme]);
+        saveState({ currentUser, isAuthenticated, chats, currentChatId, theme });
+      }, [currentUser, isAuthenticated, chats, currentChatId, theme]);
       
       // Initialize chat
       React.useEffect(() => {
@@ -535,7 +512,7 @@
       const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
-          if (file.size > 10 * 1024 * 1024) { // 10MB limit
+          if (file.size > 10 * 1024 * 1024) {
             toast('File Too Large', 'Please select a file under 10MB', 'error');
             return;
           }
@@ -565,10 +542,8 @@
         if (!content || isTyping) return;
         setInput('');
         
-        // Close sidebar on mobile after sending
         if (mobile) setIsSidebarOpen(false);
         
-        // Build message content
         let messageContent = content;
         let attachmentData = null;
         
@@ -594,7 +569,6 @@
           timestamp: new Date().toISOString(),
         });
         
-        // Clear file after sending
         setSelectedFile(null);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -624,9 +598,6 @@
             content: response.response || 'I could not process your request.',
             timestamp: new Date().toISOString(),
           });
-          if (audioEnabled && response.response) {
-            speakText(response.response);
-          }
         } catch (error) {
           addMessage(currentChatId, {
             id: generateId(),
@@ -638,37 +609,6 @@
           setIsTyping(false);
         }
       };
-      
-      // Enhanced speech functions with pause/resume
-      const speakText = (text) => {
-        if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
-        
-        // Cancel any existing speech
-        window.speechSynthesis.cancel();
-        
-        const cleanText = cleanTextForSpeech(text);
-        if (!cleanText) return;
-        
-        lastSpokenContentRef.current = cleanText;
-        const utterance = new SpeechSynthesisUtterance(cleanText);
-        utterance.lang = 'en-US';
-        utterance.rate = 0.9;
-        
-        utterance.onend = () => {
-          setIsAudioPaused(false);
-          currentUtteranceRef.current = null;
-        };
-        
-        utterance.onerror = () => {
-          setIsAudioPaused(false);
-          currentUtteranceRef.current = null;
-        };
-        
-        currentUtteranceRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
-        setIsAudioPaused(false);
-      };
-      
       
       const toggleVoice = () => {
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -871,7 +811,6 @@
             zIndex: mobile ? 50 : 1,
           }}>
             <div style={{ width: mobile ? 280 : 260, padding: 12, display: 'flex', flexDirection: 'column', height: '100%' }}>
-              {/* Close button on mobile */}
               {mobile && (
                 <button
                   onClick={() => setIsSidebarOpen(false)}
@@ -1030,7 +969,8 @@
                   onClick={() => setTheme(isDark ? 'light' : 'dark')}
                   style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
                 >
-              
+                  {isDark ? <Icons.Sun /> : <Icons.Moon />}
+                </button>
                 <button
                   onClick={() => { if (confirm('Clear this conversation?')) clearChat(currentChatId); }}
                   style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
@@ -1075,12 +1015,6 @@
                                   style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
                             <Icons.Copy />
                           </button>
-                          {/* Only show speak button when audio is enabled */}
-                          {audioEnabled && (
-                            <button onClick={() => speakText(msg.content)} style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
-                              <Icons.Volume2 />
-                            </button>
-                          )}
                         </div>
                       )}
                     </div>
@@ -1124,7 +1058,6 @@
               background: styles.bgMain,
             }} className="safe-bottom">
               <div style={{ maxWidth: 768, margin: '0 auto' }}>
-                {/* File attachment preview */}
                 {selectedFile && (
                   <div style={{
                     display: 'flex', alignItems: 'center', gap: 8,
@@ -1149,7 +1082,6 @@
                   background: styles.bgSecondary,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 12px', gap: 8 }}>
-                    {/* Hidden file input */}
                     <input
                       type="file"
                       ref={fileInputRef}
@@ -1790,7 +1722,6 @@
               </button>
             </form>
             
-            {/* Delete Account Section */}
             <div style={{ borderTop: `1px solid ${styles.borderColor}`, marginTop: 20, paddingTop: 20 }}>
               {!showDeleteConfirm ? (
                 <button
@@ -1890,7 +1821,6 @@
               onClose();
             }
           },
-          danger: true
         },
       ];
       
