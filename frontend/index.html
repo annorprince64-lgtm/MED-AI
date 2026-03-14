@@ -119,6 +119,12 @@
     /* Touch improvements */
     button { touch-action: manipulation; }
     input, textarea { font-size: 16px; } /* Prevents zoom on iOS */
+    
+    /* Mobile specific fixes */
+    @media (max-width: 768px) {
+      .modal { max-height: 90vh; padding: 20px; margin: 8px; }
+      .modal-overlay { padding: 8px; align-items: flex-start; padding-top: 40px; }
+    }
   </style>
 </head>
 <body>
@@ -143,7 +149,7 @@
       Send: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/></svg>,
       Mic: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 19v3"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><rect x="9" y="2" width="6" height="13" rx="3"/></svg>,
       MicOff: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/><line x1="22" y1="9" x2="16" y2="15"/><line x1="16" y1="9" x2="22" y2="15"/></svg>,
-      Settings: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2M4.22 4.22l1.42 1.42m12.72 12.72 1.42 1.42M1 12h2m18 0h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>,
+      Settings: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
       X: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
       XLarge: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>,
       Loader: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>,
@@ -166,6 +172,10 @@
       Paperclip: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg>,
       ThumbsUp: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z"/></svg>,
       ThumbsDown: () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22h0a3.13 3.13 0 0 1-3-3.88Z"/></svg>,
+      ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>,
+      FileText: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>,
+      Database: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+      FileCheck: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><path d="m9 15 2 2 4-4"/></svg>,
     };
     
     // ==================== UTILITIES ====================
@@ -190,14 +200,14 @@
     // ==================== STORAGE ====================
     const loadState = () => {
       try {
-        const saved = localStorage.getItem('askai-storage-v4');
+        const saved = localStorage.getItem('askai-storage-v5');
         return saved ? JSON.parse(saved) : null;
       } catch { return null; }
     };
     
     const saveState = (state) => {
       try {
-        localStorage.setItem('askai-storage-v4', JSON.stringify({
+        localStorage.setItem('askai-storage-v5', JSON.stringify({
           currentUser: state.currentUser,
           isAuthenticated: state.isAuthenticated,
           chats: state.chats,
@@ -210,14 +220,18 @@
     
     // ==================== API ====================
     const api = {
-      analyzeText: async (text, conversationHistory = []) => {
+      analyzeText: async (text, conversationHistory = [], attachment = null) => {
+        const body = { 
+          text,
+          conversation_history: conversationHistory 
+        };
+        if (attachment) {
+          body.attachment = attachment;
+        }
         const res = await fetch(`${BACKEND_URL}/analyze`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            text,
-            conversation_history: conversationHistory 
-          }),
+          body: JSON.stringify(body),
         });
         return res.json();
       },
@@ -270,6 +284,24 @@
         });
         return res.json();
       },
+      
+      checkEmail: async (email) => {
+        const res = await fetch(`${BACKEND_URL}/check-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        return res.json();
+      },
+      
+      resetPassword: async (email, new_password) => {
+        const res = await fetch(`${BACKEND_URL}/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, new_password }),
+        });
+        return res.json();
+      },
     };
     
     // ==================== TOAST CONTEXT ====================
@@ -316,18 +348,26 @@
       const [audioEnabled, setAudioEnabled] = React.useState(savedState?.audioEnabled || false);
       const [theme, setTheme] = React.useState(savedState?.theme || 'dark');
       const [isTyping, setIsTyping] = React.useState(false);
-      const [isSidebarOpen, setIsSidebarOpen] = React.useState(false); // Closed by default on all devices
+      const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
       const [input, setInput] = React.useState('');
       const [isListening, setIsListening] = React.useState(false);
+      
+      // File attachment state
+      const [selectedFile, setSelectedFile] = React.useState(null);
+      const fileInputRef = React.useRef(null);
+      
+      // Audio state for pause/resume
+      const [isAudioPaused, setIsAudioPaused] = React.useState(false);
+      const currentUtteranceRef = React.useRef(null);
       
       // Modals
       const [showLogin, setShowLogin] = React.useState(false);
       const [showRegister, setShowRegister] = React.useState(false);
       const [showProfile, setShowProfile] = React.useState(false);
       const [showVerification, setShowVerification] = React.useState(false);
-      const [showPrivacy, setShowPrivacy] = React.useState(false);
-      const [showContact, setShowContact] = React.useState(false);
-      const [showAbout, setShowAbout] = React.useState(false);
+      const [showSettings, setShowSettings] = React.useState(false);
+      const [showForgotPassword, setShowForgotPassword] = React.useState(false);
+      const [showResetPassword, setShowResetPassword] = React.useState(false);
       
       // Form state
       const [loginEmail, setLoginEmail] = React.useState('');
@@ -340,6 +380,13 @@
       const [pendingUser, setPendingUser] = React.useState(null);
       const [verificationCode, setVerificationCode] = React.useState('');
       const [loading, setLoading] = React.useState(false);
+      
+      // Password recovery state
+      const [recoveryEmail, setRecoveryEmail] = React.useState('');
+      const [recoveryCode, setRecoveryCode] = React.useState('');
+      const [recoveryCodeInput, setRecoveryCodeInput] = React.useState('');
+      const [newPassword, setNewPassword] = React.useState('');
+      const [newPasswordConfirm, setNewPasswordConfirm] = React.useState('');
       
       const messagesEndRef = React.useRef(null);
       const lastSpokenContentRef = React.useRef('');
@@ -413,7 +460,7 @@
           messages: [{
             id: generateId(),
             role: 'ai',
-            content: "Hello! I'm **ASK AI**, your intelligent assistant\n\nHow can I help you today?",
+            content: "Hello! I'm **ASK AI**, your intelligent assistant created by **Annor Prince** and **Yeboah Collins**. I can help you with questions, tasks, and more.\n\nI remember our conversation, so feel free to ask follow-up questions!\n\nHow can I help you today?",
             timestamp: new Date().toISOString(),
           }],
         };
@@ -472,7 +519,6 @@
       
       // Build conversation history for context
       const buildConversationHistory = (currentMessages) => {
-        // Get last 10 messages for context (excluding the initial greeting)
         const messagesToSend = currentMessages.slice(-11).filter(m => 
           !m.content.includes("Hello! I'm **ASK AI**") && 
           !m.content.includes("Hello! I'm your AI assistant")
@@ -484,6 +530,35 @@
         }));
       };
       
+      // File handling
+      const handleFileSelect = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            toast('File Too Large', 'Please select a file under 10MB', 'error');
+            return;
+          }
+          setSelectedFile(file);
+          toast('File Attached', file.name);
+        }
+      };
+      
+      const removeFile = () => {
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      };
+      
+      const readFileAsBase64 = (file) => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      };
+      
       const handleSend = async () => {
         const content = input.trim();
         if (!content || isTyping) return;
@@ -492,12 +567,37 @@
         // Close sidebar on mobile after sending
         if (mobile) setIsSidebarOpen(false);
         
+        // Build message content
+        let messageContent = content;
+        let attachmentData = null;
+        
+        if (selectedFile) {
+          try {
+            const base64 = await readFileAsBase64(selectedFile);
+            attachmentData = {
+              name: selectedFile.name,
+              type: selectedFile.type,
+              data: base64
+            };
+            messageContent = `${content}\n\n[Attached: ${selectedFile.name}]`;
+          } catch (e) {
+            toast('Error', 'Failed to read file', 'error');
+            return;
+          }
+        }
+        
         addMessage(currentChatId, {
           id: generateId(),
           role: 'user',
-          content,
+          content: messageContent,
           timestamp: new Date().toISOString(),
         });
+        
+        // Clear file after sending
+        setSelectedFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
         
         const currentChat = chats[currentChatId];
         if (currentChat && currentChat.messages.length <= 1) {
@@ -506,7 +606,6 @@
         
         setIsTyping(true);
         try {
-          // Get current messages including the new one
           const updatedChat = chats[currentChatId];
           const allMessages = [...(updatedChat?.messages || []), {
             id: generateId(),
@@ -515,10 +614,9 @@
             timestamp: new Date().toISOString(),
           }];
           
-          // Build conversation history for context
           const conversationHistory = buildConversationHistory(allMessages);
           
-          const response = await api.analyzeText(content, conversationHistory);
+          const response = await api.analyzeText(content, conversationHistory, attachmentData);
           addMessage(currentChatId, {
             id: generateId(),
             role: 'ai',
@@ -540,16 +638,52 @@
         }
       };
       
+      // Enhanced speech functions with pause/resume
       const speakText = (text) => {
         if (!text || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+        
+        // Cancel any existing speech
+        window.speechSynthesis.cancel();
+        
         const cleanText = cleanTextForSpeech(text);
         if (!cleanText) return;
+        
         lastSpokenContentRef.current = cleanText;
-        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(cleanText);
         utterance.lang = 'en-US';
         utterance.rate = 0.9;
+        
+        utterance.onend = () => {
+          setIsAudioPaused(false);
+          currentUtteranceRef.current = null;
+        };
+        
+        utterance.onerror = () => {
+          setIsAudioPaused(false);
+          currentUtteranceRef.current = null;
+        };
+        
+        currentUtteranceRef.current = utterance;
         window.speechSynthesis.speak(utterance);
+        setIsAudioPaused(false);
+      };
+      
+      const toggleAudio = () => {
+        if (!window.speechSynthesis) return;
+        
+        if (window.speechSynthesis.speaking && !window.speechSynthesis.paused) {
+          // Pause current speech
+          window.speechSynthesis.pause();
+          setIsAudioPaused(true);
+        } else if (window.speechSynthesis.paused) {
+          // Resume from where it was paused
+          window.speechSynthesis.resume();
+          setIsAudioPaused(false);
+        } else {
+          // No speech active, just toggle the setting
+          const newEnabled = !audioEnabled;
+          setAudioEnabled(newEnabled);
+        }
       };
       
       const toggleVoice = () => {
@@ -663,7 +797,6 @@
       const handleLogout = () => {
         setCurrentUser(null);
         setIsAuthenticated(false);
-        // Create a fresh chat for logged out state
         const newId = generateId();
         const freshChat = {
           id: newId,
@@ -761,6 +894,8 @@
                   style={{
                     position: 'absolute', top: 12, right: 12, padding: 8, borderRadius: 8,
                     background: styles.bgSecondary,
+                    border: 'none',
+                    cursor: 'pointer',
                   }}
                 >
                   <Icons.XLarge />
@@ -790,48 +925,46 @@
                       letterSpacing: '0.05em', marginBottom: 8, paddingLeft: 12,
                       color: styles.textSecondary,
                     }}>{group}</h3>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                      {groupChats.map(chat => (
-                        <div
-                          key={chat.id}
-                          onClick={() => {
-                            setCurrentChatId(chat.id);
-                            if (mobile) setIsSidebarOpen(false);
-                          }}
+                    {groupChats.map(chat => (
+                      <div key={chat.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                        <button
+                          onClick={() => { setCurrentChatId(chat.id); if (mobile) setIsSidebarOpen(false); }}
                           style={{
-                            display: 'flex', alignItems: 'center', gap: 12,
-                            padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
-                            fontSize: 14, border: 'none',
-                            background: chat.id === currentChatId ? styles.bgSecondary : 'transparent',
-                            color: chat.id === currentChatId ? styles.textPrimary : styles.textSecondary,
+                            flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                            borderRadius: 10, border: 'none', cursor: 'pointer', textAlign: 'left',
+                            background: chat.id === currentChatId ? styles.bgHover : 'transparent',
+                            color: styles.textPrimary, transition: 'background 0.2s',
                           }}
                         >
                           <Icons.MessageSquare />
-                          <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <span style={{ fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {chat.title}
                           </span>
+                        </button>
+                        {Object.keys(chats).length > 1 && (
                           <button
                             onClick={(e) => { e.stopPropagation(); deleteChat(chat.id); }}
-                            style={{ padding: 4, opacity: 0.6, border: 'none', background: 'none', cursor: 'pointer' }}
+                            style={{ padding: 6, opacity: 0.6, border: 'none', background: 'none', cursor: 'pointer' }}
                           >
                             <Icons.X />
                           </button>
-                        </div>
-                      ))}
-                    </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
               
-              <div style={{ borderTop: `1px solid ${styles.borderColor}`, paddingTop: 16 }}>
-                {isAuthenticated && currentUser ? (
-                  <>
+              {/* Sidebar Bottom */}
+              <div style={{ borderTop: `1px solid ${styles.borderColor}`, paddingTop: 12 }}>
+                {isAuthenticated ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <button
                       onClick={() => { setShowProfile(true); if (mobile) setIsSidebarOpen(false); }}
                       style={{
-                        display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                        padding: '10px 12px', borderRadius: 8, fontSize: 14, border: 'none',
-                        background: 'transparent', color: styles.textSecondary, cursor: 'pointer',
+                        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                        borderRadius: 10, border: 'none', cursor: 'pointer',
+                        background: styles.bgSecondary, color: styles.textPrimary,
                       }}
                     >
                       <div style={{
@@ -840,36 +973,46 @@
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         fontSize: 10, fontWeight: 'bold', color: 'white',
                       }}>{userInitials}</div>
-                      <span style={{ fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                        {currentUser.name}
-                      </span>
-                      <Icons.Settings />
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>{currentUser?.name}</span>
                     </button>
-                    <button
-                      onClick={handleLogout}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                        padding: '10px 12px', borderRadius: 8, fontSize: 14, border: 'none',
-                        background: 'transparent', color: styles.textSecondary, cursor: 'pointer',
-                      }}
-                    >
-                      <Icons.LogOut />
-                      <span>Log out</span>
-                    </button>
-                  </>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => { setShowSettings(true); if (mobile) setIsSidebarOpen(false); }}
+                        style={{
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          padding: 10, borderRadius: 10, border: 'none', cursor: 'pointer',
+                          background: styles.bgSecondary, color: styles.textPrimary,
+                        }}
+                      >
+                        <Icons.Settings />
+                        <span style={{ fontSize: 14 }}>Settings</span>
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        style={{
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          padding: 10, borderRadius: 10, border: 'none', cursor: 'pointer',
+                          background: styles.bgSecondary, color: styles.textPrimary,
+                        }}
+                      >
+                        <Icons.LogOut />
+                        <span style={{ fontSize: 14 }}>Logout</span>
+                      </button>
+                    </div>
+                  </div>
                 ) : (
                   <button
                     onClick={() => { setShowLogin(true); if (mobile) setIsSidebarOpen(false); }}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 12, width: '100%',
-                      padding: '12px 12px', borderRadius: 8, fontSize: 14, border: 'none',
-                      background: 'transparent', color: styles.textSecondary, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      padding: 12, borderRadius: 12, width: '100%', border: 'none', cursor: 'pointer',
+                      background: styles.bgSecondary, color: styles.textPrimary,
                     }}
                   >
                     <div style={{
                       width: 28, height: 28, borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #6366f1, #a855f7)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                      background: '#3b82f6',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}><Icons.User /></div>
                     <span style={{ fontWeight: 500 }}>Sign In</span>
                   </button>
@@ -882,8 +1025,8 @@
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }} onClick={handleMainClick}>
             {/* Header */}
             <header style={{
-              height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '0 12px', borderBottom: `1px solid ${styles.borderColor}`,
+              height: mobile ? 52 : 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: mobile ? '0 8px' : '0 12px', borderBottom: `1px solid ${styles.borderColor}`,
               position: 'sticky', top: 0, zIndex: 30, flexShrink: 0,
               background: isDark ? 'rgba(33,33,33,0.95)' : 'rgba(243,244,246,0.95)',
               backdropFilter: 'blur(12px)',
@@ -891,49 +1034,40 @@
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
-                  style={{ padding: 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
                 >
                   <Icons.Menu />
                 </button>
-                <span style={{ fontSize: 18, fontWeight: 600 }}>ASK AI</span>
+                <span style={{ fontSize: mobile ? 16 : 18, fontWeight: 600 }}>ASK AI</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? 2 : 4 }}>
                 <button
                   onClick={() => setTheme(isDark ? 'light' : 'dark')}
-                  style={{ padding: 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
                 >
                   {isDark ? <Icons.Sun /> : <Icons.Moon />}
                 </button>
                 <button
-                  onClick={() => {
-                    const newEnabled = !audioEnabled;
-                    setAudioEnabled(newEnabled);
-                    if (!newEnabled && window.speechSynthesis) {
-                      window.speechSynthesis.cancel();
-                    }
+                  onClick={toggleAudio}
+                  style={{ 
+                    padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer',
+                    color: audioEnabled ? '#10a37f' : styles.textSecondary 
                   }}
-                  style={{ padding: 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: audioEnabled ? '#10a37f' : styles.textSecondary }}
                 >
-                  {audioEnabled ? <Icons.Volume2 /> : <Icons.VolumeX />}
+                  {window.speechSynthesis?.paused ? <Icons.VolumeX /> : <Icons.Volume2 />}
                 </button>
                 <button
                   onClick={() => { if (confirm('Clear this conversation?')) clearChat(currentChatId); }}
-                  style={{ padding: 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
                 >
                   <Icons.Trash />
-                </button>
-                <button
-                  onClick={() => setShowPrivacy(true)}
-                  style={{ padding: 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer' }}
-                >
-                  <Icons.MoreHorizontal />
                 </button>
               </div>
             </header>
             
             {/* Messages */}
             <div style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }} className="custom-scrollbar">
-              <div style={{ maxWidth: 768, margin: '0 auto', padding: '24px 16px' }}>
+              <div style={{ maxWidth: 768, margin: '0 auto', padding: mobile ? '16px 12px' : '24px 16px', paddingBottom: mobile ? 100 : 80 }}>
                 {messages.map((msg) => (
                   <div key={msg.id} style={{
                     display: 'flex', gap: 12, marginBottom: 24,
@@ -950,7 +1084,7 @@
                     )}
                     <div style={{ maxWidth: mobile ? '85%' : '80%' }}>
                       <div style={{
-                        padding: '12px 16px', borderRadius: 20, fontSize: 15, lineHeight: 1.6,
+                        padding: '12px 16px', borderRadius: 20, fontSize: mobile ? 14 : 15, lineHeight: 1.6,
                         background: msg.role === 'user' ? styles.bgSecondary : 'transparent',
                         color: msg.role === 'user' ? styles.textPrimary : undefined,
                         borderBottomRightRadius: msg.role === 'user' ? 4 : 20,
@@ -1000,14 +1134,50 @@
             </div>
             
             {/* Input */}
-            <div style={{ padding: '0 12px 16px', flexShrink: 0 }} className="safe-bottom">
+            <div style={{ 
+              padding: mobile ? '0 8px 12px' : '0 12px 16px', 
+              flexShrink: 0,
+              position: 'sticky',
+              bottom: 0,
+              background: styles.bgMain,
+            }} className="safe-bottom">
               <div style={{ maxWidth: 768, margin: '0 auto' }}>
+                {/* File attachment preview */}
+                {selectedFile && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '8px 12px', marginBottom: 8,
+                    borderRadius: 12, background: styles.bgSecondary,
+                  }}>
+                    <Icons.FileText />
+                    <span style={{ flex: 1, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {selectedFile.name}
+                    </span>
+                    <button
+                      onClick={removeFile}
+                      style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', opacity: 0.7 }}
+                    >
+                      <Icons.X />
+                    </button>
+                  </div>
+                )}
                 <div style={{
                   borderRadius: 24, border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
                   background: styles.bgSecondary,
                 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 12px', gap: 8 }}>
-                    <button style={{ padding: 8, borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer' }}>
+                    {/* Hidden file input */}
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      style={{ display: 'none' }}
+                      accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                    />
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      style={{ padding: 8, borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer' }}
+                    >
                       <Icons.Paperclip />
                     </button>
                     <textarea
@@ -1118,7 +1288,13 @@
                     {loading ? <Icons.Loader /> : 'Sign in'}
                   </button>
                 </form>
-                <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: styles.textSecondary }}>
+                <p style={{ textAlign: 'center', marginTop: 12, fontSize: 14 }}>
+                  <button onClick={() => { setShowLogin(false); setShowForgotPassword(true); }}
+                          style={{ color: '#10a37f', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Forgot Password?
+                  </button>
+                </p>
+                <p style={{ textAlign: 'center', marginTop: 8, fontSize: 14, color: styles.textSecondary }}>
                   Don't have an account?{' '}
                   <button onClick={() => { setShowLogin(false); setShowRegister(true); }}
                           style={{ color: '#10a37f', background: 'none', border: 'none', cursor: 'pointer' }}>
@@ -1272,6 +1448,204 @@
             </div>
           )}
           
+          {/* Forgot Password Modal */}
+          {showForgotPassword && (
+            <div className="modal-overlay" onClick={() => setShowForgotPassword(false)}>
+              <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+                   onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowForgotPassword(false)}
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+                  <Icons.XLarge />
+                </button>
+                <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                    background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                  }}><Icons.Mail /></div>
+                  <h2 style={{ fontSize: 20, fontWeight: 600 }}>Recover Account</h2>
+                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter your email to receive a verification code</p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Email</label>
+                    <input
+                      type="email" value={recoveryEmail} required
+                      onChange={(e) => setRecoveryEmail(e.target.value)}
+                      placeholder="Enter your registered email"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#111',
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (!recoveryEmail) {
+                        toast('Error', 'Please enter your email', 'error');
+                        return;
+                      }
+                      setLoading(true);
+                      try {
+                        const result = await api.checkEmail(recoveryEmail);
+                        if (result.success && result.exists) {
+                          const code = Math.floor(100000 + Math.random() * 900000).toString();
+                          setRecoveryCode(code);
+                          if (window.emailjs) {
+                            await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                              to_email: recoveryEmail,
+                              verification_code: code,
+                            });
+                            setShowForgotPassword(false);
+                            setShowResetPassword(true);
+                            toast('Code Sent', 'Check your email for the verification code');
+                          } else {
+                            toast('Error', 'Email service not available', 'error');
+                          }
+                        } else {
+                          toast('Error', 'Email not found in our system', 'error');
+                        }
+                      } catch (e) {
+                        toast('Error', 'Failed to send recovery email', 'error');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading || !recoveryEmail}
+                    style={{
+                      width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                      background: '#f59e0b', color: '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
+                      opacity: loading || !recoveryEmail ? 0.5 : 1,
+                    }}
+                  >
+                    {loading ? <Icons.Loader /> : 'Send Recovery Code'}
+                  </button>
+                </div>
+                <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: styles.textSecondary }}>
+                  Remember your password?{' '}
+                  <button onClick={() => { setShowForgotPassword(false); setShowLogin(true); }}
+                          style={{ color: '#10a37f', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    Sign in
+                  </button>
+                </p>
+              </div>
+            </div>
+          )}
+          
+          {/* Reset Password Modal */}
+          {showResetPassword && (
+            <div className="modal-overlay" onClick={() => setShowResetPassword(false)}>
+              <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff' }}
+                   onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowResetPassword(false)}
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
+                  <Icons.XLarge />
+                </button>
+                <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                    background: 'linear-gradient(135deg, #10a37f, #059669)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
+                  }}><Icons.Shield /></div>
+                  <h2 style={{ fontSize: 20, fontWeight: 600 }}>Reset Password</h2>
+                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter the code and your new password</p>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Verification Code</label>
+                    <input
+                      value={recoveryCodeInput}
+                      onChange={(e) => setRecoveryCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="000000"
+                      maxLength={6}
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        textAlign: 'center', fontSize: 24, letterSpacing: '0.3em',
+                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        background: styles.bgSecondary,
+                        color: isDark ? '#fff' : '#111',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>New Password</label>
+                    <input
+                      type="password" value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Min 6 characters"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#111',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Confirm New Password</label>
+                    <input
+                      type="password" value={newPasswordConfirm}
+                      onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                      placeholder="Confirm new password"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${isDark ? 'rgba(255,255,255,0.1)' : '#d1d5db'}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#111',
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (recoveryCodeInput !== recoveryCode) {
+                        toast('Error', 'Invalid verification code', 'error');
+                        return;
+                      }
+                      if (newPassword.length < 6) {
+                        toast('Error', 'Password must be at least 6 characters', 'error');
+                        return;
+                      }
+                      if (newPassword !== newPasswordConfirm) {
+                        toast('Error', 'Passwords do not match', 'error');
+                        return;
+                      }
+                      setLoading(true);
+                      try {
+                        const result = await api.resetPassword(recoveryEmail, newPassword);
+                        if (result.success) {
+                          toast('Success', 'Password reset successfully!');
+                          setShowResetPassword(false);
+                          setShowLogin(true);
+                          setRecoveryEmail('');
+                          setRecoveryCode('');
+                          setRecoveryCodeInput('');
+                          setNewPassword('');
+                          setNewPasswordConfirm('');
+                        } else {
+                          toast('Error', result.error || 'Failed to reset password', 'error');
+                        }
+                      } catch (e) {
+                        toast('Error', 'Failed to reset password', 'error');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading || recoveryCodeInput.length !== 6 || !newPassword || !newPasswordConfirm}
+                    style={{
+                      width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                      background: '#10a37f', color: '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
+                      opacity: loading || recoveryCodeInput.length !== 6 || !newPassword || !newPasswordConfirm ? 0.5 : 1,
+                    }}
+                  >
+                    {loading ? <Icons.Loader /> : 'Reset Password'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Profile Modal */}
           {showProfile && (
             <ProfileModal
@@ -1284,28 +1658,15 @@
             />
           )}
           
-          {/* Info Modals */}
-          {showPrivacy && (
-            <InfoModal
-              type="privacy"
-              onClose={() => setShowPrivacy(false)}
-              onContact={() => { setShowPrivacy(false); setShowContact(true); }}
-              onAbout={() => { setShowPrivacy(false); setShowAbout(true); }}
+          {/* Settings Modal */}
+          {showSettings && (
+            <SettingsModal
+              onClose={() => setShowSettings(false)}
               isDark={isDark}
-            />
-          )}
-          {showContact && (
-            <InfoModal
-              type="contact"
-              onClose={() => setShowContact(false)}
-              isDark={isDark}
-            />
-          )}
-          {showAbout && (
-            <InfoModal
-              type="about"
-              onClose={() => setShowAbout(false)}
-              isDark={isDark}
+              toast={toast}
+              onLogout={handleLogout}
+              currentUser={currentUser}
+              onOpenProfile={() => { setShowSettings(false); setShowProfile(true); }}
             />
           )}
         </div>
@@ -1403,8 +1764,8 @@
                 width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
                 background: 'linear-gradient(135deg, #6366f1, #a855f7)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
-              }}><Icons.Settings /></div>
-              <h2 style={{ fontSize: 20, fontWeight: 600 }}>Profile Settings</h2>
+              }}><Icons.User /></div>
+              <h2 style={{ fontSize: 20, fontWeight: 600 }}>Account Settings</h2>
             </div>
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div>
@@ -1457,7 +1818,7 @@
               ) : (
                 <div style={{ background: 'rgba(239, 68, 68, 0.1)', borderRadius: 12, padding: 16 }}>
                   <p style={{ color: '#ef4444', fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
-                    ⚠️ This action cannot be undone!
+                    This action cannot be undone!
                   </p>
                   <p style={{ fontSize: 14, color: styles.textSecondary, marginBottom: 12, textAlign: 'center' }}>
                     Enter your password to confirm account deletion
@@ -1499,143 +1860,112 @@
       );
     }
     
-    // ==================== INFO MODAL ====================
-    function InfoModal({ type, onClose, onContact, onAbout, isDark }) {
+    // ==================== SETTINGS MODAL ====================
+    function SettingsModal({ onClose, isDark, toast, onLogout, currentUser, onOpenProfile }) {
       const styles = {
         bgSecondary: isDark ? '#2f2f2f' : '#e5e7eb',
         textSecondary: isDark ? '#9ca3af' : '#6b7280',
-        textMuted: isDark ? '#d1d5db' : '#374151',
+        textPrimary: isDark ? '#e5e7eb' : '#1f2937',
         borderColor: isDark ? 'rgba(255,255,255,0.1)' : '#e5e7eb',
       };
       
-      const content = {
-        privacy: {
-          icon: <Icons.Shield />,
-          iconBg: 'rgba(59, 130, 246, 0.2)',
-          iconColor: '#3b82f6',
-          title: 'Privacy Policy',
-          body: (
-            <>
-              <section style={{ marginBottom: 16 }}>
-                <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Information We Collect</h3>
-                <p style={{ color: styles.textMuted }}>
-                  ASK AI collects minimal information to provide your AI assistance experience.
-                </p>
-                <ul style={{ marginTop: 8, color: styles.textSecondary, paddingLeft: 20 }}>
-                  <li>Chat content and conversation history</li>
-                  <li>Account information</li>
-                  <li>Technical data for security</li>
-                </ul>
-              </section>
-              <section>
-                <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Data Security</h3>
-                <p style={{ color: styles.textMuted }}>
-                  We implement industry-standard security measures. All data is encrypted in transit and at rest.
-                </p>
-              </section>
-            </>
-          ),
-          buttons: onContact && onAbout ? (
-            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button onClick={onContact}
-                      style={{ flex: 1, padding: 10, borderRadius: 10, fontSize: 14, border: 'none', background: styles.bgSecondary, cursor: 'pointer' }}>
-                Contact
-              </button>
-              <button onClick={onAbout}
-                      style={{ flex: 1, padding: 10, borderRadius: 10, fontSize: 14, border: 'none', background: styles.bgSecondary, cursor: 'pointer' }}>
-                About
-              </button>
-            </div>
-          ) : null,
+      const menuItems = [
+        { 
+          icon: <Icons.User />, 
+          label: 'Account Settings', 
+          description: 'Manage your account, password, and delete account',
+          onClick: onOpenProfile 
         },
-        contact: {
-          icon: <Icons.Phone />,
-          iconBg: 'rgba(16, 163, 127, 0.2)',
-          iconColor: '#10a37f',
-          title: 'Contact Us',
-          body: (
-            <>
-              {[
-                { label: 'Primary', value: '+233 257 477 888' },
-                { label: 'Secondary', value: '+233 534 111 407' },
-                { label: 'Email', value: 'yeboahcollins754@gmail.com' },
-                { label: 'Tech Support', value: 'annorprince64@gmail.com' },
-              ].map((c, i) => (
-                <div key={i} style={{
-                  padding: 12, borderRadius: 10, marginBottom: 8,
-                  border: `1px solid ${styles.borderColor}`,
-                  background: styles.bgSecondary,
-                }}>
-                  <p style={{ fontSize: 12, textTransform: 'uppercase', color: styles.textSecondary }}>{c.label}</p>
-                  <p style={{ fontSize: 14, marginTop: 2 }}>{c.value}</p>
-                </div>
-              ))}
-              <div style={{
-                padding: 12, borderRadius: 10,
-                background: 'rgba(16, 163, 127, 0.1)',
-                border: '1px solid rgba(16, 163, 127, 0.2)',
-              }}>
-                <p style={{ fontSize: 14, color: styles.textMuted }}>
-                  We typically respond within 24 hours.
-                </p>
-              </div>
-            </>
-          ),
+        { 
+          icon: <Icons.Shield />, 
+          label: 'Privacy Policy', 
+          description: 'How we handle your data',
+          onClick: () => toast('Privacy Policy', 'View our privacy policy')
         },
-        about: {
-          icon: <Icons.Heart />,
-          iconBg: 'rgba(244, 63, 94, 0.2)',
-          iconColor: '#f43f5e',
-          title: 'About ASK AI',
-          body: (
-            <>
-              <section style={{ marginBottom: 16 }}>
-                <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Our Mission</h3>
-                <p style={{ color: styles.textMuted }}>
-                  ASK AI is an advanced AI-powered assistant designed to help you with questions, tasks, and more.
-                </p>
-              </section>
-              <section style={{ marginBottom: 16 }}>
-                <h3 style={{ fontWeight: 600, marginBottom: 8 }}>Key Features</h3>
-                <ul style={{ color: styles.textSecondary, paddingLeft: 20 }}>
-                  <li>Conversation memory</li>
-                  <li>Multilingual support</li>
-                  <li>Voice recognition</li>
-                  <li>Secure cloud sync</li>
-                  <li>24/7 availability</li>
-                </ul>
-              </section>
-              <div style={{
-                padding: 12, borderRadius: 10, textAlign: 'center',
-                background: styles.bgSecondary,
-              }}>
-                <p style={{ fontWeight: 500 }}>Developed by Annor Prince & Collins Yeboah</p>
-              </div>
-            </>
-          ),
+        { 
+          icon: <Icons.FileCheck />, 
+          label: 'Service Agreement', 
+          description: 'Terms of service and usage',
+          onClick: () => toast('Service Agreement', 'View our terms of service')
         },
-      };
-      
-      const c = content[type];
+        { 
+          icon: <Icons.Database />, 
+          label: 'Data Control', 
+          description: 'Manage your data and privacy',
+          onClick: () => toast('Data Control', 'Manage your personal data')
+        },
+        { 
+          icon: <Icons.Phone />, 
+          label: 'Contact Us', 
+          description: 'Get help and support',
+          onClick: () => toast('Contact', 'Email: yeboahcollins754@gmail.com')
+        },
+        { 
+          icon: <Icons.LogOut />, 
+          label: 'Logout from All Devices', 
+          description: 'Sign out from all sessions',
+          onClick: () => {
+            if (confirm('Logout from all devices?')) {
+              onLogout();
+              onClose();
+            }
+          },
+          danger: true
+        },
+      ];
       
       return (
         <div className="modal-overlay" onClick={onClose}>
-          <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff', maxWidth: 480 }}
+          <div className="modal" style={{ '--modal-bg': isDark ? '#171717' : '#fff', maxWidth: 420 }}
                onClick={(e) => e.stopPropagation()}>
             <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer' }}>
               <Icons.XLarge />
             </button>
-            <div style={{ textAlign: 'center', marginBottom: 16 }}>
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
               <div style={{
-                width: 48, height: 48, borderRadius: '50%', margin: '0 auto 8px',
-                background: c.iconBg,
+                width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                background: 'rgba(16, 163, 127, 0.2)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: c.iconColor,
-              }}>{c.icon}</div>
-              <h2 style={{ fontSize: 20, fontWeight: 600 }}>{c.title}</h2>
+                color: '#10a37f',
+              }}><Icons.Settings /></div>
+              <h2 style={{ fontSize: 20, fontWeight: 600 }}>Settings</h2>
+              {currentUser && (
+                <p style={{ color: styles.textSecondary, marginTop: 4, fontSize: 14 }}>
+                  {currentUser.email}
+                </p>
+              )}
             </div>
-            <div style={{ fontSize: 14 }}>{c.body}</div>
-            {c.buttons}
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {menuItems.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={item.onClick}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+                    borderRadius: 12, border: 'none', cursor: 'pointer', textAlign: 'left',
+                    background: styles.bgSecondary,
+                    color: item.danger ? '#ef4444' : styles.textPrimary,
+                    transition: 'background 0.2s',
+                  }}
+                >
+                  <div style={{ 
+                    width: 40, height: 40, borderRadius: 10, 
+                    background: item.danger ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 163, 127, 0.1)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: item.danger ? '#ef4444' : '#10a37f',
+                    flexShrink: 0,
+                  }}>
+                    {item.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 500, fontSize: 15 }}>{item.label}</div>
+                    <div style={{ fontSize: 12, color: styles.textSecondary, marginTop: 2 }}>{item.description}</div>
+                  </div>
+                  <Icons.ChevronRight />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       );
@@ -1651,3 +1981,4 @@
   </script>
 </body>
 </html>
+
