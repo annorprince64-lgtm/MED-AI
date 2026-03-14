@@ -416,7 +416,47 @@ def delete_chat_from_cloud(user_id, chat_id):
         print(f"❌ Error deleting chat from cloud: {str(e)}")
         return {"success": False, "error": str(e)}
 
+def delete_user_account(email, password):
+    """Delete a user account and all associated data"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        # First verify the user exists and password is correct
+        cursor.execute(
+            'SELECT id, password_hash FROM users WHERE email = ?',
+            (email,)
+        )
+        user = cursor.fetchone()
+        
+        if not user:
+            conn.close()
+            return {"success": False, "error": "User not found"}
+        
+        user_id = user[0]
+        password_hash = user[1]
+        
+        # Verify password
+        if not check_password_hash(password_hash, password):
+            conn.close()
+            return {"success": False, "error": "Incorrect password"}
+        
+        # Delete all user's chats first
+        cursor.execute('DELETE FROM cloud_chats WHERE user_id = ?', (user_id,))
+        cursor.execute('DELETE FROM user_chats WHERE user_id = ?', (user_id,))
+        
+        # Delete the user account
+        cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"✅ Account deleted for user: {email}")
+        return {"success": True, "message": "Account deleted successfully"}
+        
+    except Exception as e:
+        print(f"❌ Error deleting account: {str(e)}")
+        return {"success": False, "error": str(e)}
+
 # Initialize database when module is imported
 init_db()
-
-
