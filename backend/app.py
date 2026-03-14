@@ -210,6 +210,37 @@ def update_profile():
             "error": str(e)
         }), 500
 
+@app.route('/api/delete-account', methods=['POST'])
+def delete_account():
+    """Delete user account and all associated data"""
+    try:
+        data = request.get_json()
+        print(f"🗑️ Delete account request received for email: {data.get('email')}")
+
+        if not data or 'email' not in data or 'password' not in data:
+            return jsonify({
+                "success": False,
+                "error": "Email and password are required"
+            }), 400
+
+        # Call database function to delete account
+        result = database.delete_user_account(data['email'], data['password'])
+
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "message": "Account deleted successfully"
+            }), 200
+        else:
+            return jsonify(result), 400
+
+    except Exception as e:
+        print(f"❌ Error in delete_account: {str(e)}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
 @app.route('/api/chats/save', methods=['POST'])
 def save_chat():
     """Save chat to cloud database"""
