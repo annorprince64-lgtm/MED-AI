@@ -6,8 +6,8 @@ import os
 import sys
 import json
 import traceback
-import sqlite3  # ADD THIS IMPORT
-import logging  # ADD THIS IMPORT
+import sqlite3
+import logging
 
 # Force UTF-8 encoding for stdout to handle Twi characters
 if sys.platform == 'win32':
@@ -16,8 +16,8 @@ if sys.platform == 'win32':
     sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
 
 app = Flask(__name__)
-# Enable CORS for all origins (you can restrict this in production)
-CORS(app)  # Allow all origins to support file:// access
+# Enable CORS for all origins
+CORS(app)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -81,13 +81,10 @@ def home():
         }
     })
 
-# Add this error handler
+# Error handler
 @app.errorhandler(Exception)
 def handle_exception(e):
-    # Log the error
     logger.error(f"Unhandled exception: {str(e)}", exc_info=True)
-    
-    # Return a JSON response
     return jsonify({
         "success": False,
         "error": "Internal server error",
@@ -361,10 +358,6 @@ def load_chats():
         chats = database.get_user_chats_from_cloud(user_id)
         print(f"📥 Found {len(chats)} chats in cloud")
         
-        # Debug: Print chat IDs
-        for chat_id, chat in chats.items():
-            print(f"  - Chat: {chat_id}, Title: {chat.get('title', 'No title')}, Messages: {len(chat.get('messages', []))}")
-        
         return jsonify({
             "success": True,
             "chats": chats
@@ -551,13 +544,8 @@ def analyze_text():
 def debug_ai():
     """Debug endpoint to check AI service"""
     try:
-        # Check if ai_service exists
         has_attr = hasattr(ai_service, 'analyze_text')
-        
-        # Check instance type
         instance_type = type(ai_service).__name__
-        
-        # Check methods
         methods = [method for method in dir(ai_service) if not method.startswith('_')]
         
         return jsonify({
@@ -577,11 +565,9 @@ def debug_database():
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
-        # Check if tables exist
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
         tables = cursor.fetchall()
         
-        # Check users table structure
         users_count = 0
         users_structure = []
         table_names = [t[0] for t in tables]
@@ -593,13 +579,11 @@ def debug_database():
             cursor.execute("PRAGMA table_info(users)")
             users_structure = cursor.fetchall()
         
-        # Check user_chats table
         user_chats_count = 0
         if 'user_chats' in table_names:
             cursor.execute("SELECT COUNT(*) FROM user_chats")
             user_chats_count = cursor.fetchone()[0]
         
-        # Check cloud_chats table
         cloud_chats_count = 0
         if 'cloud_chats' in table_names:
             cursor.execute("SELECT COUNT(*) FROM cloud_chats")
@@ -640,7 +624,6 @@ def chat_status():
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
-        # Get last sync time
         cursor.execute('''
             SELECT MAX(updated_at) FROM cloud_chats 
             WHERE user_id = ?
