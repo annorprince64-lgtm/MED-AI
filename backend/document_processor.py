@@ -1,8 +1,7 @@
 """
 Document Processor Module
 Handles extraction and processing of various document formats:
-- PDF (native text extraction)
-- PDF (scanned documents via OCR)
+- PDF (using PyPDF2 and pdfplumber)
 - DOCX (Microsoft Word)
 - Images (PNG, JPG, etc. via OCR)
 - TXT (plain text)
@@ -14,7 +13,6 @@ Author: Annor Prince & Collins Yeboah
 import os
 import io
 import base64
-import tempfile
 import logging
 from typing import Optional, Dict, List, Tuple, Any
 from dataclasses import dataclass
@@ -59,35 +57,39 @@ class DocumentProcessor:
     CHUNK_SIZE = 8000  # Characters per chunk
     CHUNK_OVERLAP = 500  # Overlap between chunks
     
-    def __init__(self, enable_ocr: bool = True, enable_vision: bool = False):
+    def __init__(self, enable_ocr: bool = True):
         """
         Initialize the document processor.
         
         Args:
             enable_ocr: Enable OCR for scanned documents/images
-            enable_vision: Enable vision AI for complex documents
         """
         self.enable_ocr = enable_ocr
-        self.enable_vision = enable_vision
         self._check_dependencies()
     
     def _check_dependencies(self):
         """Check and log available dependencies"""
         self.dependencies = {
-            'pymupdf': False,
+            'pypdf2': False,
+            'pdfplumber': False,
             'python_docx': False,
             'pillow': False,
             'pytesseract': False,
-            'pdf2image': False,
-            'camelot': False,
         }
         
         try:
-            import fitz  # PyMuPDF
-            self.dependencies['pymupdf'] = True
-            logger.info("PyMuPDF available for PDF processing")
+            import PyPDF2
+            self.dependencies['pypdf2'] = True
+            logger.info("PyPDF2 available for PDF processing")
         except ImportError:
-            logger.warning("PyMuPDF not installed - PDF support limited")
+            logger.warning("PyPDF2 not installed - PDF support limited")
+        
+        try:
+            import pdfplumber
+            self.dependencies['pdfplumber'] = True
+            logger.info("pdfplumber available for PDF processing with tables")
+        except ImportError:
+            logger.warning("pdfplumber not installed - table extraction limited")
         
         try:
             from docx import Document
@@ -109,13 +111,6 @@ class DocumentProcessor:
             logger.info("Tesseract available for OCR")
         except ImportError:
             logger.warning("pytesseract not installed - OCR unavailable")
-        
-        try:
-            from pdf2image import convert_from_bytes
-            self.dependencies['pdf2image'] = True
-            logger.info("pdf2image available for PDF to image conversion")
-        except ImportError:
-            logger.warning("pdf2image not installed - scanned PDF support limited")
     
     def detect_file_type(self, file_data: bytes, filename: str = "") -> Tuple[str, str]:
         """
@@ -132,7 +127,6 @@ class DocumentProcessor:
             # Could be DOCX (which is a ZIP file)
             if filename.lower().endswith('.docx'):
                 return ('docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
-            # Could be other ZIP-based formats
         
         if file_data[:8] == b'\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1':
             # Old DOC format (OLE compound document)
@@ -145,7 +139,7 @@ class DocumentProcessor:
             return ('image', 'image/jpeg')
         if file_data[:6] in [b'GIF87a', b'GIF89a']:
             return ('image', 'image/gif')
-        if file_data[:4] == b'RIFF' and file_data[8:12] == b'WEBP':
+        if file_data[:4] == b'RIFF' and len(file_data) > 12 and file_data[8:12] == b'WEBP':
             return ('image', 'image/webp')
         
         # Fallback to extension
@@ -237,9 +231,9 @@ class DocumentProcessor:
             )
     
     def _process_pdf(self, file_data: bytes, filename: str) -> ProcessedDocument:
-        """Process PDF files with multiple extraction methods"""
+        """Process PDF files using PyPDF2 and pdfplumber"""
         
-        if not self.dependencies['pymupdf']:
+        if not self.dependencies['pypdf2'] and not self.dependencies['pdfplumber']:
             return ProcessedDocument(
                 text="",
                 page_count=0,
@@ -249,119 +243,118 @@ class DocumentProcessor:
                 metadata={},
                 chunks=[],
                 success=False,
-                error="PDF processing unavailable. Install PyMuPDF: pip install pymupdf"
+                error="PDF processing unavailable. Install PyPDF2 or pdfplumber."
             )
         
-        import fitz  # PyMuPDF
+        all_text = []
+        has_images = False
+        has_tables = False
+        page_count = 0
+        metadata = {}
         
-        try:
-            doc = fitz.open(stream=file_data, filetype="pdf")
-            page_count = len(doc)
-            
-            # Extract metadata
-            metadata = {
-                'title': doc.metadata.get('title', ''),
-                'author': doc.metadata.get('author', ''),
-                'subject': doc.metadata.get('subject', ''),
-                'creator': doc.metadata.get('creator', ''),
-                'producer': doc.metadata.get('producer', ''),
-                'creation_date': doc.metadata.get('creationDate', ''),
-                'page_count': page_count,
-            }
-            
-            # Try text extraction first
-            all_text = []
-            has_images = False
-            has_tables = False
-            pages_with_no_text = []
-            
-            for page_num, page in enumerate(doc):
-                # Extract text
-                text = page.get_text("text")
+        # Try pdfplumber first (better text extraction)
+        if self.dependencies['pdfplumber']:
+            try:
+                import pdfplumber
                 
-                # Check for images
-                images = page.get_images()
-                if images:
-                    has_images = True
+                with pdfplumber.open(io.BytesIO(file_data)) as pdf:
+                    page_count = len(pdf.pages)
+                    metadata = {
+                        'page_count': page_count,
+                    }
+                    
+                    for page_num, page in enumerate(pdf.pages):
+                        # Extract text
+                        text = page.extract_text() or ""
+                        
+                        # Check for tables
+                        tables = page.extract_tables()
+                        if tables:
+                            has_tables = True
+                            for table in tables:
+                                formatted = self._format_table(table)
+                                if formatted:
+                                    text += f"\n\n[TABLE]\n{formatted}\n[/TABLE]\n"
+                        
+                        # Check for images
+                        if page.images:
+                            has_images = True
+                        
+                        if text.strip():
+                            all_text.append(f"--- Page {page_num + 1} ---\n{text}")
                 
-                # Check for tables (heuristic: look for grid-like structures)
-                tables = page.find_tables()
-                if tables and len(tables.tables) > 0:
-                    has_tables = True
-                    # Extract table text separately
-                    for table in tables.tables:
-                        table_text = table.extract()
-                        if table_text:
-                            # Format table as markdown
-                            formatted_table = self._format_table(table_text)
-                            text += f"\n\n[TABLE]\n{formatted_table}\n[/TABLE]\n"
+                combined_text = "\n\n".join(all_text)
                 
-                if text.strip():
-                    all_text.append(f"--- Page {page_num + 1} ---\n{text}")
-                else:
-                    pages_with_no_text.append(page_num)
-            
-            combined_text = "\n\n".join(all_text)
-            
-            # If no text extracted, try OCR
-            if not combined_text.strip() and pages_with_no_text and self.enable_ocr:
-                logger.info(f"No text found, attempting OCR on {len(pages_with_no_text)} pages")
-                ocr_text = self._ocr_pdf_pages(file_data, pages_with_no_text)
-                if ocr_text:
-                    combined_text = ocr_text
-            
-            doc.close()
-            
-            return self._create_result(
-                combined_text,
-                'pdf',
-                'pdf',
-                page_count=page_count,
-                has_images=has_images,
-                has_tables=has_tables,
-                metadata=metadata
-            )
-            
-        except Exception as e:
-            logger.error(f"PDF processing error: {str(e)}")
-            return ProcessedDocument(
-                text="",
-                page_count=0,
-                file_type="pdf",
-                has_images=False,
-                has_tables=False,
-                metadata={},
-                chunks=[],
-                success=False,
-                error=f"Failed to process PDF: {str(e)}"
-            )
-    
-    def _ocr_pdf_pages(self, file_data: bytes, page_numbers: List[int] = None) -> str:
-        """Perform OCR on PDF pages"""
-        if not self.dependencies['pdf2image'] or not self.dependencies['pytesseract']:
-            return ""
+                if combined_text.strip():
+                    return self._create_result(
+                        combined_text, 'pdf', 'pdf',
+                        page_count=page_count,
+                        has_images=has_images,
+                        has_tables=has_tables,
+                        metadata=metadata
+                    )
+                    
+            except Exception as e:
+                logger.warning(f"pdfplumber failed, trying PyPDF2: {str(e)}")
         
-        try:
-            from pdf2image import convert_from_bytes
-            import pytesseract
-            
-            # Convert PDF to images
-            images = convert_from_bytes(file_data, dpi=200)
-            
-            if page_numbers:
-                images = [img for i, img in enumerate(images) if i in page_numbers]
-            
-            ocr_results = []
-            for i, image in enumerate(images):
-                text = pytesseract.image_to_string(image, lang='eng')
-                if text.strip():
-                    ocr_results.append(f"--- Page {i + 1} (OCR) ---\n{text}")
-            
-            return "\n\n".join(ocr_results)
-            
-        except Exception as e:
-            logger.error(f"OCR failed: {str(e)}")
-            return ""
+        # Fallback to PyPDF2
+        if self.dependencies['pypdf2']:
+            try:
+                import PyPDF2
+                
+                reader = PyPDF2.PdfReader(io.BytesIO(file_data))
+                page_count = len(reader.pages)
+                
+                # Extract metadata
+                if reader.metadata:
+                    metadata = {
+                        'title': reader.metadata.get('/Title', ''),
+                        'author': reader.metadata.get('/Author', ''),
+                        'subject': reader.metadata.get('/Subject', ''),
+                        'creator': reader.metadata.get('/Creator', ''),
+                        'page_count': page_count,
+                    }
+                
+                for page_num, page in enumerate(reader.pages):
+                    text = page.extract_text() or ""
+                    if text.strip():
+                        all_text.append(f"--- Page {page_num + 1} ---\n{text}")
+                
+                combined_text = "\n\n".join(all_text)
+                
+                return self._create_result(
+                    combined_text, 'pdf', 'pdf',
+                    page_count=page_count,
+                    has_images=has_images,
+                    has_tables=has_tables,
+                    metadata=metadata
+                )
+                
+            except Exception as e:
+                logger.error(f"PyPDF2 processing error: {str(e)}")
+                return ProcessedDocument(
+                    text="",
+                    page_count=0,
+                    file_type="pdf",
+                    has_images=False,
+                    has_tables=False,
+                    metadata={},
+                    chunks=[],
+                    success=False,
+                    error=f"Failed to process PDF: {str(e)}"
+                )
+        
+        return ProcessedDocument(
+            text="",
+            page_count=0,
+            file_type="pdf",
+            has_images=False,
+            has_tables=False,
+            metadata={},
+            chunks=[],
+            success=False,
+            error="No PDF processing library available"
+        )
     
     def _process_docx(self, file_data: bytes, filename: str) -> ProcessedDocument:
         """Process DOCX files"""
@@ -423,7 +416,7 @@ class DocumentProcessor:
                 combined_text,
                 'docx',
                 'docx',
-                has_images=False,  # We don't extract embedded images yet
+                has_images=False,
                 has_tables=has_tables,
                 metadata=metadata
             )
@@ -444,8 +437,6 @@ class DocumentProcessor:
     
     def _process_doc(self, file_data: bytes, filename: str) -> ProcessedDocument:
         """Process old DOC files (limited support)"""
-        # Old .doc format is harder to parse
-        # Best approach is to use antiword or convert to docx
         return ProcessedDocument(
             text="",
             page_count=0,
@@ -551,7 +542,7 @@ class DocumentProcessor:
             return ""
         
         # Determine column widths
-        num_cols = max(len(row) for row in table_data)
+        num_cols = max(len(row) for row in table_data) if table_data else 0
         col_widths = [0] * num_cols
         
         for row in table_data:
