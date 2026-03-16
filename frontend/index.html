@@ -695,56 +695,118 @@
       
       // Speech-to-Text with Web Speech Recognition API
       const toggleVoice = () => {
+        // Check if Speech Recognition is available
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
         if (!SpeechRecognition) {
-          toast('Not Supported', 'Speech recognition not supported in this browser', 'error');
+          toast('Not Supported', 'Speech recognition requires Chrome, Edge, or Safari browser', 'error');
+          return;
+        }
+        
+        // Check for HTTPS (required for speech recognition)
+        if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+          toast('HTTPS Required', 'Speech recognition requires a secure (HTTPS) connection', 'error');
           return;
         }
         
         if (isListening) {
           // Stop listening
           if (window.speechRecognitionInstance) {
-            window.speechRecognitionInstance.stop();
+            try {
+              window.speechRecognitionInstance.stop();
+            } catch (e) {
+              console.log('Error stopping recognition:', e);
+            }
           }
           setIsListening(false);
-        } else {
-          // Start listening
+          return;
+        }
+        
+        // Start listening
+        try {
           const recognition = new SpeechRecognition();
           window.speechRecognitionInstance = recognition;
           
+          // Configure recognition
           recognition.continuous = false;
           recognition.interimResults = true;
           recognition.lang = 'en-US';
+          recognition.maxAlternatives = 1;
+          
+          let finalTranscript = '';
           
           recognition.onstart = () => {
             setIsListening(true);
-            toast('Listening...', 'Speak now to transcribe to chat');
+            toast('Listening...', 'Speak now - your words will appear in the text box');
           };
           
           recognition.onresult = (event) => {
-            let transcript = '';
+            let interimTranscript = '';
+            
             for (let i = event.resultIndex; i < event.results.length; i++) {
-              transcript += event.results[i][0].transcript;
+              const transcript = event.results[i][0].transcript;
+              if (event.results[i].isFinal) {
+                finalTranscript += transcript;
+              } else {
+                interimTranscript += transcript;
+              }
             }
+            
             // Update input with transcribed text
-            setInput(prev => prev + transcript);
+            if (finalTranscript) {
+              setInput(prev => {
+                const newInput = prev + (prev && !prev.endsWith(' ') ? ' ' : '') + finalTranscript;
+                finalTranscript = '';
+                return newInput;
+              });
+            } else if (interimTranscript) {
+              // Show interim results (optional - can comment out if not wanted)
+              setInput(prev => {
+                // Replace last interim with new one, or append
+                return prev + interimTranscript;
+              });
+            }
           };
           
           recognition.onerror = (event) => {
             console.error('Speech recognition error:', event.error);
             setIsListening(false);
-            if (event.error === 'no-speech') {
-              toast('No Speech', 'No speech detected. Please try again.', 'error');
-            } else {
-              toast('Error', `Speech recognition error: ${event.error}`, 'error');
+            
+            // Handle specific errors with helpful messages
+            switch(event.error) {
+              case 'no-speech':
+                toast('No Speech Detected', 'Please try again and speak clearly', 'error');
+                break;
+              case 'audio-capture':
+                toast('Microphone Error', 'Please check your microphone is connected', 'error');
+                break;
+              case 'not-allowed':
+                toast('Permission Denied', 'Please allow microphone access in your browser settings', 'error');
+                break;
+              case 'network':
+                toast('Network Error', 'Speech recognition needs internet. Please check your connection.', 'error');
+                break;
+              case 'aborted':
+                // User cancelled, don't show error
+                break;
+              default:
+                toast('Speech Error', `Error: ${event.error}. Please try again.`, 'error');
             }
           };
           
           recognition.onend = () => {
             setIsListening(false);
+            // Clean up
+            window.speechRecognitionInstance = null;
           };
           
+          // Start recognition
           recognition.start();
+          
+        } catch (error) {
+          console.error('Failed to start speech recognition:', error);
+          setIsListening(false);
+          toast('Error', 'Failed to start speech recognition. Please try again.', 'error');
         }
       };
       
