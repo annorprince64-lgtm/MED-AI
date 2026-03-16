@@ -13,10 +13,9 @@ python-dotenv==1.0.0
 # AI/LLM
 groq
 
-# PDF Processing (Multiple libraries for best extraction)
+# PDF Processing (using PyPDF2 and pdfplumber - no compilation needed)
 PyPDF2==3.0.1
 pdfplumber==0.10.3
-pymupdf==1.23.8
 
 # DOCX Processing
 python-docx==1.1.0
@@ -24,18 +23,5 @@ python-docx==1.1.0
 # Image Processing
 Pillow==10.2.0
 
-# OCR Support (Optional - requires Tesseract to be installed)
+# OCR Support (optional - for advanced image text extraction)
 pytesseract==0.3.10
-pdf2image==1.17.0
-
-# Table Extraction (Optional)
-# camelot-py==0.11.0
-# tabula-py==2.9.0
-
-# Data Processing
-# openpyxl==3.1.2  # For Excel files
-
-# Note: For OCR to work, you need to install Tesseract:
-# - Ubuntu/Debian: sudo apt-get install tesseract-ocr
-# - macOS: brew install tesseract
-# - Windows: Download from https://github.com/UB-Mannheim/tesseract/wiki
