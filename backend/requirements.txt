@@ -1,12 +1,21 @@
+# ASK AI Backend Requirements
+# Author: Annor Prince & Collins Yeboah
+
+# Core Web Framework
 flask==2.3.3
 flask-cors==4.0.0
-python-dotenv==1.0.0
-groq
 gunicorn==21.2.0
 werkzeug==2.3.7
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# AI/LLM
+groq
+
+# PDF Processing (Multiple libraries for best extraction)
 PyPDF2==3.0.1
 pdfplumber==0.10.3
-
 pymupdf==1.23.8
 
 # DOCX Processing
