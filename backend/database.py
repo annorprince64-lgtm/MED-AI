@@ -1,6 +1,6 @@
 import sqlite3
 import os
-import json
+import json  # Added missing import
 from werkzeug.security import generate_password_hash, check_password_hash
 
 DATABASE_PATH = os.path.join(os.path.dirname(__file__), 'users.db')
@@ -70,7 +70,7 @@ def create_user(username, email, password):
                 'id': user_id,
                 'username': username,
                 'email': email,
-                'name': username
+                'name': username  # Add name field for frontend compatibility
             }
         }
     except sqlite3.IntegrityError as e:
@@ -114,7 +114,7 @@ def verify_user(email, password):
                     'id': user[0],
                     'username': user[1],
                     'email': user[2],
-                    'name': user[1]
+                    'name': user[1]  # Add name field for frontend compatibility
                 }
             }
         else:
@@ -150,13 +150,16 @@ def get_user_by_id(user_id):
         return None
 
 def update_user_profile(original_email, name=None, new_email=None, current_password=None, new_password=None):
-    """Update user profile information using original email to identify user"""
+    """
+    Update user profile information using original email to identify user
+    """
     try:
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
         print(f"🔍 Looking for user with email: {original_email}")
         
+        # Get the current user by original email
         cursor.execute(
             'SELECT id, username, email, password_hash FROM users WHERE email = ?',
             (original_email,)
@@ -169,15 +172,18 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
         
         print(f"✅ User found: {user[1]}")
         
+        # If changing password, verify current password
         if new_password:
             print("🔐 Password change requested")
             if not current_password:
                 return {"success": False, "error": "Current password is required to change password"}
             
+            # Verify current password
             if not check_password_hash(user[3], current_password):
                 print("❌ Current password incorrect")
                 return {"success": False, "error": "Current password is incorrect"}
             
+            # Hash new password
             new_password_hash = generate_password_hash(new_password)
             cursor.execute(
                 "UPDATE users SET password_hash = ? WHERE email = ?",
@@ -185,6 +191,7 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
             )
             print("✅ Password updated")
         
+        # Update name if provided
         if name:
             print(f"📝 Updating name to: {name}")
             cursor.execute(
@@ -192,10 +199,12 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
                 (name, original_email)
             )
         
-        final_email = original_email
+        # Update email if provided
+        final_email = original_email  # Start with original email
         if new_email and new_email != original_email:
             print(f"📧 Changing email from {original_email} to {new_email}")
             
+            # Check if new email already exists
             cursor.execute("SELECT id FROM users WHERE email = ?", (new_email,))
             if cursor.fetchone():
                 return {"success": False, "error": "Email already exists"}
@@ -204,11 +213,12 @@ def update_user_profile(original_email, name=None, new_email=None, current_passw
                 "UPDATE users SET email = ? WHERE email = ?",
                 (new_email, original_email)
             )
-            final_email = new_email
+            final_email = new_email  # Use new email for the response
             print("✅ Email updated")
         
         conn.commit()
         
+        # Get updated user data
         cursor.execute(
             "SELECT id, username, email FROM users WHERE email = ?", 
             (final_email,)
@@ -245,6 +255,7 @@ def save_user_chat(user_id, chat_data):
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        # Create chats table if not exists
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS user_chats (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -256,6 +267,7 @@ def save_user_chat(user_id, chat_data):
             )
         ''')
         
+        # Save each chat
         for chat_id, chat in chat_data.items():
             cursor.execute('''
                 INSERT OR REPLACE INTO user_chats (user_id, chat_id, chat_data)
@@ -296,24 +308,27 @@ def save_chat_to_cloud(user_id, chat_data):
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        # Create chats table if not exists
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS cloud_chats (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 chat_id TEXT UNIQUE NOT NULL,
                 title TEXT NOT NULL,
-                messages TEXT NOT NULL,
+                messages TEXT NOT NULL,  -- JSON string of messages array
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
             )
         ''')
         
+        # Create index for faster queries
         cursor.execute('''
             CREATE INDEX IF NOT EXISTS idx_user_chats 
             ON cloud_chats(user_id, created_at)
         ''')
         
+        # Check if chat already exists
         cursor.execute(
             'SELECT id FROM cloud_chats WHERE user_id = ? AND chat_id = ?',
             (user_id, chat_data.get('id', ''))
@@ -322,6 +337,7 @@ def save_chat_to_cloud(user_id, chat_data):
         existing = cursor.fetchone()
         
         if existing:
+            # Update existing chat
             cursor.execute('''
                 UPDATE cloud_chats 
                 SET title = ?, messages = ?, updated_at = CURRENT_TIMESTAMP
@@ -329,6 +345,7 @@ def save_chat_to_cloud(user_id, chat_data):
             ''', (chat_data.get('title', 'Untitled'), json.dumps(chat_data.get('messages', [])), existing[0]))
             print(f"✅ Updated chat {chat_data.get('id')} for user {user_id}")
         else:
+            # Insert new chat
             cursor.execute('''
                 INSERT INTO cloud_chats (user_id, chat_id, title, messages)
                 VALUES (?, ?, ?, ?)
@@ -350,6 +367,7 @@ def get_user_chats_from_cloud(user_id):
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        # Check if table exists
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='cloud_chats'")
         if not cursor.fetchone():
             print("❌ cloud_chats table doesn't exist")
@@ -376,6 +394,7 @@ def get_user_chats_from_cloud(user_id):
             updated_at = row[4]
             
             try:
+                # Try to parse messages JSON
                 messages = json.loads(messages_json) if messages_json else []
                 if not isinstance(messages, list):
                     messages = []
@@ -402,7 +421,6 @@ def get_user_chats_from_cloud(user_id):
         import traceback
         traceback.print_exc()
         return {}
-
 def delete_chat_from_cloud(user_id, chat_id):
     """Delete a chat from cloud"""
     try:
@@ -429,6 +447,7 @@ def delete_user_account(email, password):
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        # First verify the user exists and password is correct
         cursor.execute(
             'SELECT id, password_hash FROM users WHERE email = ?',
             (email,)
@@ -442,12 +461,16 @@ def delete_user_account(email, password):
         user_id = user[0]
         password_hash = user[1]
         
+        # Verify password
         if not check_password_hash(password_hash, password):
             conn.close()
             return {"success": False, "error": "Incorrect password"}
         
+        # Delete all user's chats first
         cursor.execute('DELETE FROM cloud_chats WHERE user_id = ?', (user_id,))
         cursor.execute('DELETE FROM user_chats WHERE user_id = ?', (user_id,))
+        
+        # Delete the user account
         cursor.execute('DELETE FROM users WHERE id = ?', (user_id,))
         
         conn.commit()
@@ -466,6 +489,7 @@ def reset_password(email, new_password):
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        # Check if user exists
         cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
         user = cursor.fetchone()
         
@@ -473,6 +497,7 @@ def reset_password(email, new_password):
             conn.close()
             return {"success": False, "error": "User not found"}
         
+        # Hash new password and update
         new_password_hash = generate_password_hash(new_password)
         cursor.execute(
             "UPDATE users SET password_hash = ? WHERE email = ?",
@@ -492,6 +517,7 @@ def reset_password(email, new_password):
 def check_email_exists(email):
     """Check if an email exists in the database"""
     try:
+        # Normalize email to lowercase for consistent matching
         email = email.lower().strip()
         
         conn = sqlite3.connect(DATABASE_PATH)
