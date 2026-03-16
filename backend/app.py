@@ -49,15 +49,30 @@ def home():
         "message": "ASK AI Backend is running!",
         "status": "active",
         "developers": "Annor Prince & Yeboah Collins",
+        "version": "2.0",
+        "features": [
+            "Document Processing (PDF, DOCX, Images)",
+            "OCR Support for Scanned Documents",
+            "Table Extraction",
+            "Conversation Memory",
+            "User Authentication",
+            "Cloud Chat Sync"
+        ],
         "endpoints": {
-            "analyze": "/api/analyze (POST)",
-            "register": "/api/register (POST)",
-            "login": "/api/login (POST)",
-            "update-profile": "/api/update-profile (POST)",
+            "analyze": "/api/analyze (POST) - Chat with AI, supports file attachments",
+            "upload": "/api/upload (POST) - Upload and process documents",
+            "supported-formats": "/api/supported-formats (GET) - List supported file formats",
+            "register": "/api/register (POST) - Create account",
+            "login": "/api/login (POST) - Sign in",
+            "update-profile": "/api/update-profile (POST) - Update user info",
+            "delete-account": "/api/delete-account (POST) - Delete account",
+            "check-email": "/api/check-email (POST) - Check if email exists",
+            "reset-password": "/api/reset-password (POST) - Reset password",
             "chats": {
                 "save": "/api/chats/save (POST)",
                 "load": "/api/chats/load (GET)",
-                "delete": "/api/chats/delete (POST)"
+                "delete": "/api/chats/delete (POST)",
+                "status": "/api/chats/status (GET)"
             },
             "debug": {
                 "database": "/api/debug/database (GET)",
@@ -391,6 +406,93 @@ def delete_chat():
             "error": str(e)
         }), 500
 
+@app.route('/api/upload', methods=['POST'])
+def upload_file():
+    """Dedicated file upload endpoint that returns processed document info"""
+    print("--- Incoming Request to /api/upload ---")
+    try:
+        data = request.get_json()
+        if not data or 'file' not in data:
+            return jsonify({
+                "success": False,
+                "error": "No file data provided"
+            }), 400
+        
+        file_data = data.get('file', {})
+        
+        # Import document processor
+        from document_processor import process_document_base64
+        
+        # Process the document
+        result = process_document_base64(
+            base64_data=file_data.get('data', ''),
+            filename=file_data.get('name', 'unknown')
+        )
+        
+        if result.success:
+            return jsonify({
+                "success": True,
+                "text": result.text,
+                "page_count": result.page_count,
+                "file_type": result.file_type,
+                "has_images": result.has_images,
+                "has_tables": result.has_tables,
+                "metadata": result.metadata,
+                "chunks": result.chunks,
+                "char_count": len(result.text)
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": result.error or "Failed to process document"
+            }), 400
+            
+    except Exception as e:
+        print(f"❌ Error in upload_file: {str(e)}")
+        traceback.print_exc()
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/supported-formats', methods=['GET'])
+def supported_formats():
+    """Return list of supported file formats"""
+    return jsonify({
+        "success": True,
+        "formats": {
+            "pdf": {
+                "extensions": [".pdf"],
+                "mime_types": ["application/pdf"],
+                "features": ["text extraction", "tables", "OCR for scanned pages"]
+            },
+            "docx": {
+                "extensions": [".docx"],
+                "mime_types": ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"],
+                "features": ["text extraction", "tables", "formatting"]
+            },
+            "doc": {
+                "extensions": [".doc"],
+                "mime_types": ["application/msword"],
+                "features": ["limited support - please convert to .docx"]
+            },
+            "images": {
+                "extensions": [".png", ".jpg", ".jpeg", ".gif", ".webp"],
+                "mime_types": ["image/png", "image/jpeg", "image/gif", "image/webp"],
+                "features": ["OCR text extraction"]
+            },
+            "text": {
+                "extensions": [".txt", ".md", ".csv"],
+                "mime_types": ["text/plain", "text/markdown", "text/csv"],
+                "features": ["full text extraction"]
+            }
+        },
+        "max_file_size_mb": 50,
+        "max_text_length": 15000
+    })
+
+
 @app.route('/api/analyze', methods=['POST'])
 def analyze_text():
     print("--- Incoming Request to /api/analyze ---")
@@ -413,11 +515,11 @@ def analyze_text():
         if attachment:
             print(f"Attachment: {attachment.get('name', 'unknown')} ({attachment.get('type', 'unknown type')})")
 
-        if not text:
-            print("Error: Empty text received")
+        if not text and not attachment:
+            print("Error: Empty text received and no attachment")
             return jsonify({
                 "error": "Empty text provided",
-                "response": "Please provide text to analyze",
+                "response": "Please provide text to analyze or upload a file",
                 "is_medical": False
             }), 400
 
@@ -430,7 +532,7 @@ def analyze_text():
                 "is_medical": False
             }), 500
 
-        # Use your AIService to process the text with conversation history and attachment
+        # Use AIService to process the text with conversation history and attachment
         result = ai_service.analyze_text(text, conversation_history, attachment)
 
         print(f"Analysis complete, returning result")
