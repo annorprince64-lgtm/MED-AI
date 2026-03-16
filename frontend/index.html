@@ -8,6 +8,8 @@
   <meta name="author" content="Annor Prince & Collins Yeboah">
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
   <meta name="theme-color" content="#171717">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <!-- React & Dependencies -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -26,33 +28,50 @@
   <!-- KaTeX for Math Equations -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
   
   <style>
+    /* Custom Styles */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; }
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     #root { height: 100%; }
     
+    /* Scrollbar */
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(128, 128, 128, 0.3); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(128, 128, 128, 0.5); }
     
+    /* Hide scrollbar on mobile */
+    @media (max-width: 768px) {
+      .custom-scrollbar::-webkit-scrollbar { display: none; }
+      .custom-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    }
+    
+    /* Prevent horizontal scroll */
+    .no-horizontal-scroll { overflow-x: hidden; overflow-y: auto; }
+    
+    /* Bounce Animation */
     @keyframes bounce {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-4px); }
     }
     .animate-bounce { animation: bounce 0.6s ease-in-out infinite; }
     
+    /* Spin Animation */
     @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     .animate-spin { animation: spin 1s linear infinite; }
     
+    /* Pulse Animation for Recording */
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.7; transform: scale(1.1); }
     }
     .animate-pulse-recording { animation: pulse 1.5s ease-in-out infinite; }
     
-    .markdown-dark { color: #e5e7eb; line-height: 1.7; font-size: 15px; word-wrap: break-word; }
+    /* Markdown Dark - Black & White */
+    .markdown-dark { color: #e5e7eb; line-height: 1.7; font-size: 15px; word-wrap: break-word; overflow-wrap: break-word; }
     .markdown-dark p { margin: 0 0 1em 0; }
     .markdown-dark h1 { font-size: 1.5em; font-weight: 700; color: #fff; margin: 0.8em 0 0.4em 0; }
     .markdown-dark h2 { font-size: 1.3em; font-weight: 600; color: #fff; margin: 0.7em 0 0.4em 0; }
@@ -62,16 +81,18 @@
     .markdown-dark li { margin: 0.25em 0; color: #e5e7eb; }
     .markdown-dark li::marker { color: #9ca3af; }
     .markdown-dark strong { font-weight: 600; color: #fff; }
-    .markdown-dark code { background: rgba(255,255,255,0.1); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; color: #d1d5db; }
+    .markdown-dark code { background: rgba(255,255,255,0.1); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; color: #d1d5db; word-break: break-word; }
     .markdown-dark pre { background: rgba(0,0,0,0.3); padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
     .markdown-dark pre code { background: none; padding: 0; }
     .markdown-dark blockquote { border-left: 3px solid #666; padding-left: 1em; margin: 0.5em 0; color: #9ca3af; }
     .markdown-dark table { width: 100%; border-collapse: collapse; margin: 1em 0; display: block; overflow-x: auto; }
     .markdown-dark th { padding: 0.6em 1em; text-align: left; font-weight: 600; color: #d1d5db; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); }
     .markdown-dark td { padding: 0.6em 1em; border: 1px solid rgba(255,255,255,0.1); color: #e5e7eb; }
+    .markdown-dark tr:nth-child(even) { background: rgba(255,255,255,0.02); }
     .markdown-dark a { color: #fff; text-decoration: underline; }
     
-    .markdown-light { color: #374151; line-height: 1.7; font-size: 15px; word-wrap: break-word; }
+    /* Markdown Light - Black & White */
+    .markdown-light { color: #374151; line-height: 1.7; font-size: 15px; word-wrap: break-word; overflow-wrap: break-word; }
     .markdown-light p { margin: 0 0 1em 0; }
     .markdown-light h1 { font-size: 1.5em; font-weight: 700; color: #111827; margin: 0.8em 0 0.4em 0; }
     .markdown-light h2 { font-size: 1.3em; font-weight: 600; color: #111827; margin: 0.7em 0 0.4em 0; }
@@ -81,28 +102,50 @@
     .markdown-light li { margin: 0.25em 0; color: #374151; }
     .markdown-light li::marker { color: #6b7280; }
     .markdown-light strong { font-weight: 600; color: #111827; }
-    .markdown-light code { background: rgba(0,0,0,0.05); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; color: #374151; }
+    .markdown-light code { background: rgba(0,0,0,0.05); padding: 0.15em 0.4em; border-radius: 4px; font-size: 0.9em; color: #374151; word-break: break-word; }
     .markdown-light pre { background: rgba(0,0,0,0.05); padding: 1em; border-radius: 8px; overflow-x: auto; margin: 0.5em 0; }
     .markdown-light pre code { background: none; padding: 0; }
     .markdown-light blockquote { border-left: 3px solid #999; padding-left: 1em; margin: 0.5em 0; color: #6b7280; }
     .markdown-light table { width: 100%; border-collapse: collapse; margin: 1em 0; display: block; overflow-x: auto; }
     .markdown-light th { padding: 0.6em 1em; text-align: left; font-weight: 600; color: #374151; border: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.03); }
     .markdown-light td { padding: 0.6em 1em; border: 1px solid rgba(0,0,0,0.1); color: #374151; }
+    .markdown-light tr:nth-child(even) { background: rgba(0,0,0,0.02); }
     .markdown-light a { color: #111; text-decoration: underline; }
     
+    /* KaTeX Styles */
+    .katex-display { margin: 1em 0; overflow-x: auto; overflow-y: hidden; }
+    .katex { font-size: 1.1em; }
+    .markdown-dark .katex { color: #e5e7eb; }
+    .markdown-light .katex { color: #374151; }
+    
+    /* Toast */
     .toast-container { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; width: calc(100% - 32px); max-width: 400px; }
-    .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 12px; margin-top: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: slideUp 0.3s ease; text-align: center; }
-    .toast.error { background: #dc2626; }
-    .toast.success { background: #16a34a; }
+    .toast { background: #333; color: #fff; padding: 12px 20px; border-radius: 12px; margin-top: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.4); animation: slideUp 0.3s ease; text-align: center; border: 1px solid #555; }
+    .toast.error { background: #444; border-color: #666; }
     @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     
+    /* Modal Overlay */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 100; display: flex; align-items: center; justify-content: center; padding: 16px; backdrop-filter: blur(4px); }
     .modal { background: var(--modal-bg); border-radius: 20px; padding: 24px; max-width: 400px; width: 100%; max-height: 85vh; overflow-y: auto; position: relative; border: 1px solid rgba(255,255,255,0.1); }
     
+    /* Safe area for mobile */
+    @supports (padding-bottom: env(safe-area-inset-bottom)) {
+      .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+      .safe-top { padding-top: env(safe-area-inset-top); }
+    }
+    
+    /* Mobile sidebar overlay */
     .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 45; }
     
+    /* Touch improvements */
     button { touch-action: manipulation; }
     input, textarea { font-size: 16px; }
+    
+    /* Mobile specific fixes */
+    @media (max-width: 768px) {
+      .modal { max-height: 90vh; padding: 20px; margin: 8px; }
+      .modal-overlay { padding: 8px; align-items: flex-start; padding-top: 40px; }
+    }
   </style>
 </head>
 <body>
@@ -110,7 +153,6 @@
   
   <script type="text/babel">
     // ==================== CONFIGURATION ====================
-    // IMPORTANT: Change this to your deployed backend URL
     const BACKEND_URL = 'https://med-ai-48yi.onrender.com/api';
     const EMAILJS_SERVICE_ID = 'service_zjhyid5';
     const EMAILJS_TEMPLATE_ID = 'template_vha29yp';
@@ -142,25 +184,68 @@
       LogOut: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16,17 21,12 16,7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
       Mail: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>,
       Shield: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg>,
+      Phone: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>,
+      Heart: () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>,
+      ChevronDown: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6"/></svg>,
       Trash: () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>,
       Paperclip: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/></svg>,
+      ChevronRight: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6"/></svg>,
+      FileText: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>,
+      Database: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>,
+      FileCheck: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14,2 14,8 20,8"/><path d="m9 15 2 2 4-4"/></svg>,
     };
     
     // ==================== UTILITIES ====================
     const generateId = () => `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Check if mobile
     const isMobile = () => window.innerWidth < 768;
+    
+    // ==================== MATH RENDERING ====================
+    const renderMathInText = (text) => {
+      if (!text) return text;
+      
+      // Replace $$...$$ with display math and $...$ with inline math
+      // Then render with KaTeX
+      let processed = text;
+      
+      // Handle display math ($$...$$) - remove the $$ delimiters
+      processed = processed.replace(/\$\$([\s\S]*?)\$\$/g, (match, math) => {
+        try {
+          return katex.renderToString(math.trim(), { displayMode: true, throwOnError: false });
+        } catch (e) {
+          return match;
+        }
+      });
+      
+      // Handle inline math ($...$) - remove the $ delimiters
+      // Be careful not to match currency like $5 or $10.00
+      processed = processed.replace(/\$([^\$\n]+?)\$/g, (match, math) => {
+        // Skip if it looks like currency (just numbers and maybe decimals)
+        if (/^\d+\.?\d*$/.test(math.trim())) {
+          return match;
+        }
+        try {
+          return katex.renderToString(math.trim(), { displayMode: false, throwOnError: false });
+        } catch (e) {
+          return match;
+        }
+      });
+      
+      return processed;
+    };
     
     // ==================== STORAGE ====================
     const loadState = () => {
       try {
-        const saved = localStorage.getItem('askai-storage-v10');
+        const saved = localStorage.getItem('askai-storage-v9');
         return saved ? JSON.parse(saved) : null;
       } catch { return null; }
     };
     
     const saveState = (state) => {
       try {
-        localStorage.setItem('askai-storage-v10', JSON.stringify({
+        localStorage.setItem('askai-storage-v9', JSON.stringify({
           currentUser: state.currentUser,
           isAuthenticated: state.isAuthenticated,
           chats: state.chats,
@@ -170,152 +255,92 @@
       } catch {}
     };
     
-    // ==================== API WITH BETTER ERROR HANDLING ====================
+    // ==================== API ====================
+    let abortController = null;
+    
     const api = {
-      // Timeout wrapper for fetch
-      fetchWithTimeout: async (url, options, timeout = 30000) => {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), timeout);
-        
-        try {
-          const response = await fetch(url, {
-            ...options,
-            signal: controller.signal,
-          });
-          clearTimeout(id);
-          return response;
-        } catch (error) {
-          clearTimeout(id);
-          throw error;
-        }
-      },
-      
       analyzeText: async (text, conversationHistory = [], attachment = null, signal = null) => {
-        const body = { text, conversation_history: conversationHistory };
-        if (attachment) body.attachment = attachment;
-        
-        try {
-          const res = await fetch(`${BACKEND_URL}/analyze`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body),
-            signal: signal,
-          });
-          
-          if (!res.ok) {
-            throw new Error(`Server error: ${res.status}`);
-          }
-          
-          return await res.json();
-        } catch (error) {
-          if (error.name === 'AbortError') {
-            throw error; // Let caller handle abort
-          }
-          console.error('API Error:', error);
-          return { 
-            response: `**Connection Error**\n\nUnable to connect to the server. Please check:\n1. Your internet connection\n2. The backend server is running\n\nError: ${error.message}`,
-            error: true 
-          };
+        const body = { 
+          text,
+          conversation_history: conversationHistory 
+        };
+        if (attachment) {
+          body.attachment = attachment;
         }
+        const res = await fetch(`${BACKEND_URL}/analyze`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: signal,
+        });
+        return res.json();
       },
       
       login: async (email, password) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-          return await res.json();
-        } catch (error) {
-          return { success: false, error: 'Connection failed. Please check your internet.' };
-        }
+        const res = await fetch(`${BACKEND_URL}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        return res.json();
       },
       
       register: async (username, email, password) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, email, password }),
-          });
-          return await res.json();
-        } catch (error) {
-          return { success: false, error: 'Connection failed. Please check your internet.' };
-        }
+        const res = await fetch(`${BACKEND_URL}/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password }),
+        });
+        return res.json();
       },
       
       updateProfile: async (originalEmail, name, newEmail, currentPassword, newPassword) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/update-profile`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ originalEmail, name, newEmail, currentPassword, newPassword }),
-          });
-          return await res.json();
-        } catch (error) {
-          return { success: false, error: 'Connection failed' };
-        }
+        const res = await fetch(`${BACKEND_URL}/update-profile`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ originalEmail, name, newEmail, currentPassword, newPassword }),
+        });
+        return res.json();
       },
       
       loadChats: async (userId) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/chats/load?user_id=${userId}`);
-          return await res.json();
-        } catch (error) {
-          return { success: false, chats: {} };
-        }
+        const res = await fetch(`${BACKEND_URL}/chats/load?user_id=${userId}`);
+        return res.json();
       },
       
       saveChat: async (userId, chatData) => {
-        try {
-          await fetch(`${BACKEND_URL}/chats/save`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: userId, chat_data: chatData }),
-          });
-        } catch (error) {
-          console.error('Save chat error:', error);
-        }
+        await fetch(`${BACKEND_URL}/chats/save`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, chat_data: chatData }),
+        });
       },
       
       deleteAccount: async (email, password) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/delete-account`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password }),
-          });
-          return await res.json();
-        } catch (error) {
-          return { success: false, error: 'Connection failed' };
-        }
+        const res = await fetch(`${BACKEND_URL}/delete-account`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        return res.json();
       },
       
       checkEmail: async (email) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/check-email`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
-          });
-          return await res.json();
-        } catch (error) {
-          return { success: false, error: 'Connection failed' };
-        }
+        const res = await fetch(`${BACKEND_URL}/check-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        return res.json();
       },
       
       resetPassword: async (email, new_password) => {
-        try {
-          const res = await fetch(`${BACKEND_URL}/reset-password`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, new_password }),
-          });
-          return await res.json();
-        } catch (error) {
-          return { success: false, error: 'Connection failed' };
-        }
+        const res = await fetch(`${BACKEND_URL}/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, new_password }),
+        });
+        return res.json();
       },
     };
     
@@ -330,7 +355,7 @@
         setToasts(prev => [...prev, { id, title, description, type }]);
         setTimeout(() => {
           setToasts(prev => prev.filter(t => t.id !== id));
-        }, 4000);
+        }, 3000);
       };
       
       return (
@@ -338,7 +363,7 @@
           {children}
           <div className="toast-container">
             {toasts.map(t => (
-              <div key={t.id} className={`toast ${t.type}`}>
+              <div key={t.id} className={`toast ${t.type === 'error' ? 'error' : ''}`}>
                 <strong>{t.title}</strong>
                 {t.description && <div style={{ fontSize: 13, opacity: 0.9, marginTop: 2 }}>{t.description}</div>}
               </div>
@@ -349,145 +374,6 @@
     };
     
     const useToast = () => React.useContext(ToastContext);
-    
-    // ==================== VOICE RECOGNITION HOOK ====================
-    const useVoiceRecognition = (toast) => {
-      const [isListening, setIsListening] = React.useState(false);
-      const recognitionRef = React.useRef(null);
-      const manualStopRef = React.useRef(false);
-      
-      const startListening = React.useCallback((onResult) => {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        if (!SpeechRecognition) {
-          toast('Not Supported', 'Use Chrome, Edge, or Safari for voice input', 'error');
-          return false;
-        }
-        
-        // Stop any existing recognition
-        if (recognitionRef.current) {
-          try {
-            recognitionRef.current.stop();
-          } catch (e) {}
-        }
-        
-        try {
-          const recognition = new SpeechRecognition();
-          recognitionRef.current = recognition;
-          manualStopRef.current = false;
-          
-          recognition.continuous = true;
-          recognition.interimResults = false;
-          recognition.lang = 'en-US';
-          
-          recognition.onstart = () => {
-            setIsListening(true);
-            toast('Listening...', 'Speak now, your words will appear in the text box', 'success');
-          };
-          
-          recognition.onresult = (event) => {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-              if (event.results[i].isFinal) {
-                transcript += event.results[i][0].transcript;
-              }
-            }
-            if (transcript && onResult) {
-              onResult(transcript);
-            }
-          };
-          
-          recognition.onerror = (event) => {
-            console.log('Speech error:', event.error);
-            
-            if (manualStopRef.current) return;
-            
-            setIsListening(false);
-            
-            switch(event.error) {
-              case 'no-speech':
-                toast('No Speech', 'No speech was detected. Please try again.', 'error');
-                break;
-              case 'audio-capture':
-                toast('No Microphone', 'No microphone found. Please connect a microphone.', 'error');
-                break;
-              case 'not-allowed':
-                toast('Permission Denied', 'Please allow microphone access in your browser settings.', 'error');
-                break;
-              case 'network':
-                toast('Network Error', 'Speech recognition requires internet connection.', 'error');
-                break;
-              case 'aborted':
-                break;
-              default:
-                if (event.error) {
-                  toast('Voice Error', `Error: ${event.error}`, 'error');
-                }
-            }
-          };
-          
-          recognition.onend = () => {
-            setIsListening(false);
-          };
-          
-          // Request microphone permission first
-          navigator.mediaDevices.getUserMedia({ audio: true })
-            .then((stream) => {
-              // Stop the test stream
-              stream.getTracks().forEach(track => track.stop());
-              // Start recognition
-              recognition.start();
-            })
-            .catch((err) => {
-              setIsListening(false);
-              if (err.name === 'NotAllowedError') {
-                toast('Permission Denied', 'Microphone access was denied. Please allow it in browser settings.', 'error');
-              } else if (err.name === 'NotFoundError') {
-                toast('No Microphone', 'No microphone device found.', 'error');
-              } else {
-                toast('Microphone Error', 'Could not access microphone: ' + err.message, 'error');
-              }
-            });
-          
-          return true;
-        } catch (error) {
-          console.error('Speech recognition init error:', error);
-          toast('Voice Error', 'Could not initialize voice recognition', 'error');
-          return false;
-        }
-      }, [toast]);
-      
-      const stopListening = React.useCallback(() => {
-        manualStopRef.current = true;
-        if (recognitionRef.current) {
-          try {
-            recognitionRef.current.stop();
-          } catch (e) {}
-        }
-        setIsListening(false);
-      }, []);
-      
-      const toggleListening = React.useCallback((onResult) => {
-        if (isListening) {
-          stopListening();
-        } else {
-          startListening(onResult);
-        }
-      }, [isListening, startListening, stopListening]);
-      
-      // Cleanup on unmount
-      React.useEffect(() => {
-        return () => {
-          if (recognitionRef.current) {
-            try {
-              recognitionRef.current.stop();
-            } catch (e) {}
-          }
-        };
-      }, []);
-      
-      return { isListening, startListening, stopListening, toggleListening };
-    };
     
     // ==================== MAIN APP ====================
     function App() {
@@ -503,8 +389,14 @@
       const [isTyping, setIsTyping] = React.useState(false);
       const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
       const [input, setInput] = React.useState('');
+      const [isListening, setIsListening] = React.useState(false);
+      const [isStopped, setIsStopped] = React.useState(false);
+      
+      // File attachment state
       const [selectedFile, setSelectedFile] = React.useState(null);
       const fileInputRef = React.useRef(null);
+      
+      // AbortController ref
       const abortControllerRef = React.useRef(null);
       
       // Modals
@@ -512,6 +404,7 @@
       const [showRegister, setShowRegister] = React.useState(false);
       const [showProfile, setShowProfile] = React.useState(false);
       const [showVerification, setShowVerification] = React.useState(false);
+      const [showSettings, setShowSettings] = React.useState(false);
       const [showForgotPassword, setShowForgotPassword] = React.useState(false);
       const [showResetPassword, setShowResetPassword] = React.useState(false);
       
@@ -526,6 +419,8 @@
       const [pendingUser, setPendingUser] = React.useState(null);
       const [verificationCode, setVerificationCode] = React.useState('');
       const [loading, setLoading] = React.useState(false);
+      
+      // Password recovery state
       const [recoveryEmail, setRecoveryEmail] = React.useState('');
       const [recoveryCode, setRecoveryCode] = React.useState('');
       const [recoveryCodeInput, setRecoveryCodeInput] = React.useState('');
@@ -538,19 +433,6 @@
       const isDark = theme === 'dark';
       const mobile = isMobile();
       
-      // Voice recognition hook
-      const { isListening, toggleListening } = useVoiceRecognition(toast);
-      
-      // Styles based on theme
-      const styles = {
-        bgPrimary: isDark ? '#000' : '#fff',
-        bgSecondary: isDark ? '#111' : '#f5f5f5',
-        bgTertiary: isDark ? '#1a1a1a' : '#e5e5e5',
-        textPrimary: isDark ? '#fff' : '#000',
-        textSecondary: isDark ? '#888' : '#666',
-        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-      };
-      
       // Save state
       React.useEffect(() => {
         saveState({ currentUser, isAuthenticated, chats, currentChatId, theme });
@@ -559,7 +441,8 @@
       // Initialize chat
       React.useEffect(() => {
         if (!currentChatId || Object.keys(chats).length === 0) {
-          createNewChat(true);
+          const id = createNewChat(true);
+          setCurrentChatId(id);
         }
       }, []);
       
@@ -615,7 +498,7 @@
           messages: [{
             id: generateId(),
             role: 'ai',
-            content: "Hello! I'm **ASK AI**, your intelligent assistant created by **Annor Prince** and **Yeboah Collins**. How can I help you today?",
+            content: "Hello! I'm **ASK AI**, your intelligent assistant created by **Annor Prince** and **Yeboah Collins**. I can help you with questions, tasks, and more.\n\nI remember our conversation, so feel free to ask follow-up questions!\n\nHow can I help you today?",
             timestamp: new Date().toISOString(),
           }],
         };
@@ -656,12 +539,36 @@
         }));
       };
       
-      const buildConversationHistory = (currentMessages) => {
-        return currentMessages.slice(-10)
-          .filter(m => !m.content.includes("Hello! I'm **ASK AI**"))
-          .map(m => ({ role: m.role, content: m.content }));
+      const clearChat = (chatId) => {
+        setChats(prev => ({
+          ...prev,
+          [chatId]: {
+            ...prev[chatId],
+            messages: [{
+              id: generateId(),
+              role: 'ai',
+              content: "Hello! I'm your AI assistant. How can I help you today?",
+              timestamp: new Date().toISOString(),
+            }],
+            date: new Date().toISOString(),
+          },
+        }));
       };
       
+      // Build conversation history for context
+      const buildConversationHistory = (currentMessages) => {
+        const messagesToSend = currentMessages.slice(-11).filter(m => 
+          !m.content.includes("Hello! I'm **ASK AI**") && 
+          !m.content.includes("Hello! I'm your AI assistant")
+        );
+        
+        return messagesToSend.map(m => ({
+          role: m.role,
+          content: m.content
+        }));
+      };
+      
+      // File handling
       const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -670,13 +577,15 @@
             return;
           }
           setSelectedFile(file);
-          toast('File Attached', file.name, 'success');
+          toast('File Attached', file.name);
         }
       };
       
       const removeFile = () => {
         setSelectedFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       };
       
       const readFileAsBase64 = (file) => {
@@ -688,12 +597,14 @@
         });
       };
       
+      // Stop AI generation
       const stopGeneration = () => {
         if (abortControllerRef.current) {
           abortControllerRef.current.abort();
           abortControllerRef.current = null;
         }
         setIsTyping(false);
+        setIsStopped(true);
         toast('Stopped', 'AI generation cancelled');
       };
       
@@ -710,7 +621,11 @@
         if (selectedFile) {
           try {
             const base64 = await readFileAsBase64(selectedFile);
-            attachmentData = { name: selectedFile.name, type: selectedFile.type, data: base64 };
+            attachmentData = {
+              name: selectedFile.name,
+              type: selectedFile.type,
+              data: base64
+            };
             messageContent = `${content}\n\n[Attached: ${selectedFile.name}]`;
           } catch (e) {
             toast('Error', 'Failed to read file', 'error');
@@ -726,7 +641,9 @@
         });
         
         setSelectedFile(null);
-        if (fileInputRef.current) fileInputRef.current.value = '';
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
         
         const currentChat = chats[currentChatId];
         if (currentChat && currentChat.messages.length <= 1) {
@@ -734,6 +651,9 @@
         }
         
         setIsTyping(true);
+        setIsStopped(false);
+        
+        // Create new AbortController for this request
         abortControllerRef.current = new AbortController();
         
         try {
@@ -748,19 +668,21 @@
           const conversationHistory = buildConversationHistory(allMessages);
           
           const response = await api.analyzeText(content, conversationHistory, attachmentData, abortControllerRef.current.signal);
-          
           addMessage(currentChatId, {
             id: generateId(),
             role: 'ai',
-            content: response.response || response.error || 'I could not process your request.',
+            content: response.response || 'I could not process your request.',
             timestamp: new Date().toISOString(),
           });
         } catch (error) {
-          if (error.name !== 'AbortError') {
+          if (error.name === 'AbortError') {
+            // Request was aborted - don't add error message
+            console.log('Request was aborted');
+          } else {
             addMessage(currentChatId, {
               id: generateId(),
               role: 'ai',
-              content: "I'm having trouble connecting. Please check your internet and try again.",
+              content: "I'm having trouble connecting. Please try again.",
               timestamp: new Date().toISOString(),
             });
           }
@@ -770,14 +692,150 @@
         }
       };
       
-      // Voice input handler
-      const handleVoiceInput = () => {
-        toggleListening((transcript) => {
-          setInput(prev => {
-            const trimmed = prev.trim();
-            return trimmed ? `${trimmed} ${transcript}` : transcript;
-          });
-        });
+      // Speech-to-Text with Web Speech Recognition API
+      const toggleVoice = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+          toast('Not Supported', 'Use Chrome, Edge, or Safari browser', 'error');
+          return;
+        }
+        
+        // If already listening, STOP the recognition
+        if (isListening) {
+          // Set manual stop flag BEFORE stopping to prevent error toasts
+          window.speechManualStop = true;
+          
+          if (window.speechRecognitionInstance) {
+            try {
+              window.speechRecognitionInstance.stop();
+            } catch (e) {
+              console.log('Error stopping recognition:', e);
+            }
+          }
+          setIsListening(false);
+          return;
+        }
+        
+        // START new recognition session
+        try {
+          const recognition = new SpeechRecognition();
+          window.speechRecognitionInstance = recognition;
+          window.speechManualStop = false; // Reset flag
+          
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'en-US';
+          recognition.maxAlternatives = 1;
+          
+          recognition.onstart = () => {
+            window.speechManualStop = false; // Ensure flag is reset
+            setIsListening(true);
+            toast('Listening...', 'Speak now to transcribe to chat');
+          };
+          
+          recognition.onresult = (event) => {
+            let finalTranscript = '';
+            
+            // Process results - only get final results
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+              }
+            }
+            
+            // Update input with final results only
+            if (finalTranscript) {
+              setInput(prev => {
+                const trimmed = prev.trim();
+                return trimmed ? `${trimmed} ${finalTranscript}` : finalTranscript;
+              });
+            }
+          };
+          
+          recognition.onerror = (event) => {
+            console.log('Speech error:', event.error);
+            
+            // Don't show error if manually stopped by user
+            if (window.speechManualStop) return;
+            
+            // Handle specific errors with user-friendly messages
+            switch(event.error) {
+              case 'no-speech':
+                toast('No Speech Detected', 'Please try again', 'error');
+                break;
+                
+              case 'audio-capture':
+                toast('Microphone Not Found', 'Check your microphone connection', 'error');
+                break;
+                
+              case 'not-allowed':
+                toast('Permission Denied', 'Allow microphone access in browser settings', 'error');
+                break;
+                
+              case 'network':
+                toast('Network Issue', 'Connection problem', 'error');
+                break;
+                
+              case 'aborted':
+                // User or system aborted - no error toast needed
+                break;
+                
+              case 'service-not-allowed':
+                toast('Service Not Allowed', 'Speech recognition is disabled', 'error');
+                break;
+                
+              default:
+                // Only show generic error for truly unknown errors
+                if (event.error !== 'aborted') {
+                  toast('Voice Input Error', 'Please try again', 'error');
+                }
+            }
+            
+            setIsListening(false);
+          };
+          
+          recognition.onend = () => {
+            setIsListening(false);
+          };
+          
+          // Request microphone permission before starting
+          navigator.mediaDevices?.getUserMedia({ audio: true })
+            .then((stream) => {
+              // Stop the permission stream immediately - we just needed permission
+              stream.getTracks().forEach(track => track.stop());
+              // Start recognition
+              recognition.start();
+            })
+            .catch((err) => {
+              console.log('Microphone permission error:', err);
+              setIsListening(false);
+              
+              if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                toast('Microphone Access Denied', 'Please allow microphone access and try again', 'error');
+              } else if (err.name === 'NotFoundError') {
+                toast('No Microphone', 'No microphone device found', 'error');
+              } else {
+                toast('Microphone Error', 'Could not access microphone', 'error');
+              }
+            });
+          
+        } catch (error) {
+          console.error('Speech recognition error:', error);
+          setIsListening(false);
+          toast('Voice Input Failed', 'Could not start voice input', 'error');
+        }
+      };
+      
+      // Clean up function for voice recognition (call on unmount)
+      const cleanupVoice = () => {
+        window.speechManualStop = true;
+        if (window.speechRecognitionInstance) {
+          try {
+            window.speechRecognitionInstance.stop();
+          } catch (e) {}
+        }
+        window.speechRecognitionInstance = null;
       };
       
       const handleLogin = async (e) => {
@@ -791,7 +849,7 @@
             setShowLogin(false);
             setLoginEmail('');
             setLoginPassword('');
-            toast('Welcome back!', `Logged in as ${result.user.name || result.user.username}`, 'success');
+            toast('Welcome back!', `Logged in as ${result.user.name}`);
           } else {
             toast('Login Failed', result.error || 'Invalid credentials', 'error');
           }
@@ -824,7 +882,7 @@
             });
             setShowRegister(false);
             setShowVerification(true);
-            toast('Verification Sent', 'Check your email for the code', 'success');
+            toast('Verification Sent', 'Check your email for the code');
           } else {
             toast('Error', 'Email service not available', 'error');
           }
@@ -840,26 +898,23 @@
           toast('Error', 'Invalid verification code', 'error');
           return;
         }
+        if (!pendingUser) return;
         setLoading(true);
         try {
           const result = await api.register(pendingUser.name, pendingUser.email, pendingUser.password);
-          if (result.success) {
+          if (result.success && result.user) {
             setCurrentUser(result.user);
             setIsAuthenticated(true);
             setShowVerification(false);
             setPendingUser(null);
             setVerificationCode('');
             setVerificationInput('');
-            setRegisterName('');
-            setRegisterEmail('');
-            setRegisterPassword('');
-            setRegisterConfirm('');
-            toast('Welcome!', 'Account created successfully', 'success');
+            toast('Account Created!', 'Welcome to ASK AI!');
           } else {
-            toast('Error', result.error || 'Registration failed', 'error');
+            toast('Registration Failed', result.error, 'error');
           }
         } catch (e) {
-          toast('Error', 'Registration failed', 'error');
+          toast('Error', 'Failed to create account', 'error');
         } finally {
           setLoading(false);
         }
@@ -868,408 +923,528 @@
       const handleLogout = () => {
         setCurrentUser(null);
         setIsAuthenticated(false);
-        toast('Logged out', 'See you next time!');
-      };
-      
-      // Render markdown
-      const renderMarkdown = (text) => {
-        if (!text) return '';
-        try {
-          return { __html: marked.parse(text) };
-        } catch {
-          return { __html: text };
-        }
+        const newId = generateId();
+        const freshChat = {
+          id: newId,
+          title: 'New Conversation',
+          date: new Date().toISOString(),
+          messages: [{
+            id: generateId(),
+            role: 'ai',
+            content: "Hello! I'm **ASK AI**, your intelligent assistant created by **Annor Prince** and **Yeboah Collins**. I can help you with questions, tasks, and more.\n\nI remember our conversation, so feel free to ask follow-up questions!\n\nHow can I help you today?",
+            timestamp: new Date().toISOString(),
+          }],
+        };
+        setChats({ [newId]: freshChat });
+        setCurrentChatId(newId);
+        setIsSidebarOpen(false);
+        toast('Logged out', 'You have been logged out');
       };
       
       const currentChat = chats[currentChatId];
       const messages = currentChat?.messages || [];
+      const userInitials = currentUser?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+      
+      // Group chats
+      const groupedChats = Object.values(chats)
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .reduce((groups, chat) => {
+          const date = new Date(chat.date);
+          const today = new Date();
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          let key = 'Previous 7 Days';
+          if (date.toDateString() === today.toDateString()) key = 'Today';
+          else if (date.toDateString() === yesterday.toDateString()) key = 'Yesterday';
+          if (!groups[key]) groups[key] = [];
+          groups[key].push(chat);
+          return groups;
+        }, {});
+      
+      // Theme styles - Black & White only
+      const styles = {
+        bgMain: isDark ? '#0a0a0a' : '#ffffff',
+        bgSidebar: isDark ? '#111111' : '#fafafa',
+        bgSecondary: isDark ? '#1a1a1a' : '#f0f0f0',
+        bgHover: isDark ? '#222222' : '#e5e5e5',
+        textPrimary: isDark ? '#ffffff' : '#000000',
+        textSecondary: isDark ? '#888888' : '#666666',
+        borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+      };
+      
+      // Render markdown with KaTeX math
+      const renderMarkdown = (content) => {
+        if (!content) return null;
+        
+        // First render markdown
+        const processed = content
+          .split('\n')
+          .map(line => line.trim())
+          .join('\n')
+          .replace(/<br\s*\/?>/gi, '\n\n');
+        
+        let html = marked.parse(processed);
+        
+        // Then render math (without $$ symbols in output)
+        html = renderMathInText(html);
+        
+        return <div dangerouslySetInnerHTML={{ __html: html }} />;
+      };
+      
+      // Close sidebar when clicking outside on mobile
+      const handleMainClick = () => {
+        if (mobile && isSidebarOpen) {
+          setIsSidebarOpen(false);
+        }
+      };
       
       return (
-        <div style={{ height: '100%', background: styles.bgPrimary, color: styles.textPrimary }}>
-          {/* Sidebar Overlay */}
-          {isSidebarOpen && <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />}
+        <div style={{
+          display: 'flex', height: '100%', fontFamily: 'sans-serif', overflow: 'hidden',
+          background: styles.bgMain, color: styles.textPrimary,
+        }}>
+          
+          {/* Sidebar Overlay for Mobile */}
+          {mobile && isSidebarOpen && (
+            <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />
+          )}
           
           {/* Sidebar */}
           <div style={{
-            position: 'fixed',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 280,
-            background: styles.bgSecondary,
+            position: mobile ? 'fixed' : 'relative',
+            left: 0, top: 0, bottom: 0,
+            width: mobile ? 280 : (isSidebarOpen ? 260 : 0),
+            transition: 'width 0.3s, transform 0.3s',
+            transform: mobile ? (isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)') : 'none',
+            overflow: 'hidden',
             borderRight: `1px solid ${styles.borderColor}`,
-            transform: isSidebarOpen ? 'translateX(0)' : 'translateX(-100%)',
-            transition: 'transform 0.3s ease',
-            zIndex: 50,
-            display: 'flex',
-            flexDirection: 'column',
+            background: styles.bgSidebar,
+            zIndex: mobile ? 50 : 1,
           }}>
-            <div style={{ padding: 16, borderBottom: `1px solid ${styles.borderColor}` }}>
+            <div style={{ width: mobile ? 280 : 260, padding: 12, display: 'flex', flexDirection: 'column', height: '100%' }}>
+              {mobile && (
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  style={{
+                    position: 'absolute', top: 12, right: 12, padding: 8, borderRadius: 8,
+                    background: styles.bgSecondary,
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: styles.textPrimary,
+                  }}
+                >
+                  <Icons.XLarge />
+                </button>
+              )}
+              
               <button
                 onClick={() => createNewChat()}
                 style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: 12,
-                  border: `1px solid ${styles.borderColor}`,
-                  background: 'transparent',
-                  color: styles.textPrimary,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                  fontSize: 14,
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '12px',
+                  width: '100%', borderRadius: 12, marginBottom: 16,
+                  transition: 'background 0.2s', border: 'none', cursor: 'pointer',
+                  background: styles.bgSecondary, color: styles.textPrimary,
                 }}
               >
-                <Icons.Plus /> New Chat
-              </button>
-            </div>
-            
-            <div style={{ flex: 1, overflowY: 'auto', padding: 8 }} className="custom-scrollbar">
-              {Object.values(chats).reverse().map(chat => (
-                <div
-                  key={chat.id}
-                  onClick={() => { setCurrentChatId(chat.id); setIsSidebarOpen(false); }}
-                  style={{
-                    padding: '12px 16px',
-                    borderRadius: 10,
-                    cursor: 'pointer',
-                    marginBottom: 4,
-                    background: chat.id === currentChatId ? (isDark ? '#222' : '#e5e5e5') : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, overflow: 'hidden' }}>
-                    <Icons.MessageSquare />
-                    <span style={{ fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {chat.title}
-                    </span>
-                  </div>
-                  {Object.keys(chats).length > 1 && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); deleteChat(chat.id); }}
-                      style={{ padding: 4, background: 'none', border: 'none', cursor: 'pointer', color: styles.textSecondary }}
-                    >
-                      <Icons.Trash />
-                    </button>
-                  )}
+                <div style={{ background: isDark ? '#333' : '#ddd', padding: 4, borderRadius: 6, color: styles.textPrimary }}>
+                  <Icons.Plus />
                 </div>
-              ))}
-            </div>
-            
-            <div style={{ padding: 16, borderTop: `1px solid ${styles.borderColor}` }}>
-              <button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                style={{
-                  width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: 10,
-                  border: 'none',
-                  background: 'transparent',
-                  color: styles.textPrimary,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 12,
-                }}
-              >
-                {isDark ? <Icons.Sun /> : <Icons.Moon />} {isDark ? 'Light Mode' : 'Dark Mode'}
+                <span style={{ fontSize: 14, fontWeight: 500 }}>New Chat</span>
               </button>
               
-              {isAuthenticated ? (
-                <div style={{ marginTop: 8 }}>
+              <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }} className="custom-scrollbar">
+                {Object.entries(groupedChats).map(([group, groupChats]) => (
+                  <div key={group} style={{ marginBottom: 24 }}>
+                    <h3 style={{
+                      fontSize: 11, fontWeight: 600, textTransform: 'uppercase',
+                      letterSpacing: '0.05em', marginBottom: 8, paddingLeft: 12,
+                      color: styles.textSecondary,
+                    }}>{group}</h3>
+                    {groupChats.map(chat => (
+                      <div key={chat.id} style={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
+                        <button
+                          onClick={() => { setCurrentChatId(chat.id); if (mobile) setIsSidebarOpen(false); }}
+                          style={{
+                            flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                            borderRadius: 10, border: 'none', cursor: 'pointer', textAlign: 'left',
+                            background: chat.id === currentChatId ? styles.bgHover : 'transparent',
+                            color: styles.textPrimary, transition: 'background 0.2s',
+                          }}
+                        >
+                          <Icons.MessageSquare />
+                          <span style={{ fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {chat.title}
+                          </span>
+                        </button>
+                        {Object.keys(chats).length > 1 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); deleteChat(chat.id); }}
+                            style={{ padding: 6, opacity: 0.6, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
+                          >
+                            <Icons.X />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Sidebar Bottom */}
+              <div style={{ borderTop: `1px solid ${styles.borderColor}`, paddingTop: 12 }}>
+                {isAuthenticated ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <button
+                      onClick={() => { setShowProfile(true); if (mobile) setIsSidebarOpen(false); }}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px',
+                        borderRadius: 10, border: 'none', cursor: 'pointer',
+                        background: styles.bgSecondary, color: styles.textPrimary,
+                      }}
+                    >
+                      <div style={{
+                        width: 28, height: 28, borderRadius: '50%',
+                        background: isDark ? '#333' : '#ddd',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 10, fontWeight: 'bold', color: styles.textPrimary,
+                      }}>{userInitials}</div>
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>{currentUser?.name}</span>
+                    </button>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => { setShowSettings(true); if (mobile) setIsSidebarOpen(false); }}
+                        style={{
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          padding: 10, borderRadius: 10, border: 'none', cursor: 'pointer',
+                          background: styles.bgSecondary, color: styles.textPrimary,
+                        }}
+                      >
+                        <Icons.Settings />
+                        <span style={{ fontSize: 14 }}>Settings</span>
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        style={{
+                          flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                          padding: 10, borderRadius: 10, border: 'none', cursor: 'pointer',
+                          background: styles.bgSecondary, color: styles.textPrimary,
+                        }}
+                      >
+                        <Icons.LogOut />
+                        <span style={{ fontSize: 14 }}>Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
                   <button
-                    onClick={() => setShowProfile(true)}
+                    onClick={() => { setShowLogin(true); if (mobile) setIsSidebarOpen(false); }}
                     style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderRadius: 10,
-                      border: 'none',
-                      background: 'transparent',
-                      color: styles.textPrimary,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                      padding: 12, borderRadius: 12, width: '100%', border: 'none', cursor: 'pointer',
+                      background: styles.bgSecondary, color: styles.textPrimary,
                     }}
                   >
-                    <Icons.User /> {currentUser?.name || currentUser?.username}
+                    <div style={{
+                      width: 28, height: 28, borderRadius: '50%',
+                      background: isDark ? '#333' : '#ddd',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}><Icons.User /></div>
+                    <span style={{ fontWeight: 500 }}>Sign In</span>
                   </button>
-                  <button
-                    onClick={handleLogout}
-                    style={{
-                      width: '100%',
-                      padding: '12px 16px',
-                      borderRadius: 10,
-                      border: 'none',
-                      background: 'transparent',
-                      color: '#ef4444',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 12,
-                    }}
-                  >
-                    <Icons.LogOut /> Log out
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowLogin(true)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    borderRadius: 10,
-                    border: 'none',
-                    background: isDark ? '#fff' : '#000',
-                    color: isDark ? '#000' : '#fff',
-                    cursor: 'pointer',
-                    marginTop: 8,
-                  }}
-                >
-                  Sign in
-                </button>
-              )}
+                )}
+              </div>
             </div>
           </div>
           
           {/* Main Content */}
-          <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', minWidth: 0 }} onClick={handleMainClick}>
             {/* Header */}
-            <div style={{
-              padding: '12px 16px',
-              borderBottom: `1px solid ${styles.borderColor}`,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
+            <header style={{
+              height: mobile ? 52 : 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: mobile ? '0 8px' : '0 12px', borderBottom: `1px solid ${styles.borderColor}`,
+              position: 'sticky', top: 0, zIndex: 30, flexShrink: 0,
+              background: isDark ? 'rgba(10,10,10,0.95)' : 'rgba(255,255,255,0.95)',
+              backdropFilter: 'blur(12px)',
             }}>
-              <button
-                onClick={() => setIsSidebarOpen(true)}
-                style={{ padding: 8, background: 'none', border: 'none', cursor: 'pointer', color: styles.textPrimary }}
-              >
-                <Icons.Menu />
-              </button>
-              <h1 style={{ fontSize: 18, fontWeight: 600 }}>ASK AI</h1>
-            </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setIsSidebarOpen(!isSidebarOpen); }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
+                >
+                  <Icons.Menu />
+                </button>
+                <span style={{ fontSize: mobile ? 16 : 18, fontWeight: 600 }}>ASK AI</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: mobile ? 2 : 4 }}>
+                <button
+                  onClick={() => setTheme(isDark ? 'light' : 'dark')}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
+                >
+                  {isDark ? <Icons.Sun /> : <Icons.Moon />}
+                </button>
+                <button
+                  onClick={() => { if (confirm('Clear this conversation?')) clearChat(currentChatId); }}
+                  style={{ padding: mobile ? 8 : 10, borderRadius: 8, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
+                >
+                  <Icons.Trash />
+                </button>
+              </div>
+            </header>
             
             {/* Messages */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: 16 }} className="custom-scrollbar" ref={messagesEndRef}>
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  style={{
-                    marginBottom: 16,
-                    display: 'flex',
-                    gap: 12,
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <div style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: msg.role === 'user' ? (isDark ? '#fff' : '#000') : (isDark ? '#222' : '#e5e5e5'),
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    color: msg.role === 'user' ? (isDark ? '#000' : '#fff') : styles.textPrimary,
+            <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', WebkitOverflowScrolling: 'touch' }} className="custom-scrollbar">
+              <div style={{ maxWidth: 768, margin: '0 auto', padding: mobile ? '16px 12px' : '24px 16px', paddingBottom: mobile ? 100 : 80 }}>
+                {messages.map((msg) => (
+                  <div key={msg.id} style={{
+                    display: 'flex', gap: 12, marginBottom: 24,
+                    justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start',
                   }}>
-                    {msg.role === 'user' ? <Icons.User /> : <Icons.Bot />}
+                    {msg.role === 'ai' && (
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%', background: isDark ? '#222' : '#e5e5e5',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0, color: styles.textPrimary, border: `1px solid ${styles.borderColor}`,
+                      }}>
+                        <Icons.Bot />
+                      </div>
+                    )}
+                    <div style={{ maxWidth: mobile ? '85%' : '80%' }}>
+                      <div style={{
+                        padding: '12px 16px', borderRadius: 20, fontSize: mobile ? 14 : 15, lineHeight: 1.6,
+                        background: msg.role === 'user' ? styles.bgSecondary : 'transparent',
+                        color: msg.role === 'user' ? styles.textPrimary : undefined,
+                        borderBottomRightRadius: msg.role === 'user' ? 4 : 20,
+                        borderBottomLeftRadius: msg.role === 'ai' ? 4 : 20,
+                        wordWrap: 'break-word',
+                        overflowWrap: 'break-word',
+                      }} className={msg.role === 'ai' ? (isDark ? 'markdown-dark' : 'markdown-light') : ''}>
+                        {msg.role === 'ai' ? renderMarkdown(msg.content) : <span style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>{msg.content}</span>}
+                      </div>
+                      {msg.role === 'ai' && (
+                        <div style={{ display: 'flex', gap: 12, marginTop: 8, marginLeft: 4, opacity: 0.7 }}>
+                          <button onClick={() => { navigator.clipboard.writeText(msg.content); toast('Copied!'); }}
+                                  style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+                            <Icons.Copy />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    {msg.role === 'user' && (
+                      <div style={{
+                        width: 32, height: 32, borderRadius: '50%',
+                        background: isDark ? '#222' : '#e5e5e5',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        flexShrink: 0, fontSize: 10, fontWeight: 'bold', color: styles.textPrimary,
+                        border: `1px solid ${styles.borderColor}`,
+                      }}>{userInitials}</div>
+                    )}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      className={isDark ? 'markdown-dark' : 'markdown-light'}
-                      dangerouslySetInnerHTML={renderMarkdown(msg.content)}
-                    />
+                ))}
+                {isTyping && (
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                    <div style={{
+                      width: 32, height: 32, borderRadius: '50%', background: isDark ? '#222' : '#e5e5e5',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                      border: `1px solid ${styles.borderColor}`,
+                    }}><Icons.Bot /></div>
+                    <div style={{ padding: '12px 16px', borderRadius: 20, borderBottomLeftRadius: 4, background: styles.bgSecondary }}>
+                      <div style={{ display: 'flex', gap: 4 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary }} className="animate-bounce" />
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary }} className="animate-bounce" />
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary }} className="animate-bounce" />
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
-              
-              {isTyping && (
-                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
-                  <div style={{
-                    width: 32,
-                    height: 32,
-                    borderRadius: '50%',
-                    background: isDark ? '#222' : '#e5e5e5',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}>
-                    <Icons.Bot />
-                  </div>
-                  <div style={{ display: 'flex', gap: 4, padding: '8px 0' }}>
-                    <span className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary }}></span>
-                    <span className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary, animationDelay: '0.1s' }}></span>
-                    <span className="animate-bounce" style={{ width: 8, height: 8, borderRadius: '50%', background: styles.textSecondary, animationDelay: '0.2s' }}></span>
-                  </div>
-                </div>
-              )}
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
             
-            {/* Input Area */}
-            <div style={{ padding: 16, borderTop: `1px solid ${styles.borderColor}` }}>
-              {selectedFile && (
-                <div style={{
-                  marginBottom: 8,
-                  padding: '8px 12px',
-                  borderRadius: 8,
-                  background: styles.bgSecondary,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}>
-                  <span style={{ fontSize: 14 }}>📎 {selectedFile.name}</span>
-                  <button onClick={removeFile} style={{ background: 'none', border: 'none', cursor: 'pointer', color: styles.textSecondary }}>
-                    <Icons.X />
-                  </button>
-                </div>
-              )}
-              
-              <div style={{
-                display: 'flex',
-                alignItems: 'flex-end',
-                gap: 8,
-                padding: '8px 12px',
-                borderRadius: 24,
-                background: styles.bgSecondary,
-                border: `1px solid ${styles.borderColor}`,
-              }}>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  onChange={handleFileSelect}
-                  style={{ display: 'none' }}
-                  accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
-                />
-                <button
-                  onClick={() => fileInputRef.current?.click()}
-                  style={{ padding: 8, borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer', color: styles.textSecondary }}
-                >
-                  <Icons.Paperclip />
-                </button>
-                
-                <textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend();
-                    }
-                  }}
-                  placeholder={isListening ? "🎤 Listening..." : "Message ASK AI..."}
-                  disabled={isTyping}
-                  style={{
-                    flex: 1,
-                    background: 'transparent',
-                    border: 'none',
-                    outline: 'none',
-                    padding: '8px 0',
-                    resize: 'none',
-                    maxHeight: 150,
-                    fontSize: 16,
-                    color: isDark ? '#fff' : '#000',
-                    lineHeight: 1.5,
-                  }}
-                  rows={1}
-                />
-                
-                {/* Voice Button */}
-                <button
-                  onClick={handleVoiceInput}
-                  disabled={isTyping}
-                  style={{
-                    padding: 8,
-                    borderRadius: '50%',
-                    border: 'none',
-                    background: isListening ? '#ef4444' : 'transparent',
-                    color: isListening ? '#fff' : styles.textSecondary,
-                    cursor: isTyping ? 'not-allowed' : 'pointer',
-                  }}
-                  className={isListening ? 'animate-pulse-recording' : ''}
-                >
-                  {isListening ? <Icons.MicOff /> : <Icons.Mic />}
-                </button>
-                
-                {/* Send/Stop Button */}
-                {isTyping ? (
-                  <button
-                    onClick={stopGeneration}
-                    style={{
-                      padding: 10,
-                      borderRadius: '50%',
-                      border: 'none',
-                      background: '#ef4444',
-                      color: '#fff',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    <Icons.Stop />
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleSend}
-                    disabled={!input.trim()}
-                    style={{
-                      padding: 10,
-                      borderRadius: '50%',
-                      border: 'none',
-                      background: input.trim() ? (isDark ? '#fff' : '#000') : 'transparent',
-                      color: input.trim() ? (isDark ? '#000' : '#fff') : styles.textSecondary,
-                      cursor: input.trim() ? 'pointer' : 'not-allowed',
-                    }}
-                  >
-                    <Icons.Send />
-                  </button>
+            {/* Input */}
+            <div style={{ 
+              padding: mobile ? '0 8px 12px' : '0 12px 16px', 
+              flexShrink: 0,
+              position: 'sticky',
+              bottom: 0,
+              background: styles.bgMain,
+            }} className="safe-bottom">
+              <div style={{ maxWidth: 768, margin: '0 auto' }}>
+                {selectedFile && (
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 8,
+                    padding: '8px 12px', marginBottom: 8,
+                    borderRadius: 12, background: styles.bgSecondary,
+                    border: `1px solid ${styles.borderColor}`,
+                  }}>
+                    <Icons.FileText />
+                    <span style={{ flex: 1, fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: styles.textPrimary }}>
+                      {selectedFile.name}
+                    </span>
+                    <button
+                      onClick={removeFile}
+                      style={{ padding: 4, border: 'none', background: 'none', cursor: 'pointer', opacity: 0.7, color: styles.textPrimary }}
+                    >
+                      <Icons.X />
+                    </button>
+                  </div>
                 )}
+                <div style={{
+                  borderRadius: 24, border: `1px solid ${styles.borderColor}`,
+                  background: styles.bgSecondary,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-end', padding: '8px 12px', gap: 8 }}>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleFileSelect}
+                      style={{ display: 'none' }}
+                      accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif"
+                    />
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      style={{ padding: 8, borderRadius: '50%', border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}
+                    >
+                      <Icons.Paperclip />
+                    </button>
+                    <textarea
+                      ref={textareaRef}
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) {
+                          e.preventDefault();
+                          handleSend();
+                        }
+                      }}
+                      placeholder={isListening ? "Listening... Speak now" : "Message ASK AI..."}
+                      disabled={isTyping}
+                      style={{
+                        flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                        padding: '8px 0', resize: 'none', maxHeight: 150, fontSize: 16,
+                        color: isDark ? '#fff' : '#000', lineHeight: 1.5,
+                      }}
+                      rows={1}
+                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      {/* Voice Input Button */}
+                      <button
+                        onClick={toggleVoice}
+                        disabled={isTyping}
+                        style={{
+                          padding: 8, borderRadius: '50%', border: 'none', background: 'none',
+                          color: isListening ? '#fff' : styles.textSecondary, cursor: 'pointer',
+                          background: isListening ? (isDark ? '#fff' : '#000') : 'transparent',
+                        }}
+                        className={isListening ? 'animate-pulse-recording' : ''}
+                      >
+                        {isListening ? <Icons.MicOff /> : <Icons.Mic />}
+                      </button>
+                      
+                      {/* Send/Stop Button */}
+                      {isTyping ? (
+                        <button
+                          onClick={stopGeneration}
+                          style={{
+                            padding: 10, borderRadius: '50%', border: 'none',
+                            background: isDark ? '#fff' : '#000',
+                            color: isDark ? '#000' : '#fff', cursor: 'pointer',
+                          }}
+                        >
+                          <Icons.Stop />
+                        </button>
+                      ) : (
+                        <button
+                          onClick={handleSend}
+                          disabled={!input.trim()}
+                          style={{
+                            padding: 10, borderRadius: '50%', border: 'none',
+                            background: input.trim() ? (isDark ? '#fff' : '#000') : 'transparent',
+                            color: input.trim() ? (isDark ? '#000' : '#fff') : styles.textSecondary, cursor: 'pointer',
+                          }}
+                        >
+                          <Icons.Send />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <p style={{ fontSize: 11, textAlign: 'center', marginTop: 12, color: styles.textSecondary, opacity: 0.7 }}>
+                  ASK AI can make mistakes. Consider checking important information.
+                </p>
               </div>
-              
-              <p style={{ fontSize: 11, textAlign: 'center', marginTop: 12, color: styles.textSecondary, opacity: 0.7 }}>
-                ASK AI can make mistakes. Consider checking important information.
-              </p>
             </div>
           </div>
           
           {/* Login Modal */}
           {showLogin && (
             <div className="modal-overlay" onClick={() => setShowLogin(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff' }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowLogin(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: styles.textPrimary }}><Icons.XLarge /></button>
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
+                   onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowLogin(false)}
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+                  <Icons.XLarge />
+                </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
+                  }}><Icons.User /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Welcome back</h2>
                   <p style={{ color: styles.textSecondary, marginTop: 4 }}>Sign in to your account</p>
                 </div>
                 <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <input
-                    type="email"
-                    value={loginEmail}
-                    required
-                    onChange={(e) => setLoginEmail(e.target.value)}
-                    placeholder="Email"
-                    style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000' }}
-                  />
-                  <input
-                    type="password"
-                    value={loginPassword}
-                    required
-                    onChange={(e) => setLoginPassword(e.target.value)}
-                    placeholder="Password"
-                    style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000' }}
-                  />
-                  <button type="submit" disabled={loading} style={{ width: '100%', padding: 14, borderRadius: 12, background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, cursor: 'pointer' }}>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Email</label>
+                    <input
+                      type="email" value={loginEmail} required
+                      onChange={(e) => setLoginEmail(e.target.value)}
+                      placeholder="Enter your email"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Password</label>
+                    <input
+                      type="password" value={loginPassword} required
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="Enter your password"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="submit" disabled={loading}
+                    style={{
+                      width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
+                    }}
+                  >
                     {loading ? <Icons.Loader /> : 'Sign in'}
                   </button>
                 </form>
                 <p style={{ textAlign: 'center', marginTop: 12, fontSize: 14 }}>
-                  <button onClick={() => { setShowLogin(false); setShowForgotPassword(true); }} style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Forgot Password?</button>
+                  <button onClick={() => { setShowLogin(false); setShowForgotPassword(true); }}
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                    Forgot Password?
+                  </button>
                 </p>
                 <p style={{ textAlign: 'center', marginTop: 8, fontSize: 14, color: styles.textSecondary }}>
-                  Don't have an account? <button onClick={() => { setShowLogin(false); setShowRegister(true); }} style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Sign up</button>
+                  Don't have an account?{' '}
+                  <button onClick={() => { setShowLogin(false); setShowRegister(true); }}
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                    Sign up
+                  </button>
                 </p>
               </div>
             </div>
@@ -1278,20 +1453,95 @@
           {/* Register Modal */}
           {showRegister && (
             <div className="modal-overlay" onClick={() => setShowRegister(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff' }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowRegister(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: styles.textPrimary }}><Icons.XLarge /></button>
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
+                   onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowRegister(false)}
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+                  <Icons.XLarge />
+                </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
+                  }}><Icons.User /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Create account</h2>
+                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Join ASK AI today</p>
                 </div>
                 <form onSubmit={handleRegister} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                  <input value={registerName} required onChange={(e) => setRegisterName(e.target.value)} placeholder="Name" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000' }} />
-                  <input type="email" value={registerEmail} required onChange={(e) => setRegisterEmail(e.target.value)} placeholder="Email" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000' }} />
-                  <input type="password" value={registerPassword} required onChange={(e) => setRegisterPassword(e.target.value)} placeholder="Password (min 6 chars)" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000' }} />
-                  <input type="password" value={registerConfirm} required onChange={(e) => setRegisterConfirm(e.target.value)} placeholder="Confirm password" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000' }} />
-                  <button type="submit" disabled={loading} style={{ width: '100%', padding: 14, borderRadius: 12, background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, cursor: 'pointer', marginTop: 8 }}>{loading ? <Icons.Loader /> : 'Create account'}</button>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Name</label>
+                    <input
+                      value={registerName} required
+                      onChange={(e) => setRegisterName(e.target.value)}
+                      placeholder="Your name"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Email</label>
+                    <input
+                      type="email" value={registerEmail} required
+                      onChange={(e) => setRegisterEmail(e.target.value)}
+                      placeholder="your@email.com"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Password</label>
+                    <input
+                      type="password" value={registerPassword} required
+                      onChange={(e) => setRegisterPassword(e.target.value)}
+                      placeholder="Min 6 characters"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Confirm Password</label>
+                    <input
+                      type="password" value={registerConfirm} required
+                      onChange={(e) => setRegisterConfirm(e.target.value)}
+                      placeholder="Confirm password"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="submit" disabled={loading}
+                    style={{
+                      width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
+                    }}
+                  >
+                    {loading ? <Icons.Loader /> : 'Create account'}
+                  </button>
                 </form>
                 <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: styles.textSecondary }}>
-                  Already have an account? <button onClick={() => { setShowRegister(false); setShowLogin(true); }} style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Sign in</button>
+                  Already have an account?{' '}
+                  <button onClick={() => { setShowRegister(false); setShowLogin(true); }}
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                    Sign in
+                  </button>
                 </p>
               </div>
             </div>
@@ -1300,14 +1550,48 @@
           {/* Verification Modal */}
           {showVerification && (
             <div className="modal-overlay" onClick={() => setShowVerification(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff' }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowVerification(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: styles.textPrimary }}><Icons.XLarge /></button>
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
+                   onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowVerification(false)}
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+                  <Icons.XLarge />
+                </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
+                  }}><Icons.Mail /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Verify your email</h2>
-                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter the 6-digit code</p>
+                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter the 6-digit code sent to your email</p>
                 </div>
-                <input value={verificationInput} onChange={(e) => setVerificationInput(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="000000" maxLength={6} style={{ width: '100%', padding: 16, borderRadius: 12, textAlign: 'center', fontSize: 28, letterSpacing: '0.5em', border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, color: isDark ? '#fff' : '#000' }} />
-                <button onClick={handleVerify} disabled={verificationInput.length !== 6 || loading} style={{ width: '100%', padding: 14, borderRadius: 12, background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 16, cursor: 'pointer', opacity: verificationInput.length !== 6 ? 0.5 : 1 }}>{loading ? <Icons.Loader /> : 'Verify'}</button>
+                <div>
+                  <input
+                    value={verificationInput}
+                    onChange={(e) => setVerificationInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    placeholder="000000"
+                    maxLength={6}
+                    style={{
+                      width: '100%', padding: '16px', borderRadius: 12, textAlign: 'center',
+                      fontSize: 28, letterSpacing: '0.5em',
+                      border: `1px solid ${styles.borderColor}`,
+                      background: styles.bgSecondary,
+                      color: isDark ? '#fff' : '#000',
+                    }}
+                  />
+                  <button
+                    onClick={handleVerify}
+                    disabled={verificationInput.length !== 6 || loading}
+                    style={{
+                      width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 16, cursor: 'pointer',
+                      opacity: verificationInput.length !== 6 ? 0.5 : 1,
+                    }}
+                  >
+                    {loading ? <Icons.Loader /> : 'Verify'}
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -1315,34 +1599,86 @@
           {/* Forgot Password Modal */}
           {showForgotPassword && (
             <div className="modal-overlay" onClick={() => setShowForgotPassword(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff' }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowForgotPassword(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: styles.textPrimary }}><Icons.XLarge /></button>
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
+                   onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowForgotPassword(false)}
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+                  <Icons.XLarge />
+                </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
+                  }}><Icons.Mail /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Recover Account</h2>
-                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter your email</p>
+                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter your email to receive a verification code</p>
                 </div>
-                <input type="email" value={recoveryEmail} required onChange={(e) => setRecoveryEmail(e.target.value)} placeholder="Email" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000' }} />
-                <button onClick={async () => {
-                  if (!recoveryEmail) { toast('Error', 'Please enter your email', 'error'); return; }
-                  setLoading(true);
-                  try {
-                    const result = await api.checkEmail(recoveryEmail);
-                    if (result.success && result.exists) {
-                      const code = Math.floor(100000 + Math.random() * 900000).toString();
-                      setRecoveryCode(code);
-                      if (window.emailjs) {
-                        await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { to_email: recoveryEmail, verification_code: code });
-                        setShowForgotPassword(false);
-                        setShowResetPassword(true);
-                        toast('Code Sent', 'Check your email', 'success');
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Email</label>
+                    <input
+                      type="email" value={recoveryEmail} required
+                      onChange={(e) => setRecoveryEmail(e.target.value)}
+                      placeholder="Enter your registered email"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (!recoveryEmail) {
+                        toast('Error', 'Please enter your email', 'error');
+                        return;
                       }
-                    } else {
-                      toast('Error', 'Email not found', 'error');
-                    }
-                  } catch (e) {
-                    toast('Error', 'Failed to send email', 'error');
-                  } finally { setLoading(false); }
-                }} disabled={loading || !recoveryEmail} style={{ width: '100%', padding: 14, borderRadius: 12, background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 16, cursor: 'pointer' }}>{loading ? <Icons.Loader /> : 'Send Code'}</button>
+                      setLoading(true);
+                      try {
+                        const result = await api.checkEmail(recoveryEmail);
+                        if (result.success && result.exists) {
+                          const code = Math.floor(100000 + Math.random() * 900000).toString();
+                          setRecoveryCode(code);
+                          if (window.emailjs) {
+                            await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                              to_email: recoveryEmail,
+                              verification_code: code,
+                            });
+                            setShowForgotPassword(false);
+                            setShowResetPassword(true);
+                            toast('Code Sent', 'Check your email for the verification code');
+                          } else {
+                            toast('Error', 'Email service not available', 'error');
+                          }
+                        } else {
+                          toast('Error', 'Email not found in our system', 'error');
+                        }
+                      } catch (e) {
+                        toast('Error', 'Failed to send recovery email', 'error');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading || !recoveryEmail}
+                    style={{
+                      width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, cursor: 'pointer',
+                      opacity: loading || !recoveryEmail ? 0.5 : 1,
+                    }}
+                  >
+                    {loading ? <Icons.Loader /> : 'Send Recovery Code'}
+                  </button>
+                </div>
+                <p style={{ textAlign: 'center', marginTop: 16, fontSize: 14, color: styles.textSecondary }}>
+                  Remember your password?{' '}
+                  <button onClick={() => { setShowForgotPassword(false); setShowLogin(true); }}
+                          style={{ color: styles.textPrimary, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                    Sign in
+                  </button>
+                </p>
               </div>
             </div>
           )}
@@ -1350,55 +1686,434 @@
           {/* Reset Password Modal */}
           {showResetPassword && (
             <div className="modal-overlay" onClick={() => setShowResetPassword(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff' }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowResetPassword(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: styles.textPrimary }}><Icons.XLarge /></button>
+              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
+                   onClick={(e) => e.stopPropagation()}>
+                <button onClick={() => setShowResetPassword(false)}
+                        style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+                  <Icons.XLarge />
+                </button>
                 <div style={{ textAlign: 'center', marginBottom: 24 }}>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                    border: `1px solid ${styles.borderColor}`,
+                  }}><Icons.Shield /></div>
                   <h2 style={{ fontSize: 20, fontWeight: 600 }}>Reset Password</h2>
+                  <p style={{ color: styles.textSecondary, marginTop: 4 }}>Enter the code and your new password</p>
                 </div>
-                <input value={recoveryCodeInput} onChange={(e) => setRecoveryCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="Code" maxLength={6} style={{ width: '100%', padding: 12, borderRadius: 12, textAlign: 'center', fontSize: 24, letterSpacing: '0.3em', border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, color: isDark ? '#fff' : '#000' }} />
-                <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="New Password" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000', marginTop: 12 }} />
-                <input type="password" value={newPasswordConfirm} onChange={(e) => setNewPasswordConfirm(e.target.value)} placeholder="Confirm Password" style={{ width: '100%', padding: 12, borderRadius: 12, border: `1px solid ${styles.borderColor}`, background: styles.bgSecondary, fontSize: 16, color: isDark ? '#fff' : '#000', marginTop: 12 }} />
-                <button onClick={async () => {
-                  if (recoveryCodeInput !== recoveryCode) { toast('Error', 'Invalid code', 'error'); return; }
-                  if (newPassword.length < 6) { toast('Error', 'Password too short', 'error'); return; }
-                  if (newPassword !== newPasswordConfirm) { toast('Error', 'Passwords do not match', 'error'); return; }
-                  setLoading(true);
-                  try {
-                    const result = await api.resetPassword(recoveryEmail, newPassword);
-                    if (result.success) {
-                      toast('Success', 'Password reset!', 'success');
-                      setShowResetPassword(false);
-                      setShowLogin(true);
-                    } else { toast('Error', result.error, 'error'); }
-                  } catch (e) { toast('Error', 'Failed', 'error'); }
-                  finally { setLoading(false); }
-                }} disabled={loading || recoveryCodeInput.length !== 6 || !newPassword || !newPasswordConfirm} style={{ width: '100%', padding: 14, borderRadius: 12, background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 16, cursor: 'pointer' }}>{loading ? <Icons.Loader /> : 'Reset'}</button>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Verification Code</label>
+                    <input
+                      value={recoveryCodeInput}
+                      onChange={(e) => setRecoveryCodeInput(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      placeholder="000000"
+                      maxLength={6}
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        textAlign: 'center', fontSize: 24, letterSpacing: '0.3em',
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>New Password</label>
+                    <input
+                      type="password" value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Min 6 characters"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 14 }}>Confirm New Password</label>
+                    <input
+                      type="password" value={newPasswordConfirm}
+                      onChange={(e) => setNewPasswordConfirm(e.target.value)}
+                      placeholder="Confirm new password"
+                      style={{
+                        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+                        border: `1px solid ${styles.borderColor}`,
+                        background: styles.bgSecondary, fontSize: 16,
+                        color: isDark ? '#fff' : '#000',
+                      }}
+                    />
+                  </div>
+                  <button
+                    onClick={async () => {
+                      if (recoveryCodeInput !== recoveryCode) {
+                        toast('Error', 'Invalid verification code', 'error');
+                        return;
+                      }
+                      if (newPassword.length < 6) {
+                        toast('Error', 'Password must be at least 6 characters', 'error');
+                        return;
+                      }
+                      if (newPassword !== newPasswordConfirm) {
+                        toast('Error', 'Passwords do not match', 'error');
+                        return;
+                      }
+                      setLoading(true);
+                      try {
+                        const result = await api.resetPassword(recoveryEmail, newPassword);
+                        if (result.success) {
+                          toast('Success', 'Password reset successfully!');
+                          setShowResetPassword(false);
+                          setShowLogin(true);
+                          setRecoveryEmail('');
+                          setRecoveryCode('');
+                          setRecoveryCodeInput('');
+                          setNewPassword('');
+                          setNewPasswordConfirm('');
+                        } else {
+                          toast('Error', result.error || 'Failed to reset password', 'error');
+                        }
+                      } catch (e) {
+                        toast('Error', 'Failed to reset password', 'error');
+                      } finally {
+                        setLoading(false);
+                      }
+                    }}
+                    disabled={loading || recoveryCodeInput.length !== 6 || !newPassword || !newPasswordConfirm}
+                    style={{
+                      width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                      background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
+                      opacity: loading || recoveryCodeInput.length !== 6 || !newPassword || !newPasswordConfirm ? 0.5 : 1,
+                    }}
+                  >
+                    {loading ? <Icons.Loader /> : 'Reset Password'}
+                  </button>
+                </div>
               </div>
             </div>
           )}
           
           {/* Profile Modal */}
           {showProfile && (
-            <div className="modal-overlay" onClick={() => setShowProfile(false)}>
-              <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff' }} onClick={(e) => e.stopPropagation()}>
-                <button onClick={() => setShowProfile(false)} style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', cursor: 'pointer', color: styles.textPrimary }}><Icons.XLarge /></button>
-                <div style={{ textAlign: 'center', marginBottom: 24 }}>
-                  <h2 style={{ fontSize: 20, fontWeight: 600 }}>Profile</h2>
-                </div>
-                <div style={{ textAlign: 'center' }}>
-                  <p style={{ marginBottom: 8 }}><strong>Email:</strong> {currentUser?.email}</p>
-                  <p><strong>Name:</strong> {currentUser?.name || currentUser?.username}</p>
-                </div>
-                <button onClick={() => { setShowProfile(false); handleLogout(); }} style={{ width: '100%', padding: 14, borderRadius: 12, background: '#ef4444', color: '#fff', border: 'none', fontSize: 16, marginTop: 24, cursor: 'pointer' }}>Log out</button>
-              </div>
-            </div>
+            <ProfileModal
+              onClose={() => setShowProfile(false)}
+              currentUser={currentUser}
+              setCurrentUser={setCurrentUser}
+              isDark={isDark}
+              styles={styles}
+              toast={toast}
+              onLogout={handleLogout}
+            />
+          )}
+          
+          {/* Settings Modal */}
+          {showSettings && (
+            <SettingsModal
+              onClose={() => setShowSettings(false)}
+              isDark={isDark}
+              styles={styles}
+              toast={toast}
+              onLogout={handleLogout}
+              currentUser={currentUser}
+              onOpenProfile={() => { setShowSettings(false); setShowProfile(true); }}
+            />
           )}
         </div>
       );
     }
     
-    // Render App with Toast Provider
-    ReactDOM.createRoot(document.getElementById('root')).render(
+    // ==================== PROFILE MODAL ====================
+    function ProfileModal({ onClose, currentUser, setCurrentUser, isDark, styles, toast, onLogout }) {
+      const [name, setName] = React.useState(currentUser?.name || '');
+      const [email, setEmail] = React.useState(currentUser?.email || '');
+      const [currentPassword, setCurrentPassword] = React.useState('');
+      const [newPassword, setNewPassword] = React.useState('');
+      const [confirmPassword, setConfirmPassword] = React.useState('');
+      const [loading, setLoading] = React.useState(false);
+      const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+      const [deletePassword, setDeletePassword] = React.useState('');
+      const [deleteLoading, setDeleteLoading] = React.useState(false);
+      
+      const inputStyle = {
+        width: '100%', marginTop: 6, padding: '12px', borderRadius: 12,
+        border: `1px solid ${styles.borderColor}`,
+        background: styles.bgSecondary, fontSize: 16,
+        color: isDark ? '#fff' : '#000',
+      };
+      
+      const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!currentUser) return;
+        if (newPassword && newPassword !== confirmPassword) {
+          toast('Error', 'Passwords do not match', 'error');
+          return;
+        }
+        setLoading(true);
+        try {
+          const result = await api.updateProfile(
+            currentUser.email, name,
+            email !== currentUser.email ? email : undefined,
+            currentPassword || undefined, newPassword || undefined
+          );
+          if (result.success && result.user) {
+            setCurrentUser(result.user);
+            toast('Updated', 'Profile saved');
+            setCurrentPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+          } else {
+            toast('Error', result.error, 'error');
+          }
+        } catch (e) {
+          toast('Error', 'Failed to update', 'error');
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      const handleDeleteAccount = async () => {
+        if (!deletePassword) {
+          toast('Error', 'Please enter your password to confirm', 'error');
+          return;
+        }
+        setDeleteLoading(true);
+        try {
+          const result = await api.deleteAccount(currentUser.email, deletePassword);
+          if (result.success) {
+            toast('Account Deleted', 'Your account has been permanently deleted');
+            onClose();
+            onLogout();
+          } else {
+            toast('Error', result.error || 'Failed to delete account', 'error');
+          }
+        } catch (e) {
+          toast('Error', 'Failed to delete account', 'error');
+        } finally {
+          setDeleteLoading(false);
+          setShowDeleteConfirm(false);
+          setDeletePassword('');
+        }
+      };
+      
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', borderColor: styles.borderColor }}
+               onClick={(e) => e.stopPropagation()}>
+            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+              <Icons.XLarge />
+            </button>
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                background: isDark ? '#222' : '#e5e5e5',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', color: styles.textPrimary,
+                border: `1px solid ${styles.borderColor}`,
+              }}><Icons.User /></div>
+              <h2 style={{ fontSize: 20, fontWeight: 600 }}>Account Settings</h2>
+            </div>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div>
+                <label style={{ fontSize: 14 }}>Name</label>
+                <input value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} />
+              </div>
+              <div>
+                <label style={{ fontSize: 14 }}>Email</label>
+                <input value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} />
+              </div>
+              <div style={{ borderTop: `1px solid ${styles.borderColor}`, paddingTop: 12, marginTop: 8 }}>
+                <p style={{ fontSize: 14, marginBottom: 8, color: styles.textSecondary }}>
+                  Change Password (optional)
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <input type="password" value={currentPassword}
+                         onChange={(e) => setCurrentPassword(e.target.value)}
+                         placeholder="Current password" style={inputStyle} />
+                  <input type="password" value={newPassword}
+                         onChange={(e) => setNewPassword(e.target.value)}
+                         placeholder="New password" style={inputStyle} />
+                  <input type="password" value={confirmPassword}
+                         onChange={(e) => setConfirmPassword(e.target.value)}
+                         placeholder="Confirm new password" style={inputStyle} />
+                </div>
+              </div>
+              <button
+                type="submit" disabled={loading}
+                style={{
+                  width: '100%', padding: 14, borderRadius: 12, fontWeight: 500,
+                  background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 16, marginTop: 8, cursor: 'pointer',
+                }}
+              >
+                {loading ? <Icons.Loader /> : 'Save Changes'}
+              </button>
+            </form>
+            
+            <div style={{ borderTop: `1px solid ${styles.borderColor}`, marginTop: 20, paddingTop: 20 }}>
+              {!showDeleteConfirm ? (
+                <button
+                  onClick={() => setShowDeleteConfirm(true)}
+                  style={{
+                    width: '100%', padding: 12, borderRadius: 12, fontWeight: 500,
+                    background: 'transparent', color: isDark ? '#fff' : '#000', border: `2px solid ${isDark ? '#fff' : '#000'}`, fontSize: 14, cursor: 'pointer',
+                  }}
+                >
+                  Delete Account
+                </button>
+              ) : (
+                <div style={{ background: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)', borderRadius: 12, padding: 16, border: `1px solid ${styles.borderColor}` }}>
+                  <p style={{ fontWeight: 600, marginBottom: 8, textAlign: 'center' }}>
+                    This action cannot be undone!
+                  </p>
+                  <p style={{ fontSize: 14, color: styles.textSecondary, marginBottom: 12, textAlign: 'center' }}>
+                    Enter your password to confirm account deletion
+                  </p>
+                  <input
+                    type="password"
+                    value={deletePassword}
+                    onChange={(e) => setDeletePassword(e.target.value)}
+                    placeholder="Enter your password"
+                    style={inputStyle}
+                  />
+                  <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                    <button
+                      onClick={() => { setShowDeleteConfirm(false); setDeletePassword(''); }}
+                      style={{
+                        flex: 1, padding: 12, borderRadius: 12, fontWeight: 500,
+                        background: styles.bgSecondary, color: styles.textPrimary, border: 'none', fontSize: 14, cursor: 'pointer',
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleDeleteAccount}
+                      disabled={deleteLoading || !deletePassword}
+                      style={{
+                        flex: 1, padding: 12, borderRadius: 12, fontWeight: 500,
+                        background: isDark ? '#fff' : '#000', color: isDark ? '#000' : '#fff', border: 'none', fontSize: 14, cursor: 'pointer',
+                        opacity: deleteLoading || !deletePassword ? 0.5 : 1,
+                      }}
+                    >
+                      {deleteLoading ? <Icons.Loader /> : 'Delete Forever'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // ==================== SETTINGS MODAL ====================
+    function SettingsModal({ onClose, isDark, styles, toast, onLogout, currentUser, onOpenProfile }) {
+      const menuItems = [
+        { 
+          icon: <Icons.User />, 
+          label: 'Account Settings', 
+          description: 'Manage your account, password, and delete account',
+          onClick: onOpenProfile 
+        },
+        { 
+          icon: <Icons.Shield />, 
+          label: 'Privacy Policy', 
+          description: 'How we handle your data',
+          onClick: () => toast('Privacy Policy', 'View our privacy policy')
+        },
+        { 
+          icon: <Icons.FileCheck />, 
+          label: 'Service Agreement', 
+          description: 'Terms of service and usage',
+          onClick: () => toast('Service Agreement', 'View our terms of service')
+        },
+        { 
+          icon: <Icons.Database />, 
+          label: 'Data Control', 
+          description: 'Manage your data and privacy',
+          onClick: () => toast('Data Control', 'Manage your personal data')
+        },
+        { 
+          icon: <Icons.Phone />, 
+          label: 'Contact Us', 
+          description: 'Get help and support',
+          onClick: () => toast('Contact', 'Email: yeboahcollins754@gmail.com')
+        },
+        { 
+          icon: <Icons.LogOut />, 
+          label: 'Logout from All Devices', 
+          description: 'Sign out from all sessions',
+          onClick: () => {
+            if (confirm('Logout from all devices?')) {
+              onLogout();
+              onClose();
+            }
+          },
+        },
+      ];
+      
+      return (
+        <div className="modal-overlay" onClick={onClose}>
+          <div className="modal" style={{ '--modal-bg': isDark ? '#111' : '#fff', maxWidth: 420, borderColor: styles.borderColor }}
+               onClick={(e) => e.stopPropagation()}>
+            <button onClick={onClose} style={{ position: 'absolute', top: 16, right: 16, opacity: 0.7, border: 'none', background: 'none', cursor: 'pointer', color: styles.textPrimary }}>
+              <Icons.XLarge />
+            </button>
+            <div style={{ textAlign: 'center', marginBottom: 20 }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%', margin: '0 auto 12px',
+                background: isDark ? '#222' : '#e5e5e5',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: styles.textPrimary,
+                border: `1px solid ${styles.borderColor}`,
+              }}><Icons.Settings /></div>
+              <h2 style={{ fontSize: 20, fontWeight: 600 }}>Settings</h2>
+              {currentUser && (
+                <p style={{ color: styles.textSecondary, marginTop: 4, fontSize: 14 }}>
+                  {currentUser.email}
+                </p>
+              )}
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {menuItems.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={item.onClick}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px',
+                    borderRadius: 12, border: 'none', cursor: 'pointer', textAlign: 'left',
+                    background: styles.bgSecondary,
+                    color: styles.textPrimary,
+                    transition: 'background 0.2s',
+                  }}
+                >
+                  <div style={{ 
+                    width: 40, height: 40, borderRadius: 10, 
+                    background: isDark ? '#222' : '#e5e5e5',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: styles.textPrimary,
+                    flexShrink: 0,
+                    border: `1px solid ${styles.borderColor}`,
+                  }}>
+                    {item.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 500, fontSize: 15 }}>{item.label}</div>
+                    <div style={{ fontSize: 12, color: styles.textSecondary, marginTop: 2 }}>{item.description}</div>
+                  </div>
+                  <Icons.ChevronRight />
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
+    
+    // ==================== RENDER ====================
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
       <ToastProvider>
         <App />
       </ToastProvider>
