@@ -8,8 +8,7 @@
   <meta name="author" content="Annor Prince & Collins Yeboah">
   <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4712/4712035.png">
   <meta name="theme-color" content="#171717">
-  <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   
   <!-- React & Dependencies -->
@@ -693,168 +692,152 @@
         }
       };
       
-// Speech-to-Text with Web Speech Recognition API
-const toggleVoice = () => {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  
-  if (!SpeechRecognition) {
-    // Fix: Use consistent toast format
-    toast.error('Not Supported', {
-      description: 'Use Chrome, Edge, or Safari browser'
-    });
-    return;
-  }
-  
-  if (isListening) {
-    if (window.speechRecognitionInstance) {
-      try {
-        window.speechRecognitionInstance.stop();
-      } catch (e) {
-        console.log('Error stopping recognition:', e);
-      }
-    }
-    setIsListening(false);
-    return;
-  }
-  
-  try {
-    const recognition = new SpeechRecognition();
-    window.speechRecognitionInstance = recognition;
-    
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = 'en-US';
-    recognition.maxAlternatives = 1; // Add this for better accuracy
-    
-    // Better flag management
-    let manualStop = false;
-    
-    recognition.onstart = () => {
-      manualStop = false;
-      setIsListening(true);
-      // Fix: Use consistent toast format
-      toast.success('Listening...', {
-        description: 'Speak now'
-      });
-    };
-    
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-      
-      // Process results more efficiently
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
+      // Speech-to-Text with Web Speech Recognition API
+      const toggleVoice = () => {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!SpeechRecognition) {
+          toast('Not Supported', 'Use Chrome, Edge, or Safari browser', 'error');
+          return;
         }
-      }
-      
-      // Update input with final results
-      if (finalTranscript) {
-        setInput(prev => {
-          const trimmed = prev.trim();
-          // Add space only if there's existing content
-          return trimmed ? `${trimmed} ${finalTranscript}` : finalTranscript;
-        });
-      }
-    };
-    
-    recognition.onerror = (event) => {
-      console.log('Speech error:', event.error);
-      
-      // Don't show error if manually stopped
-      if (manualStop) return;
-      
-      // Handle specific errors with user-friendly messages
-      switch(event.error) {
-        case 'no-speech':
-          toast.warning('No Speech Detected', {
-            description: 'Please try again'
-          });
-          break;
+        
+        // If already listening, STOP the recognition
+        if (isListening) {
+          // Set manual stop flag BEFORE stopping to prevent error toasts
+          window.speechManualStop = true;
           
-        case 'audio-capture':
-          toast.error('Microphone Not Found', {
-            description: 'Check your microphone connection'
-          });
-          break;
+          if (window.speechRecognitionInstance) {
+            try {
+              window.speechRecognitionInstance.stop();
+            } catch (e) {
+              console.log('Error stopping recognition:', e);
+            }
+          }
+          setIsListening(false);
+          return;
+        }
+        
+        // START new recognition session
+        try {
+          const recognition = new SpeechRecognition();
+          window.speechRecognitionInstance = recognition;
+          window.speechManualStop = false; // Reset flag
           
-        case 'not-allowed':
-          toast.error('Permission Denied', {
-            description: 'Allow microphone access in browser settings'
-          });
-          break;
+          recognition.continuous = true;
+          recognition.interimResults = true;
+          recognition.lang = 'en-US';
+          recognition.maxAlternatives = 1;
           
-        case 'network':
-          toast.warning('Network Issue', {
-            description: 'Connection problem, retrying...'
-          });
-          // Auto retry for network errors
-          setTimeout(() => {
-            if (!manualStop) {
-              try {
-                recognition.start();
-              } catch (e) {
-                console.log('Restart failed:', e);
+          recognition.onstart = () => {
+            window.speechManualStop = false; // Ensure flag is reset
+            setIsListening(true);
+            toast('Listening...', 'Speak now to transcribe to chat');
+          };
+          
+          recognition.onresult = (event) => {
+            let finalTranscript = '';
+            
+            // Process results - only get final results
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+              if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
               }
             }
-          }, 1000);
-          return; // Don't setIsListening false yet
+            
+            // Update input with final results only
+            if (finalTranscript) {
+              setInput(prev => {
+                const trimmed = prev.trim();
+                return trimmed ? `${trimmed} ${finalTranscript}` : finalTranscript;
+              });
+            }
+          };
           
-        case 'aborted':
-          // User cancelled, no need to show error
-          break;
+          recognition.onerror = (event) => {
+            console.log('Speech error:', event.error);
+            
+            // Don't show error if manually stopped by user
+            if (window.speechManualStop) return;
+            
+            // Handle specific errors with user-friendly messages
+            switch(event.error) {
+              case 'no-speech':
+                toast('No Speech Detected', 'Please try again', 'error');
+                break;
+                
+              case 'audio-capture':
+                toast('Microphone Not Found', 'Check your microphone connection', 'error');
+                break;
+                
+              case 'not-allowed':
+                toast('Permission Denied', 'Allow microphone access in browser settings', 'error');
+                break;
+                
+              case 'network':
+                toast('Network Issue', 'Connection problem', 'error');
+                break;
+                
+              case 'aborted':
+                // User or system aborted - no error toast needed
+                break;
+                
+              case 'service-not-allowed':
+                toast('Service Not Allowed', 'Speech recognition is disabled', 'error');
+                break;
+                
+              default:
+                // Only show generic error for truly unknown errors
+                if (event.error !== 'aborted') {
+                  toast('Voice Input Error', 'Please try again', 'error');
+                }
+            }
+            
+            setIsListening(false);
+          };
           
-        default:
-          // For other errors, just log and show generic message
-          toast.error('Voice Input Error', {
-            description: 'Please try again'
-          });
-      }
-      
-      setIsListening(false);
-    };
-    
-    recognition.onend = () => {
-      setIsListening(false);
-    };
-    
-    // Request microphone permission explicitly (helps with some browsers)
-    navigator.mediaDevices?.getUserMedia({ audio: true })
-      .then(() => {
-        recognition.start();
-      })
-      .catch((err) => {
-        console.log('Microphone permission error:', err);
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-          toast.error('Microphone Access Denied', {
-            description: 'Please allow microphone access and try again'
-          });
-        } else {
-          toast.error('Microphone Error', {
-            description: 'Could not access microphone'
-          });
+          recognition.onend = () => {
+            setIsListening(false);
+          };
+          
+          // Request microphone permission before starting
+          navigator.mediaDevices?.getUserMedia({ audio: true })
+            .then((stream) => {
+              // Stop the permission stream immediately - we just needed permission
+              stream.getTracks().forEach(track => track.stop());
+              // Start recognition
+              recognition.start();
+            })
+            .catch((err) => {
+              console.log('Microphone permission error:', err);
+              setIsListening(false);
+              
+              if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+                toast('Microphone Access Denied', 'Please allow microphone access and try again', 'error');
+              } else if (err.name === 'NotFoundError') {
+                toast('No Microphone', 'No microphone device found', 'error');
+              } else {
+                toast('Microphone Error', 'Could not access microphone', 'error');
+              }
+            });
+          
+        } catch (error) {
+          console.error('Speech recognition error:', error);
+          setIsListening(false);
+          toast('Voice Input Failed', 'Could not start voice input', 'error');
         }
-        setIsListening(false);
-      });
-    
-  } catch (error) {
-    console.error('Speech recognition error:', error);
-    setIsListening(false);
-    toast.error('Voice Input Failed', {
-      description: 'Could not start voice input'
-    });
-  }
-};
-
-// Clean up function (call this when component unmounts)
-const cleanupVoice = () => {
-  if (window.speechRecognitionInstance) {
-    try {
-      window.speechRecognitionInstance.stop();
-    } catch (e) {}
-  }
-};
+      };
+      
+      // Clean up function for voice recognition (call on unmount)
+      const cleanupVoice = () => {
+        window.speechManualStop = true;
+        if (window.speechRecognitionInstance) {
+          try {
+            window.speechRecognitionInstance.stop();
+          } catch (e) {}
+        }
+        window.speechRecognitionInstance = null;
+      };
+      
       const handleLogin = async (e) => {
         e.preventDefault();
         setLoading(true);
