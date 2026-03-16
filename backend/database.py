@@ -27,13 +27,21 @@ def init_db():
 def create_user(username, email, password):
     """Create a new user"""
     try:
+        # Normalize email to lowercase for consistent matching
+        email = email.lower().strip()
+        username = username.strip()
+        
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
         
+        print(f"🔍 Creating user: {username} with email: {email}")
+        
         # Check if email already exists
-        cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
-        if cursor.fetchone():
+        cursor.execute('SELECT id, username FROM users WHERE email = ?', (email,))
+        existing = cursor.fetchone()
+        if existing:
             conn.close()
+            print(f"❌ Email already exists: {email} (user: {existing[1]})")
             return {'success': False, 'error': 'Email already registered'}
         
         # Check if username already exists
@@ -54,6 +62,8 @@ def create_user(username, email, password):
         user_id = cursor.lastrowid
         conn.close()
         
+        print(f"✅ User created successfully: {username} (id: {user_id})")
+        
         return {
             'success': True,
             'user': {
@@ -73,8 +83,13 @@ def create_user(username, email, password):
 def verify_user(email, password):
     """Verify user credentials"""
     try:
+        # Normalize email to lowercase for consistent matching
+        email = email.lower().strip()
+        
         conn = sqlite3.connect(DATABASE_PATH)
         cursor = conn.cursor()
+        
+        print(f"🔍 Looking for user with email: {email}")
         
         cursor.execute(
             'SELECT id, username, email, password_hash FROM users WHERE email = ?',
@@ -84,7 +99,15 @@ def verify_user(email, password):
         user = cursor.fetchone()
         conn.close()
         
-        if user and check_password_hash(user[3], password):
+        if not user:
+            print(f"❌ User not found with email: {email}")
+            return {'success': False, 'error': 'No account found with this email. Please check your email or create a new account.'}
+        
+        print(f"✅ User found: {user[1]} (id: {user[0]})")
+        
+        # Verify password
+        if check_password_hash(user[3], password):
+            print(f"✅ Password verified for: {email}")
             return {
                 'success': True,
                 'user': {
@@ -95,9 +118,11 @@ def verify_user(email, password):
                 }
             }
         else:
-            return {'success': False, 'error': 'Invalid email or password'}
+            print(f"❌ Wrong password for: {email}")
+            return {'success': False, 'error': 'Incorrect password. Please try again.'}
     except Exception as e:
-        return {'success': False, 'error': str(e)}
+        print(f"❌ Error in verify_user: {str(e)}")
+        return {'success': False, 'error': f'Login error: {str(e)}'}
 
 def get_user_by_id(user_id):
     """Get user by ID"""
@@ -456,6 +481,61 @@ def delete_user_account(email, password):
         
     except Exception as e:
         print(f"❌ Error deleting account: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+def reset_password(email, new_password):
+    """Reset user password (called after email verification)"""
+    try:
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        # Check if user exists
+        cursor.execute('SELECT id FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+        
+        if not user:
+            conn.close()
+            return {"success": False, "error": "User not found"}
+        
+        # Hash new password and update
+        new_password_hash = generate_password_hash(new_password)
+        cursor.execute(
+            "UPDATE users SET password_hash = ? WHERE email = ?",
+            (new_password_hash, email)
+        )
+        
+        conn.commit()
+        conn.close()
+        
+        print(f"✅ Password reset for user: {email}")
+        return {"success": True, "message": "Password reset successfully"}
+        
+    except Exception as e:
+        print(f"❌ Error resetting password: {str(e)}")
+        return {"success": False, "error": str(e)}
+
+def check_email_exists(email):
+    """Check if an email exists in the database"""
+    try:
+        # Normalize email to lowercase for consistent matching
+        email = email.lower().strip()
+        
+        conn = sqlite3.connect(DATABASE_PATH)
+        cursor = conn.cursor()
+        
+        cursor.execute('SELECT username FROM users WHERE email = ?', (email,))
+        user = cursor.fetchone()
+        conn.close()
+        
+        if user:
+            print(f"✅ Email found: {email} (user: {user[0]})")
+            return {"success": True, "exists": True, "username": user[0]}
+        else:
+            print(f"❌ Email not found: {email}")
+            return {"success": True, "exists": False}
+            
+    except Exception as e:
+        print(f"❌ Error in check_email_exists: {str(e)}")
         return {"success": False, "error": str(e)}
 
 # Initialize database when module is imported
