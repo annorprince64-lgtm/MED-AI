@@ -28,7 +28,7 @@ class AIService:
     def __init__(self):
         """Initialize the AI service with Groq client and document processor"""
         self.api_key = os.getenv("GROQ_API_KEY")
-        self.model = "llama-3.3-70b-versatile"
+        self.model = "openai/gpt-oss-120b"
         
         # Initialize Groq client
         if not self.api_key:
